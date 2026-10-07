@@ -596,6 +596,13 @@ body.cookie-modal-open{overflow:hidden}.cookie-banner{position:fixed;z-index:160
   color:#33445f;
   font-weight:650
 }
+.csv-table-wrap{
+  scrollbar-color:#b9c3d2 transparent
+}
+.csv-table th,
+.csv-table td{
+  white-space:nowrap
+}
 .article-content .markdown-list{
   margin:14px 0 20px;
   padding-left:24px;

@@ -877,6 +877,84 @@ function renderTable(lines, startIndex, context) {
   };
 }
 
+function parseCsvRows(source = "") {
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let quoted = false;
+
+  for (let i = 0; i < source.length; i += 1) {
+    const char = source[i];
+
+    if (quoted) {
+      if (char === '"' && source[i + 1] === '"') {
+        cell += '"';
+        i += 1;
+        continue;
+      }
+      if (char === '"') {
+        quoted = false;
+        continue;
+      }
+      cell += char;
+      continue;
+    }
+
+    if (char === '"') {
+      quoted = true;
+      continue;
+    }
+
+    if (char === ",") {
+      row.push(cell);
+      cell = "";
+      continue;
+    }
+
+    if (char === "\n") {
+      row.push(cell);
+      rows.push(row);
+      row = [];
+      cell = "";
+      continue;
+    }
+
+    if (char !== "\r") cell += char;
+  }
+
+  row.push(cell);
+  rows.push(row);
+
+  while (rows.length && rows[rows.length - 1].every((value) => value === "")) {
+    rows.pop();
+  }
+
+  return rows;
+}
+
+function renderCsvTable(source = "") {
+  const rows = parseCsvRows(source);
+  if (!rows.length) return "";
+
+  const columnCount = Math.max(...rows.map((row) => row.length));
+  const normalized = rows.map((row) => {
+    const cells = [...row];
+    while (cells.length < columnCount) cells.push("");
+    return cells;
+  });
+
+  const headers = normalized[0];
+  const bodyRows = normalized.slice(1);
+  const head = headers
+    .map((cell) => `<th>${escapeHtml(cell.trim())}</th>`)
+    .join("");
+  const body = bodyRows
+    .map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell.trim())}</td>`).join("")}</tr>`)
+    .join("\n");
+
+  return `<div class="markdown-table-wrap csv-table-wrap"><table class="markdown-table csv-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
 function renderList(lines, startIndex, baseIndent, context) {
   const first = parseListLine(lines[startIndex]);
   const ordered = first.ordered;
@@ -1044,6 +1122,14 @@ function renderBlocks(lines, context) {
         index += 1;
       }
       if (index < lines.length) index += 1;
+
+      if (language === "csv") {
+        const csvHtml = renderCsvTable(codeLines.join("\n"));
+        if (csvHtml) {
+          out.push(csvHtml);
+          continue;
+        }
+      }
 
       const langClass = language ? ` class="language-${escapeAttr(language)}"` : "";
       const languageLabels = {
