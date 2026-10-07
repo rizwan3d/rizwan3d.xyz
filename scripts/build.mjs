@@ -1131,6 +1131,34 @@ function replaceSiteTokens(text) {
     .replaceAll("{{RESUME_URL}}", resumeUrl);
 }
 
+function escapeRegExp(value = "") {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function stripInternalHtmlExtensions(text = "") {
+  let output = String(text);
+  const sitePattern = escapeRegExp(siteUrl);
+
+  if (siteUrl) {
+    output = output.replace(
+      new RegExp(`${sitePattern}/([^\\s"'<>?#]+)\\.html`, "g"),
+      `${siteUrl}/$1`
+    );
+  }
+
+  if (basePath === "/") {
+    output = output.replace(/(["'(:]|^)(\/[A-Za-z0-9_./-]+)\.html/g, "$1$2");
+  } else {
+    const basePattern = escapeRegExp(basePath);
+    output = output.replace(
+      new RegExp(`(["'(:]|^)(${basePattern}[A-Za-z0-9_./-]+)\\.html`, "g"),
+      "$1$2"
+    );
+  }
+
+  return output;
+}
+
 
 const SUPPORTED_IMAGE_EXTENSIONS = new Set([".avif", ".gif", ".jpg", ".jpeg", ".png", ".svg", ".webp"]);
 
@@ -1714,7 +1742,7 @@ fallback.push({
 await writeFile(path.join(distDir, "search-fallback.json"), `${JSON.stringify(fallback)}\n`, "utf8");
 
 const files = await walk(distDir);
-const textExtensions = new Set([".html", ".css", ".js", ".json", ".xml", ".txt", ".webmanifest"]);
+const textExtensions = new Set([".html", ".css", ".js", ".json", ".md", ".xml", ".txt", ".webmanifest"]);
 
 for (const file of files) {
   if (!textExtensions.has(path.extname(file))) continue;
@@ -2036,6 +2064,13 @@ ${trainingRules}
 Sitemap: ${siteUrl}/sitemap.xml
 `;
 await writeFile(path.join(distDir, "robots.txt"), robots, "utf8");
+
+for (const file of await walk(distDir)) {
+  if (!textExtensions.has(path.extname(file))) continue;
+  const text = await readFile(file, "utf8");
+  const cleaned = stripInternalHtmlExtensions(text);
+  if (cleaned !== text) await writeFile(file, cleaned, "utf8");
+}
 
 if (siteUrl === "https://example.com") {
   console.warn("\n[rizwan3d] Edit config/site.json before production: siteUrl is still https://example.com\n");
