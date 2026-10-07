@@ -33,6 +33,10 @@ const allowAiTraining = seoConfig.allowAiTraining === true;
 const blogConfig = config.blog || {};
 const blogPageSize = Math.max(1, Number(blogConfig.pageSize || 8));
 const latestOnHome = Math.max(1, Number(blogConfig.latestOnHome || 4));
+const inArticleAdConfig = blogConfig.inArticleAd || {};
+const inArticleAdEnabled = inArticleAdConfig.enabled === true;
+const inArticleAdProvider = String(inArticleAdConfig.provider || "custom").trim().toLowerCase();
+const inArticleAdMinParagraphsBefore = Math.max(1, Number(inArticleAdConfig.minParagraphsBefore || 3));
 
 const linkPreviewConfig = config.linkPreviews || {};
 const linkPreviewsEnabled = linkPreviewConfig.enabled !== false;
@@ -1472,6 +1476,106 @@ function homePostHtml(post) {
   </article>`;
 }
 
+function inArticleAdHtml() {
+  if (!inArticleAdEnabled) return "";
+
+  const label = String(inArticleAdConfig.label || "Advertisement").trim();
+  const adsense = inArticleAdConfig.adsense || {};
+
+  if (inArticleAdProvider === "adsense") {
+    const showDummy = adsense.showDummy === true;
+    const client = String(adsense.client || "").trim();
+    const slot = String(adsense.slot || "").trim();
+
+    if (showDummy && (!client || !slot)) {
+      return `<aside class="in-article-adsense" aria-label="${escapeAttr(label)}" data-pagefind-ignore>
+    <p><strong>${escapeHtml(label)}</strong></p>
+    <div class="dummy-adsense-slot">
+      <p><strong>Google AdSense preview</strong></p>
+      <p>Dummy ad shown because adsense.showDummy is true.</p>
+    </div>
+  </aside>`;
+    }
+
+    if (!client || !slot) return "";
+
+    const format = String(adsense.format || "auto").trim();
+    const responsive = adsense.fullWidthResponsive !== false ? "true" : "false";
+
+    return `<aside class="in-article-adsense" aria-label="${escapeAttr(label)}" data-pagefind-ignore>
+    <p><strong>${escapeHtml(label)}</strong></p>
+    <ins class="adsbygoogle"
+      style="display:block"
+      data-ad-client="${escapeAttr(client)}"
+      data-ad-slot="${escapeAttr(slot)}"
+      data-ad-format="${escapeAttr(format)}"
+      data-full-width-responsive="${escapeAttr(responsive)}"></ins>
+    <script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>
+  </aside>`;
+  }
+
+  const custom = inArticleAdConfig.custom || inArticleAdConfig;
+  const title = String(custom.title || "Sponsored").trim();
+  const text = String(custom.text || "").trim();
+  const cta = String(custom.cta || "Learn more").trim();
+  const rawUrl = String(custom.url || "").trim();
+
+  if (!title && !text && !rawUrl) return "";
+
+  let href = "";
+  if (rawUrl) {
+    try {
+      href = new URL(rawUrl, siteUrl || "https://example.com").href;
+    } catch {
+      href = "";
+    }
+  }
+
+  const ctaHtml = href
+    ? `<a class="in-article-ad-link" href="${escapeAttr(href)}"${href.startsWith(siteUrl) ? "" : ' target="_blank" rel="noopener noreferrer"'}>${escapeHtml(cta)}</a>`
+    : "";
+  const textHtml = text ? `<p>${escapeHtml(text)}</p>` : "";
+
+  return `<aside class="in-article-ad" aria-label="${escapeAttr(label)}" data-pagefind-ignore>
+    <strong class="in-article-ad-label">${escapeHtml(label)}</strong>
+    ${title ? `<strong class="in-article-ad-title">${escapeHtml(title)}</strong>` : ""}
+    ${textHtml}
+    ${ctaHtml}
+  </aside>`;
+}
+
+function adsenseScriptHtml() {
+  if (!inArticleAdEnabled || inArticleAdProvider !== "adsense") return "";
+
+  const showDummy = inArticleAdConfig.adsense?.showDummy === true;
+  const client = String(inArticleAdConfig.adsense?.client || "").trim();
+  const slot = String(inArticleAdConfig.adsense?.slot || "").trim();
+  if (showDummy && (!client || !slot)) return "";
+  if (!client || !slot) return "";
+
+  const src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(client)}`;
+  return `<script async src="${escapeAttr(src)}" crossorigin="anonymous"></script>`;
+}
+
+function insertInArticleAd(bodyHtml, adHtml) {
+  if (!adHtml) return bodyHtml;
+
+  const paragraphPattern = /<p\b[\s\S]*?<\/p>/gi;
+  const paragraphs = String(bodyHtml).match(paragraphPattern);
+  if (!paragraphs || paragraphs.length < 3) return `${bodyHtml}\n${adHtml}`;
+
+  const insertAfter = Math.min(
+    paragraphs.length - 1,
+    Math.max(inArticleAdMinParagraphsBefore, Math.floor(paragraphs.length / 2))
+  );
+
+  let seen = 0;
+  return String(bodyHtml).replace(paragraphPattern, (block) => {
+    seen += 1;
+    return seen === insertAfter ? `${block}\n${adHtml}` : block;
+  });
+}
+
 const writingPosts = await loadWritingPosts();
 await prepareUrlPreviews(writingPosts);
 for (const post of writingPosts) {
@@ -1484,6 +1588,7 @@ await mkdir(generatedPostsDir, { recursive: true });
 for (const post of writingPosts) {
   post.image = await resolveFeaturedImage(post);
   const bodyHtml = markdownToHtml(post.publicBodyMarkdown || post.bodyMarkdown);
+  const bodyHtmlWithAd = insertInArticleAd(bodyHtml, inArticleAdHtml());
   const updatedMeta = post.updatedAt !== post.createdAt
     ? `<span class="article-updated">Updated <time datetime="${escapeAttr(post.updatedAt)}">${escapeHtml(formatDate(post.updatedAt))}</time></span>`
     : "";
@@ -1522,8 +1627,9 @@ for (const post of writingPosts) {
         (post.image.alt ? `\n  <meta name="twitter:image:alt" content="${escapeAttr(post.image.alt)}">` : "")
       : "")
     .replaceAll("{{POST_JSON_LD}}", postJsonLd(post))
+    .replaceAll("{{POST_ADSENSE_SCRIPT}}", adsenseScriptHtml())
     .replaceAll("{{POST_FEATURED_IMAGE}}", featuredImageHtml(post.image))
-    .replaceAll("{{POST_BODY}}", bodyHtml)
+    .replaceAll("{{POST_BODY_WITH_AD}}", bodyHtmlWithAd)
     .replaceAll("{{POST_PROJECT_SOURCE}}", sourceHtml)
     .replaceAll("{{POST_CANONICAL}}", post.canonicalUrl || `${siteUrl}/posts/${post.slug}.html`);
 
