@@ -96,6 +96,57 @@
 
   Prism.languages.assembly = Prism.languages.asm;
 
+  Prism.languages.css = {
+    comment: {
+      pattern: /\/\*[\s\S]*?\*\//,
+      greedy: true
+    },
+    atrule: {
+      pattern: /@[\w-]+(?:\s+[^;{]+)?(?=\s*[;{])/,
+      inside: {
+        rule: /^@[\w-]+/,
+        keyword: /\b(?:all|and|not|only|or)\b/,
+        punctuation: /[:(),]/
+      }
+    },
+    url: {
+      pattern: /\burl\((?:"[^"]*"|'[^']*'|[^)]*)\)/i,
+      greedy: true,
+      inside: {
+        function: /^url/i,
+        punctuation: /[()]/
+      }
+    },
+    selector: {
+      pattern: /[^{}\s][^{}]*(?=\s*\{)/,
+      inside: {
+        class: /\.[A-Za-z_][\w-]*/,
+        id: /#[A-Za-z_][\w-]*/,
+        pseudo: /::?[A-Za-z-]+(?:\([^)]*\))?/,
+        attribute: /\[[^\]]+\]/,
+        operator: /[>+~|^$*]?=/,
+        punctuation: /[.,:[\]()#]/
+      }
+    },
+    property: {
+      pattern: /(^|[{\s;])(?:--[\w-]+|[A-Za-z-]+)(?=\s*:)/,
+      lookbehind: true
+    },
+    string: {
+      pattern: /"(?:\\.|[^"\\\r\n])*"|'(?:\\.|[^'\\\r\n])*'/,
+      greedy: true
+    },
+    important: /!important\b/i,
+    function: /[-a-z0-9]+(?=\()/i,
+    number: /(?:\b|\B-?)(?:\d+(?:\.\d+)?|\.\d+)(?:%|[a-z]+)?\b/i,
+    boolean: /\b(?:true|false)\b/,
+    operator: /[+\-*\/%=<>]/,
+    punctuation: /[{}();:,]/
+  };
+
+  Prism.languages.scss = Prism.languages.css;
+  Prism.languages.sass = Prism.languages.css;
+
   if (Prism.languages.javascript) {
     Prism.languages.typescript = Prism.languages.extend("javascript", {
       keyword: /\b(?:abstract|any|as|asserts|bigint|boolean|break|case|catch|class|const|constructor|continue|debugger|declare|default|delete|do|else|enum|export|extends|false|finally|for|from|function|get|if|implements|import|in|infer|instanceof|interface|is|keyof|let|module|namespace|never|new|null|number|object|of|override|package|private|protected|public|readonly|require|return|set|static|string|super|switch|symbol|this|throw|true|try|type|typeof|undefined|unique|unknown|var|void|while|with|yield)\b/

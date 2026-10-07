@@ -1030,9 +1030,12 @@ function renderBlocks(lines, context) {
         "ts": "typescript",
         "py": "python",
         "sh": "bash",
-        "shell": "bash"
+        "shell": "bash",
+        "scss": "css",
+        "sass": "css"
       };
       const language = languageAliases[rawLanguage] || rawLanguage;
+      const displayLanguage = rawLanguage || language;
       const codeLines = [];
       index += 1;
 
@@ -1058,12 +1061,14 @@ function renderBlocks(lines, context) {
         json: "JSON",
         html: "HTML",
         css: "CSS",
+        scss: "SCSS",
+        sass: "Sass",
         php: "PHP",
         python: "Python",
         py: "Python",
         text: "Text"
       };
-      const label = escapeHtml(languageLabels[language] || language || "Code");
+      const label = escapeHtml(languageLabels[displayLanguage] || languageLabels[language] || displayLanguage || "Code");
       const codeId = `code-block-${++codeBlockIndex}`;
       const lineNumbers = codeLines.map((_, i) => `<span>${i + 1}</span>`).join("");
 
