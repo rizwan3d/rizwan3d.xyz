@@ -292,6 +292,67 @@ function safePreviewImage(value = "", baseUrl = siteUrl) {
   }
 }
 
+function youtubeVideoId(url = "") {
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.toLowerCase().replace(/^www\./, "");
+
+    if (host === "youtu.be") {
+      const id = parsed.pathname.split("/").filter(Boolean)[0] || "";
+      return /^[A-Za-z0-9_-]{11}$/.test(id) ? id : "";
+    }
+
+    if (host !== "youtube.com" && host !== "m.youtube.com" && host !== "music.youtube.com") {
+      return "";
+    }
+
+    const pathParts = parsed.pathname.split("/").filter(Boolean);
+    const candidate =
+      parsed.searchParams.get("v") ||
+      (["embed", "shorts", "live"].includes(pathParts[0]) ? pathParts[1] : "");
+
+    return /^[A-Za-z0-9_-]{11}$/.test(candidate || "") ? candidate : "";
+  } catch {
+    return "";
+  }
+}
+
+function youtubeEmbedUrl(url = "") {
+  const id = youtubeVideoId(url);
+  if (!id) return "";
+
+  const parsed = new URL(url);
+  const embed = new URL(`https://www.youtube-nocookie.com/embed/${id}`);
+  const start = parsed.searchParams.get("start") || parsed.searchParams.get("t");
+  const playlist = parsed.searchParams.get("list");
+
+  if (start) {
+    const seconds = youtubeStartSeconds(start);
+    if (seconds > 0) embed.searchParams.set("start", String(seconds));
+  }
+
+  if (playlist && /^[A-Za-z0-9_-]+$/.test(playlist)) {
+    embed.searchParams.set("list", playlist);
+  }
+
+  return embed.href;
+}
+
+function youtubeStartSeconds(value = "") {
+  const raw = String(value).trim();
+  if (!raw) return 0;
+  if (/^\d+$/.test(raw)) return Number(raw);
+
+  const match = raw.match(/^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?$/i);
+  if (!match) return 0;
+
+  return (
+    Number(match[1] || 0) * 3600 +
+    Number(match[2] || 0) * 60 +
+    Number(match[3] || 0)
+  );
+}
+
 function decodeHtmlEntities(value = "") {
   const named = {
     amp: "&",
@@ -602,6 +663,20 @@ function parseUrlPreviewBlock(lines, startIndex) {
     data.title || data.description || data.site || data.image
   );
 
+  const youtubeEmbed = youtubeEmbedUrl(block.url);
+  if (youtubeEmbed) {
+    return {
+      endIndex: block.endIndex,
+      html: youtubePreviewHtml({
+        url: block.url,
+        embedUrl: youtubeEmbed,
+        title: title || "YouTube video",
+        description,
+        site: site || "YouTube"
+      })
+    };
+  }
+
   if (!fetched?.ok && !hasManualMetadata) {
     return {
       endIndex: block.endIndex,
@@ -643,6 +718,24 @@ function urlPreviewHtml(preview) {
       <span class="url-preview-host">${escapeHtml(new URL(preview.url).hostname.replace(/^www\./, ""))} ↗</span>
     </div>
   </a>`;
+}
+
+function youtubePreviewHtml(preview) {
+  const descriptionHtml = preview.description
+    ? `<p>${escapeHtml(preview.description)}</p>`
+    : "";
+
+  return `<figure class="youtube-preview-card">
+    <div class="youtube-preview-frame">
+      <iframe src="${escapeAttr(preview.embedUrl)}" title="${escapeAttr(preview.title)}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    </div>
+    <figcaption class="youtube-preview-copy">
+      <span class="url-preview-site">${escapeHtml(preview.site)}</span>
+      <a class="youtube-preview-title" href="${escapeAttr(preview.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(preview.title)}</a>
+      ${descriptionHtml}
+      <span class="url-preview-host">youtube.com ↗</span>
+    </figcaption>
+  </figure>`;
 }
 
 function countIndent(line = "") {

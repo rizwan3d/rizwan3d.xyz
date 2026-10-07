@@ -439,6 +439,51 @@ body.cookie-modal-open{overflow:hidden}.cookie-banner{position:fixed;z-index:160
 .url-preview-fallback .inline-link{
   color:#526f9e
 }
+.youtube-preview-card{
+  margin:26px 0;
+  overflow:hidden;
+  border:1px solid #dfe4ec;
+  border-radius:9px;
+  background:#fff;
+  box-shadow:0 3px 10px rgba(23,34,52,.045)
+}
+.youtube-preview-frame{
+  position:relative;
+  aspect-ratio:16/9;
+  background:#111318
+}
+.youtube-preview-frame iframe{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:0
+}
+.youtube-preview-copy{
+  padding:18px 20px 20px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  background:#fff
+}
+.youtube-preview-title{
+  color:#12151a;
+  font-size:18px;
+  font-weight:650;
+  line-height:1.35;
+  letter-spacing:-.3px;
+  overflow-wrap:anywhere
+}
+.youtube-preview-title:hover{
+  color:#4e6383
+}
+.youtube-preview-copy p{
+  max-width:720px;
+  margin:8px 0 0;
+  color:#7284a1;
+  font-size:13px;
+  line-height:1.55
+}
 @media(max-width:720px){
   .url-preview-card{
     grid-template-columns:1fr;
@@ -461,6 +506,12 @@ body.cookie-modal-open{overflow:hidden}.cookie-banner{position:fixed;z-index:160
   }
   .url-preview-title{
     font-size:18px
+  }
+  .youtube-preview-copy{
+    padding:16px
+  }
+  .youtube-preview-title{
+    font-size:17px
   }
 }
 
