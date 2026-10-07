@@ -23,10 +23,21 @@ const githubUrl = String(config.githubUrl || "https://github.com/");
 const mediumUrl = String(config.mediumUrl || "https://medium.com/");
 const hackerNoonUrl = String(config.hackerNoonUrl || "https://hackernoon.com/");
 const resumeUrl = String(config.resumeUrl || siteUrl);
+const seoConfig = config.seo || {};
+const siteLanguage = String(seoConfig.language || "en-US");
+const googleSiteVerification = String(seoConfig.googleSiteVerification || "").trim();
+const bingSiteVerification = String(seoConfig.bingSiteVerification || "").trim();
+const allowAiSearch = seoConfig.allowAiSearch !== false;
+const allowAiTraining = seoConfig.allowAiTraining === true;
 
 const blogConfig = config.blog || {};
 const blogPageSize = Math.max(1, Number(blogConfig.pageSize || 8));
 const latestOnHome = Math.max(1, Number(blogConfig.latestOnHome || 4));
+
+const linkPreviewConfig = config.linkPreviews || {};
+const linkPreviewsEnabled = linkPreviewConfig.enabled !== false;
+const linkPreviewTimeoutMs = Math.max(1000, Number(linkPreviewConfig.timeoutMs || 8000));
+const linkPreviewMaxBytes = Math.max(65536, Number(linkPreviewConfig.maxBytes || 1500000));
 
 await rm(distDir, { recursive: true, force: true });
 await mkdir(distDir, { recursive: true });
@@ -113,146 +124,973 @@ function slugify(value = "") {
     .replace(/^-+|-+$/g, "");
 }
 
-function inlineMarkdown(value = "") {
-  const codeSpans = [];
-  let text = String(value).replace(/`([^`]+)`/g, (_, code) => {
-    const token = `@@INLINE_CODE_${codeSpans.length}@@`;
-    codeSpans.push(`<code>${escapeHtml(code)}</code>`);
-    return token;
+function safeMarkdownHref(value = "") {
+  const raw = String(value || "").trim();
+  if (/^(https?:\/\/|mailto:|\/|#)/i.test(raw)) return raw;
+  return "#";
+}
+
+function safeMarkdownImageSrc(value = "") {
+  const raw = String(value || "").trim();
+  if (/^https:\/\//i.test(raw) || raw.startsWith("/")) return raw;
+  return "";
+}
+
+function inlineMarkdown(value = "", context = {}) {
+  const placeholders = [];
+  const token = (html) => {
+    const index = placeholders.push(html) - 1;
+    return `\uE100${index}\uE101`;
+  };
+
+  let text = String(value || "");
+
+  // Inline code first so Markdown punctuation inside code is never re-parsed.
+  text = text.replace(/`([^`\n]+)`/g, (_, code) =>
+    token(`<code>${escapeHtml(code)}</code>`)
+  );
+
+  // Standard Markdown images.
+  text = text.replace(
+    /!\[([^\]]*)\]\(([^)\s]+)(?:\s+["']([^"']*)["'])?\)/g,
+    (_, alt, src, title) => {
+      const safeSrc = safeMarkdownImageSrc(src);
+      if (!safeSrc) return escapeHtml(_);
+      const titleAttr = title ? ` title="${escapeAttr(title)}"` : "";
+      return token(
+        `<img class="markdown-image" src="${escapeAttr(safeSrc)}" alt="${escapeAttr(alt)}"${titleAttr} loading="lazy" decoding="async">`
+      );
+    }
+  );
+
+  // Standard Markdown links.
+  text = text.replace(
+    /\[([^\]]+)\]\(([^)\s]+)(?:\s+["']([^"']*)["'])?\)/g,
+    (_, label, href, title) => {
+      const safeHref = safeMarkdownHref(href);
+      const external = /^https?:\/\//i.test(safeHref);
+      const attrs = external ? ' target="_blank" rel="noopener noreferrer"' : "";
+      const titleAttr = title ? ` title="${escapeAttr(title)}"` : "";
+      const labelHtml = escapeHtml(label)
+        .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+        .replace(/~~([^~]+)~~/g, "<del>$1</del>");
+      return token(
+        `<a class="inline-link" href="${escapeAttr(safeHref)}"${titleAttr}${attrs}>${labelHtml}</a>`
+      );
+    }
+  );
+
+  // Footnote references.
+  text = text.replace(/\[\^([^\]]+)\]/g, (_, rawId) => {
+    if (!context.footnotes?.has(rawId)) return escapeHtml(_);
+
+    if (!context.footnoteNumbers.has(rawId)) {
+      context.footnoteNumbers.set(rawId, context.footnoteOrder.length + 1);
+      context.footnoteOrder.push(rawId);
+    }
+
+    const number = context.footnoteNumbers.get(rawId);
+    const count = (context.footnoteRefCounts.get(rawId) || 0) + 1;
+    context.footnoteRefCounts.set(rawId, count);
+
+    const id = slugify(rawId) || `note-${number}`;
+    return token(
+      `<sup class="footnote-ref" id="fnref-${id}-${count}"><a href="#fn-${id}" aria-label="Footnote ${number}">${number}</a></sup>`
+    );
   });
+
+  // Bare URLs become links only when they are not already inside Markdown links/images/code.
+  text = text.replace(
+    /(^|[\s(])((?:https?:\/\/)[^\s<]+)/g,
+    (_, prefix, rawUrl) => {
+      let url = rawUrl;
+      let suffix = "";
+
+      while (/[.,!?;:]$/.test(url)) {
+        suffix = url.slice(-1) + suffix;
+        url = url.slice(0, -1);
+      }
+
+      // Avoid swallowing a prose closing parenthesis.
+      const opens = (url.match(/\(/g) || []).length;
+      const closes = (url.match(/\)/g) || []).length;
+      if (closes > opens && url.endsWith(")")) {
+        suffix = ")" + suffix;
+        url = url.slice(0, -1);
+      }
+
+      const href = safeMarkdownHref(url);
+      if (href === "#") return `${prefix}${rawUrl}`;
+
+      return `${prefix}${token(
+        `<a class="inline-link auto-link" href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(url)}</a>`
+      )}${suffix}`;
+    }
+  );
 
   text = escapeHtml(text);
 
-  text = text.replace(/\[([^\]]+)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/g, (_, label, href, title) => {
-    const safeHref = /^(https?:\/\/|mailto:|\/|#)/i.test(href) ? href : "#";
-    const external = /^https?:\/\//i.test(safeHref);
-    const attrs = external ? ' target="_blank" rel="noopener noreferrer"' : "";
-    const titleAttr = title ? ` title="${escapeAttr(title)}"` : "";
-    return `<a class="inline-link" href="${escapeAttr(safeHref)}"${titleAttr}${attrs}>${label}</a>`;
-  });
-
   text = text
+    .replace(/~~([^~\n]+)~~/g, "<del>$1</del>")
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
     .replace(/__([^_]+)__/g, "<strong>$1</strong>")
     .replace(/(^|[^\*])\*([^*\n]+)\*/g, "$1<em>$2</em>")
     .replace(/(^|[^_])_([^_\n]+)_/g, "$1<em>$2</em>");
 
-  codeSpans.forEach((html, index) => {
-    text = text.replace(`@@INLINE_CODE_${index}@@`, html);
+  placeholders.forEach((html, index) => {
+    text = text.replace(`\uE100${index}\uE101`, html);
   });
 
   return text;
 }
 
-function markdownToHtml(markdown) {
+function safePreviewUrl(value = "") {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+
+  try {
+    const parsed = new URL(raw, siteUrl);
+    if (parsed.protocol !== "https:") return "";
+
+    const host = parsed.hostname.toLowerCase();
+    if (
+      host === "localhost" ||
+      host.endsWith(".localhost") ||
+      host.endsWith(".local") ||
+      host.endsWith(".internal") ||
+      /^127\./.test(host) ||
+      /^10\./.test(host) ||
+      /^192\.168\./.test(host) ||
+      /^169\.254\./.test(host) ||
+      /^172\.(?:1[6-9]|2\d|3[01])\./.test(host) ||
+      host === "::1" ||
+      /^f[cd][0-9a-f]{2}:/i.test(host) ||
+      /^fe8[0-9a-f]:/i.test(host)
+    ) {
+      return "";
+    }
+
+    return parsed.href;
+  } catch {
+    return "";
+  }
+}
+
+function safePreviewImage(value = "", baseUrl = siteUrl) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+
+  try {
+    const resolved = new URL(raw, baseUrl);
+    return resolved.protocol === "https:" ? resolved.href : "";
+  } catch {
+    return "";
+  }
+}
+
+function decodeHtmlEntities(value = "") {
+  const named = {
+    amp: "&",
+    lt: "<",
+    gt: ">",
+    quot: '"',
+    apos: "'",
+    nbsp: " "
+  };
+
+  return String(value).replace(
+    /&(#x?[0-9a-f]+|[a-z]+);/gi,
+    (_, entity) => {
+      if (entity[0] === "#") {
+        const hex = entity[1]?.toLowerCase() === "x";
+        const number = parseInt(entity.slice(hex ? 2 : 1), hex ? 16 : 10);
+        return Number.isFinite(number) ? String.fromCodePoint(number) : _;
+      }
+      return named[entity.toLowerCase()] ?? _;
+    }
+  );
+}
+
+function stripPreviewHtml(value = "") {
+  return decodeHtmlEntities(
+    String(value)
+      .replace(/<script\b[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style\b[\s\S]*?<\/style>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+  ).replace(/\s+/g, " ").trim();
+}
+
+function parseTagAttributes(tag = "") {
+  const attrs = {};
+  const pattern = /([:\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g;
+  let match;
+
+  while ((match = pattern.exec(tag))) {
+    attrs[match[1].toLowerCase()] = decodeHtmlEntities(
+      match[2] ?? match[3] ?? match[4] ?? ""
+    );
+  }
+
+  return attrs;
+}
+
+function extractPageMetadata(html, pageUrl) {
+  const meta = new Map();
+
+  for (const match of String(html).matchAll(/<meta\b[^>]*>/gi)) {
+    const attrs = parseTagAttributes(match[0]);
+    const key = String(attrs.property || attrs.name || "").toLowerCase();
+    const content = String(attrs.content || "").trim();
+    if (key && content && !meta.has(key)) meta.set(key, content);
+  }
+
+  const titleMatch = String(html).match(/<title\b[^>]*>([\s\S]*?)<\/title>/i);
+  const htmlTitle = titleMatch ? stripPreviewHtml(titleMatch[1]) : "";
+
+  const title = String(
+    meta.get("og:title") ||
+    meta.get("twitter:title") ||
+    htmlTitle ||
+    ""
+  ).trim();
+
+  const description = stripPreviewHtml(
+    meta.get("og:description") ||
+    meta.get("twitter:description") ||
+    meta.get("description") ||
+    ""
+  );
+
+  const rawImage =
+    meta.get("og:image:secure_url") ||
+    meta.get("og:image") ||
+    meta.get("twitter:image") ||
+    meta.get("twitter:image:src") ||
+    "";
+
+  const image = safePreviewImage(rawImage, pageUrl);
+  const imageAlt = String(
+    meta.get("og:image:alt") ||
+    meta.get("twitter:image:alt") ||
+    title ||
+    ""
+  ).trim();
+
+  const site = String(
+    meta.get("og:site_name") ||
+    new URL(pageUrl).hostname.replace(/^www\./, "")
+  ).trim();
+
+  return {
+    title,
+    description,
+    site,
+    image,
+    imageAlt
+  };
+}
+
+async function readResponseTextLimited(response, maxBytes) {
+  if (!response.body?.getReader) {
+    const text = await response.text();
+    return text.slice(0, maxBytes);
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let total = 0;
+  let text = "";
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+
+    total += value.byteLength;
+    if (total > maxBytes) {
+      const keep = Math.max(0, value.byteLength - (total - maxBytes));
+      if (keep > 0) text += decoder.decode(value.slice(0, keep), { stream: true });
+      await reader.cancel();
+      break;
+    }
+
+    text += decoder.decode(value, { stream: true });
+  }
+
+  text += decoder.decode();
+  return text;
+}
+
+const urlPreviewCache = new Map();
+
+async function fetchUrlPreviewMetadata(url) {
+  if (!linkPreviewsEnabled) {
+    return { ok: false, url, reason: "disabled" };
+  }
+
+  if (urlPreviewCache.has(url)) return urlPreviewCache.get(url);
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), linkPreviewTimeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      redirect: "follow",
+      signal: controller.signal,
+      headers: {
+        "User-Agent": `Rizwan3dLinkPreview/1.0 (+${siteUrl})`,
+        "Accept": "text/html,application/xhtml+xml;q=0.9,*/*;q=0.1"
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const contentType = String(response.headers.get("content-type") || "").toLowerCase();
+    if (!contentType.includes("text/html") && !contentType.includes("application/xhtml+xml")) {
+      throw new Error(`unsupported content type: ${contentType || "unknown"}`);
+    }
+
+    const declaredLength = Number(response.headers.get("content-length") || 0);
+    if (declaredLength > linkPreviewMaxBytes) {
+      throw new Error(`page is larger than ${linkPreviewMaxBytes} bytes`);
+    }
+
+    const finalUrl = safePreviewUrl(response.url || url);
+    if (!finalUrl) throw new Error("redirected to a disallowed URL");
+
+    const html = await readResponseTextLimited(response, linkPreviewMaxBytes);
+    const metadata = extractPageMetadata(html, finalUrl);
+
+    if (!metadata.title && !metadata.description && !metadata.image) {
+      throw new Error("no useful preview metadata found");
+    }
+
+    const result = {
+      ok: true,
+      url,
+      finalUrl,
+      ...metadata
+    };
+    urlPreviewCache.set(url, result);
+    return result;
+  } catch (error) {
+    const result = {
+      ok: false,
+      url,
+      reason: error?.name === "AbortError" ? "timeout" : String(error?.message || error)
+    };
+    urlPreviewCache.set(url, result);
+    return result;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function parseUrlPreviewData(lines, startIndex) {
+  const data = {};
+  let explicitUrl = "";
+  let index = startIndex + 1;
+
+  for (; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (line.trim() === ":::") break;
+
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+
+    // HackerNoon-like shorthand:
+    // :::url-preview
+    // https://example.com/page
+    // :::
+    if (/^https:\/\//i.test(trimmed)) {
+      if (explicitUrl || data.url) {
+        throw new Error("url-preview may contain only one URL");
+      }
+      explicitUrl = trimmed;
+      continue;
+    }
+
+    const match = line.match(/^([A-Za-z][A-Za-z0-9_-]*):\s*(.*)$/);
+    if (!match) {
+      throw new Error(`Invalid url-preview line: ${line}`);
+    }
+
+    const key = match[1];
+    let value = match[2].trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    data[key] = value;
+  }
+
+  if (index >= lines.length) {
+    throw new Error("url-preview block is missing its closing :::");
+  }
+
+  const url = safePreviewUrl(data.url || explicitUrl);
+  if (!url) {
+    throw new Error("url-preview requires one explicit public HTTPS URL");
+  }
+
+  return { data, url, endIndex: index };
+}
+
+function collectUrlPreviewUrls(markdown) {
   const lines = String(markdown).replace(/\r\n?/g, "\n").split("\n");
-  const out = [];
-  let paragraph = [];
-  let list = null;
-
-  const flushParagraph = () => {
-    if (!paragraph.length) return;
-    out.push(`<p>${inlineMarkdown(paragraph.join(" "))}</p>`);
-    paragraph = [];
-  };
-
-  const closeList = () => {
-    if (!list) return;
-    out.push(`</${list}>`);
-    list = null;
-  };
+  const urls = [];
 
   for (let i = 0; i < lines.length; i += 1) {
-    const line = lines[i];
+    if (lines[i].trim() !== ":::url-preview") continue;
+    const block = parseUrlPreviewData(lines, i);
+    urls.push(block.url);
+    i = block.endIndex;
+  }
 
-    if (/^```/.test(line)) {
-      flushParagraph();
-      closeList();
+  return urls;
+}
 
-      const language = line.slice(3).trim().toLowerCase();
-      const codeLines = [];
-      i += 1;
-      while (i < lines.length && !/^```/.test(lines[i])) {
-        codeLines.push(lines[i]);
-        i += 1;
+async function prepareUrlPreviews(posts) {
+  const urls = [...new Set(posts.flatMap((post) => collectUrlPreviewUrls(post.bodyMarkdown)))];
+
+  for (const url of urls) {
+    const result = await fetchUrlPreviewMetadata(url);
+    if (result.ok) {
+      console.log(`[rizwan3d] Link preview: ${new URL(url).hostname}`);
+    } else {
+      console.warn(`[rizwan3d] Link preview unavailable for ${url}; rendering a normal link. ${result.reason}`);
+    }
+  }
+}
+
+function normalPreviewFallback(url) {
+  return `<p class="url-preview-fallback"><a class="inline-link" href="${escapeAttr(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(url)}</a></p>`;
+}
+
+function parseUrlPreviewBlock(lines, startIndex) {
+  const block = parseUrlPreviewData(lines, startIndex);
+  const fetched = urlPreviewCache.get(block.url);
+  const data = block.data;
+
+  // Explicit fields override fetched metadata, if supplied.
+  const title = String(data.title || fetched?.title || "").trim();
+  const description = String(data.description || fetched?.description || "").trim();
+  const site = String(
+    data.site ||
+    fetched?.site ||
+    new URL(block.url).hostname.replace(/^www\./, "")
+  ).trim();
+  const image = safePreviewImage(
+    data.image || fetched?.image || "",
+    fetched?.finalUrl || block.url
+  );
+  const imageAlt = String(
+    data.imageAlt ||
+    fetched?.imageAlt ||
+    title ||
+    ""
+  ).trim();
+
+  const hasManualMetadata = Boolean(
+    data.title || data.description || data.site || data.image
+  );
+
+  if (!fetched?.ok && !hasManualMetadata) {
+    return {
+      endIndex: block.endIndex,
+      html: normalPreviewFallback(block.url)
+    };
+  }
+
+  return {
+    endIndex: block.endIndex,
+    html: urlPreviewHtml({
+      url: block.url,
+      title: title || block.url,
+      description,
+      site,
+      image,
+      imageAlt
+    })
+  };
+}
+
+function urlPreviewHtml(preview) {
+  const imageHtml = preview.image
+    ? `<div class="url-preview-visual"><img src="${escapeAttr(preview.image)}" alt="${escapeAttr(preview.imageAlt)}" loading="lazy" decoding="async"></div>`
+    : `<div class="url-preview-visual url-preview-visual-fallback" aria-hidden="true">
+         <span class="url-preview-domain">${escapeHtml(preview.site)}</span>
+         <strong>${escapeHtml(preview.title)}</strong>
+       </div>`;
+
+  const descriptionHtml = preview.description
+    ? `<p>${escapeHtml(preview.description)}</p>`
+    : "";
+
+  return `<a class="url-preview-card" href="${escapeAttr(preview.url)}" target="_blank" rel="noopener noreferrer">
+    ${imageHtml}
+    <div class="url-preview-copy">
+      <span class="url-preview-site">${escapeHtml(preview.site)}</span>
+      <strong class="url-preview-title">${escapeHtml(preview.title)}</strong>
+      ${descriptionHtml}
+      <span class="url-preview-host">${escapeHtml(new URL(preview.url).hostname.replace(/^www\./, ""))} ↗</span>
+    </div>
+  </a>`;
+}
+
+function countIndent(line = "") {
+  let count = 0;
+  for (const char of String(line)) {
+    if (char === " ") count += 1;
+    else if (char === "\t") count += 4;
+    else break;
+  }
+  return count;
+}
+
+function parseListLine(line = "") {
+  const match = String(line).match(/^(\s*)([-+*]|\d+\.)\s+(.+)$/);
+  if (!match) return null;
+  return {
+    indent: countIndent(match[1]),
+    ordered: /\d+\./.test(match[2]),
+    marker: match[2],
+    content: match[3]
+  };
+}
+
+function splitTableRow(line = "") {
+  let value = String(line).trim();
+  if (value.startsWith("|")) value = value.slice(1);
+  if (value.endsWith("|")) value = value.slice(0, -1);
+
+  const cells = [];
+  let current = "";
+  let escaped = false;
+
+  for (const char of value) {
+    if (escaped) {
+      current += char;
+      escaped = false;
+      continue;
+    }
+    if (char === "\\") {
+      escaped = true;
+      current += char;
+      continue;
+    }
+    if (char === "|") {
+      cells.push(current.trim().replace(/\\\|/g, "|"));
+      current = "";
+      continue;
+    }
+    current += char;
+  }
+  cells.push(current.trim().replace(/\\\|/g, "|"));
+  return cells;
+}
+
+function isTableSeparator(line = "") {
+  const cells = splitTableRow(line);
+  return cells.length > 0 && cells.every((cell) => /^:?-{3,}:?$/.test(cell.trim()));
+}
+
+function tableAlignment(cell = "") {
+  const value = cell.trim();
+  if (value.startsWith(":") && value.endsWith(":")) return "center";
+  if (value.endsWith(":")) return "right";
+  if (value.startsWith(":")) return "left";
+  return "";
+}
+
+function extractFootnotes(lines) {
+  const footnotes = new Map();
+  const clean = [];
+
+  for (let i = 0; i < lines.length; i += 1) {
+    const match = lines[i].match(/^\[\^([^\]]+)\]:\s*(.*)$/);
+    if (!match) {
+      clean.push(lines[i]);
+      continue;
+    }
+
+    const id = match[1];
+    const content = [match[2]];
+    let j = i + 1;
+
+    while (j < lines.length) {
+      if (/^(?: {2,}|\t)/.test(lines[j])) {
+        content.push(lines[j].replace(/^(?: {2,}|\t)/, ""));
+        j += 1;
+        continue;
       }
 
+      if (!lines[j].trim() && j + 1 < lines.length && /^(?: {2,}|\t)/.test(lines[j + 1])) {
+        content.push("");
+        j += 1;
+        continue;
+      }
+
+      break;
+    }
+
+    footnotes.set(id, content.join(" ").replace(/\s+/g, " ").trim());
+    i = j - 1;
+  }
+
+  return { lines: clean, footnotes };
+}
+
+function renderTable(lines, startIndex, context) {
+  const headers = splitTableRow(lines[startIndex]);
+  const separators = splitTableRow(lines[startIndex + 1]);
+  const alignments = separators.map(tableAlignment);
+  let index = startIndex + 2;
+  const rows = [];
+
+  while (
+    index < lines.length &&
+    lines[index].trim() &&
+    lines[index].includes("|") &&
+    !isTableSeparator(lines[index])
+  ) {
+    rows.push(splitTableRow(lines[index]));
+    index += 1;
+  }
+
+  const head = headers.map((cell, i) => {
+    const align = alignments[i] ? ` style="text-align:${alignments[i]}"` : "";
+    return `<th${align}>${inlineMarkdown(cell, context)}</th>`;
+  }).join("");
+
+  const body = rows.map((row) => {
+    const cells = headers.map((_, i) => {
+      const align = alignments[i] ? ` style="text-align:${alignments[i]}"` : "";
+      return `<td${align}>${inlineMarkdown(row[i] || "", context)}</td>`;
+    }).join("");
+    return `<tr>${cells}</tr>`;
+  }).join("\n");
+
+  return {
+    nextIndex: index,
+    html: `<div class="markdown-table-wrap"><table class="markdown-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`
+  };
+}
+
+function renderList(lines, startIndex, baseIndent, context) {
+  const first = parseListLine(lines[startIndex]);
+  const ordered = first.ordered;
+  const tag = ordered ? "ol" : "ul";
+  let index = startIndex;
+  let html = `<${tag} class="markdown-list">`;
+
+  while (index < lines.length) {
+    const item = parseListLine(lines[index]);
+    if (!item || item.indent !== baseIndent || item.ordered !== ordered) break;
+
+    let content = item.content;
+    let task = null;
+    const taskMatch = content.match(/^\[([ xX])\]\s+(.*)$/);
+    if (taskMatch) {
+      task = taskMatch[1].toLowerCase() === "x";
+      content = taskMatch[2];
+    }
+
+    html += `<li${task !== null ? ' class="task-list-item"' : ""}>`;
+
+    if (task !== null) {
+      html += `<input class="task-list-checkbox" type="checkbox" disabled${task ? " checked" : ""} aria-label="${task ? "Completed task" : "Incomplete task"}">`;
+      html += `<span>${inlineMarkdown(content, context)}</span>`;
+    } else {
+      html += inlineMarkdown(content, context);
+    }
+
+    index += 1;
+
+    while (index < lines.length) {
+      const nested = parseListLine(lines[index]);
+
+      if (nested && nested.indent > baseIndent) {
+        const rendered = renderList(lines, index, nested.indent, context);
+        html += rendered.html;
+        index = rendered.nextIndex;
+        continue;
+      }
+
+      if (nested && nested.indent === baseIndent) break;
+      if (nested && nested.indent < baseIndent) break;
+
+      if (!lines[index].trim()) {
+        const next = index + 1 < lines.length ? parseListLine(lines[index + 1]) : null;
+        if (next && next.indent > baseIndent) {
+          index += 1;
+          continue;
+        }
+        break;
+      }
+
+      const indent = countIndent(lines[index]);
+      if (indent > baseIndent) {
+        html += `<div class="list-continuation">${inlineMarkdown(lines[index].trim(), context)}</div>`;
+        index += 1;
+        continue;
+      }
+
+      break;
+    }
+
+    html += "</li>";
+  }
+
+  html += `</${tag}>`;
+  return { html, nextIndex: index };
+}
+
+function renderDefinitionList(lines, startIndex, context) {
+  let index = startIndex;
+  let html = '<dl class="definition-list">';
+
+  while (index < lines.length) {
+    const term = lines[index];
+    if (!term.trim() || index + 1 >= lines.length || !/^\s*:\s+/.test(lines[index + 1])) break;
+
+    html += `<dt>${inlineMarkdown(term.trim(), context)}</dt>`;
+    index += 1;
+
+    while (index < lines.length) {
+      const definition = lines[index].match(/^\s*:\s+(.*)$/);
+      if (!definition) break;
+      html += `<dd>${inlineMarkdown(definition[1], context)}</dd>`;
+      index += 1;
+    }
+
+    if (index < lines.length && !lines[index].trim()) {
+      const next = index + 1;
+      if (
+        next < lines.length &&
+        next + 1 < lines.length &&
+        /^\s*:\s+/.test(lines[next + 1])
+      ) {
+        index = next;
+        continue;
+      }
+    }
+  }
+
+  html += "</dl>";
+  return { html, nextIndex: index };
+}
+
+function isSpecialBlockStart(lines, index) {
+  const line = lines[index] || "";
+  const next = lines[index + 1] || "";
+
+  return (
+    line.trim() === ":::url-preview" ||
+    /^```/.test(line) ||
+    /^(#{1,6})\s+/.test(line) ||
+    /^---+$/.test(line.trim()) ||
+    Boolean(parseListLine(line)) ||
+    /^>\s?/.test(line) ||
+    (line.includes("|") && isTableSeparator(next)) ||
+    (line.trim() && /^\s*:\s+/.test(next))
+  );
+}
+
+function renderBlocks(lines, context) {
+  const out = [];
+  let index = 0;
+  let codeBlockIndex = 0;
+
+  while (index < lines.length) {
+    const line = lines[index];
+
+    if (!line.trim()) {
+      index += 1;
+      continue;
+    }
+
+    if (line.trim() === ":::url-preview") {
+      const preview = parseUrlPreviewBlock(lines, index);
+      out.push(preview.html);
+      index = preview.endIndex + 1;
+      continue;
+    }
+
+    if (/^```/.test(line)) {
+      const rawLanguage = line.slice(3).trim().toLowerCase();
+      const languageAliases = {
+        "c#": "csharp",
+        "cs": "csharp",
+        "c-sharp": "csharp",
+        "assembly": "asm",
+        "riscv": "asm",
+        "risc-v": "asm",
+        "js": "javascript",
+        "ts": "typescript",
+        "py": "python",
+        "sh": "bash",
+        "shell": "bash"
+      };
+      const language = languageAliases[rawLanguage] || rawLanguage;
+      const codeLines = [];
+      index += 1;
+
+      while (index < lines.length && !/^```/.test(lines[index])) {
+        codeLines.push(lines[index]);
+        index += 1;
+      }
+      if (index < lines.length) index += 1;
+
       const langClass = language ? ` class="language-${escapeAttr(language)}"` : "";
-      const label = language ? escapeHtml(language) : "code";
+      const languageLabels = {
+        js: "JavaScript",
+        javascript: "JavaScript",
+        ts: "TypeScript",
+        typescript: "TypeScript",
+        cs: "C#",
+        csharp: "C#",
+        asm: "Assembly",
+        assembly: "Assembly",
+        bash: "Bash",
+        shell: "Shell",
+        sh: "Shell",
+        json: "JSON",
+        html: "HTML",
+        css: "CSS",
+        php: "PHP",
+        python: "Python",
+        py: "Python",
+        text: "Text"
+      };
+      const label = escapeHtml(languageLabels[language] || language || "Code");
+      const codeId = `code-block-${++codeBlockIndex}`;
+      const lineNumbers = codeLines.map((_, i) => `<span>${i + 1}</span>`).join("");
+
       out.push(
-        `<div class="code-card"><div class="code-toolbar"><span>${label}</span></div>` +
-        `<pre><code${langClass}>${escapeHtml(codeLines.join("\n"))}</code></pre></div>`
+        `<div class="code-card">` +
+          `<div class="code-toolbar">` +
+            `<span class="code-language">${label}</span>` +
+            `<button class="code-copy" type="button" data-copy-target="#${codeId}" aria-label="Copy code">` +
+              `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg>` +
+              `<span data-copy-label>Copy</span>` +
+            `</button>` +
+          `</div>` +
+          `<div class="code-body">` +
+            `<div class="code-line-numbers" aria-hidden="true">${lineNumbers}</div>` +
+            `<pre><code id="${codeId}"${langClass}>${escapeHtml(codeLines.join("\n"))}</code></pre>` +
+          `</div>` +
+        `</div>`
       );
       continue;
     }
 
-    if (!line.trim()) {
-      flushParagraph();
-      closeList();
+    if (line.includes("|") && index + 1 < lines.length && isTableSeparator(lines[index + 1])) {
+      const table = renderTable(lines, index, context);
+      out.push(table.html);
+      index = table.nextIndex;
       continue;
     }
 
-    const heading = line.match(/^(#{2,4})\s+(.+)$/);
+    if (line.trim() && index + 1 < lines.length && /^\s*:\s+/.test(lines[index + 1])) {
+      const definitions = renderDefinitionList(lines, index, context);
+      out.push(definitions.html);
+      index = definitions.nextIndex;
+      continue;
+    }
+
+    const heading = line.match(/^(#{1,6})\s+(.+)$/);
     if (heading) {
-      flushParagraph();
-      closeList();
       const level = heading[1].length;
-      out.push(`<h${level}>${inlineMarkdown(heading[2])}</h${level}>`);
+      out.push(`<h${level}${level === 1 ? ' class="article-body-h1"' : ""}>${inlineMarkdown(heading[2], context)}</h${level}>`);
+      index += 1;
       continue;
     }
 
     if (/^---+$/.test(line.trim())) {
-      flushParagraph();
-      closeList();
       out.push("<hr>");
+      index += 1;
       continue;
     }
 
-    const unordered = line.match(/^\s*[-*]\s+(.+)$/);
-    if (unordered) {
-      flushParagraph();
-      if (list !== "ul") {
-        closeList();
-        out.push("<ul>");
-        list = "ul";
+    const list = parseListLine(line);
+    if (list) {
+      const rendered = renderList(lines, index, list.indent, context);
+      out.push(rendered.html);
+      index = rendered.nextIndex;
+      continue;
+    }
+
+    if (/^>\s?/.test(line)) {
+      const quoteLines = [];
+      while (index < lines.length && /^>\s?/.test(lines[index])) {
+        quoteLines.push(lines[index].replace(/^>\s?/, ""));
+        index += 1;
       }
-      out.push(`<li>${inlineMarkdown(unordered[1])}</li>`);
+      out.push(`<blockquote>${renderBlocks(quoteLines, context)}</blockquote>`);
       continue;
     }
 
-    const ordered = line.match(/^\s*\d+\.\s+(.+)$/);
-    if (ordered) {
-      flushParagraph();
-      if (list !== "ol") {
-        closeList();
-        out.push("<ol>");
-        list = "ol";
-      }
-      out.push(`<li>${inlineMarkdown(ordered[1])}</li>`);
-      continue;
+    const paragraph = [line.trim()];
+    index += 1;
+
+    while (
+      index < lines.length &&
+      lines[index].trim() &&
+      !isSpecialBlockStart(lines, index)
+    ) {
+      paragraph.push(lines[index].trim());
+      index += 1;
     }
 
-    const quote = line.match(/^>\s?(.*)$/);
-    if (quote) {
-      flushParagraph();
-      closeList();
-      out.push(`<blockquote><p>${inlineMarkdown(quote[1])}</p></blockquote>`);
-      continue;
-    }
-
-    paragraph.push(line.trim());
+    out.push(`<p>${inlineMarkdown(paragraph.join(" "), context)}</p>`);
   }
 
-  flushParagraph();
-  closeList();
+  return out.join("\n");
+}
 
-  // Wrap sections beginning at each h2 for the existing article spacing.
-  const html = out.join("\n");
-  const parts = html.split(/(?=<h2>)/g);
+function renderFootnotes(context) {
+  if (!context.footnoteOrder.length) return "";
+
+  const items = context.footnoteOrder.map((rawId) => {
+    const number = context.footnoteNumbers.get(rawId);
+    const id = slugify(rawId) || `note-${number}`;
+    const content = context.footnotes.get(rawId) || "";
+    const refs = context.footnoteRefCounts.get(rawId) || 1;
+    const backlinks = Array.from({ length: refs }, (_, index) => {
+      const label = refs > 1 ? `Back to reference ${index + 1}` : "Back to reference";
+      return `<a class="footnote-backref" href="#fnref-${id}-${index + 1}" aria-label="${label}">↩</a>`;
+    }).join(" ");
+
+    return `<li id="fn-${id}">${inlineMarkdown(content, context)} ${backlinks}</li>`;
+  }).join("\n");
+
+  return `<section class="footnotes" aria-label="Footnotes"><h2>Footnotes</h2><ol>${items}</ol></section>`;
+}
+
+function markdownToHtml(markdown) {
+  const rawLines = String(markdown || "").replace(/\r\n?/g, "\n").split("\n");
+  const extracted = extractFootnotes(rawLines);
+
+  const context = {
+    footnotes: extracted.footnotes,
+    footnoteNumbers: new Map(),
+    footnoteOrder: [],
+    footnoteRefCounts: new Map()
+  };
+
+  let html = renderBlocks(extracted.lines, context);
+  html += renderFootnotes(context);
+
+  // Preserve the existing article-section spacing from each H2 onward.
+  const parts = html.split(/(?=<h2(?:\s|>))/g);
   if (parts.length <= 1) return html;
 
   return parts.map((part, index) => {
-    if (index === 0 && !part.startsWith("<h2>")) return part;
+    if (index === 0 && !part.startsWith("<h2")) return part;
     return `<section class="article-section">${part}</section>`;
   }).join("\n");
 }
@@ -390,6 +1228,135 @@ function featuredImageHtml(image) {
   </figure>`;
 }
 
+
+function escapeXml(value = "") {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
+function cdata(value = "") {
+  return `<![CDATA[${String(value).replaceAll("]]>", "]]]]><![CDATA[>")}]]>`;
+}
+
+function absoluteUrl(relative = "") {
+  if (/^https?:\/\//i.test(relative)) return relative;
+  const normalized = String(relative || "").startsWith("/") ? relative : `/${relative}`;
+  return `${siteUrl}${normalized}`;
+}
+
+function postMarkdown(post) {
+  const updatedLine = post.updatedAt !== post.createdAt
+    ? `Updated: ${post.updatedAt}\n`
+    : "";
+  const localUrl = `${siteUrl}/posts/${post.slug}.html`;
+  const canonical = post.canonicalUrl || localUrl;
+  const sourceLine = post.sourceUrl
+    ? `Original source: ${post.sourceUrl}\n`
+    : "";
+
+  return `# ${post.title}
+
+> ${post.description}
+
+Published: ${post.createdAt}
+${updatedLine}Category: ${post.category}
+Canonical: ${canonical}
+${sourceLine}
+${(post.publicBodyMarkdown || post.bodyMarkdown).trim()}
+`;
+}
+
+function postJsonLd(post) {
+  const image = post.image?.absoluteUrl ? [post.image.absoluteUrl] : undefined;
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.description,
+    datePublished: isoDate(post.createdAt),
+    dateModified: isoDate(post.updatedAt),
+    mainEntityOfPage: `${siteUrl}/posts/${post.slug}.html`,
+    url: `${siteUrl}/posts/${post.slug}.html`,
+    inLanguage: siteLanguage,
+    articleSection: post.category,
+    author: {
+      "@type": "Person",
+      name: ownerName,
+      url: `${siteUrl}/about.html`,
+      sameAs: [githubUrl, mediumUrl, hackerNoonUrl].filter(Boolean)
+    },
+    publisher: {
+      "@type": "Person",
+      name: ownerName,
+      url: `${siteUrl}/about.html`
+    },
+    isPartOf: {
+      "@type": "Blog",
+      name: siteName,
+      url: `${siteUrl}/blog/`
+    }
+  };
+
+  if (image) data.image = image;
+  if (post.tags?.length) data.keywords = post.tags;
+  if (post.sourceUrl) {
+    data.isBasedOn = post.sourceUrl;
+    data.sameAs = [post.sourceUrl];
+  }
+  return JSON.stringify(data).replace(/</g, "\\u003c");
+}
+
+
+async function resolveMarkdownBodyImages(post) {
+  const pattern = /!\[([^\]]*)\]\(([^)\s]+)(\s+["'][^"']*["'])?\)/g;
+  let result = "";
+  let lastIndex = 0;
+  let imageIndex = 0;
+
+  for (const match of post.bodyMarkdown.matchAll(pattern)) {
+    result += post.bodyMarkdown.slice(lastIndex, match.index);
+
+    const alt = match[1];
+    const rawSrc = match[2];
+    const optionalTitle = match[3] || "";
+    let publicSrc = rawSrc;
+
+    if (!/^https:\/\//i.test(rawSrc) && !rawSrc.startsWith("/")) {
+      const sourceImage = path.resolve(path.dirname(post.sourceFilePath), rawSrc);
+      const writingRoot = path.resolve(writingDir);
+      const relativeToWriting = path.relative(writingRoot, sourceImage);
+
+      if (relativeToWriting.startsWith("..") || path.isAbsolute(relativeToWriting)) {
+        throw new Error(`${post.sourceFile}: Markdown image must stay inside writing/ when using a relative path`);
+      }
+
+      const fileName = safeImageFileName(sourceImage);
+      const outputDir = path.join(distDir, "assets", "images", "posts", post.slug);
+      const numberedName = `content-${++imageIndex}-${fileName}`;
+      const outputFile = path.join(outputDir, numberedName);
+
+      await mkdir(outputDir, { recursive: true });
+      try {
+        await copyFile(sourceImage, outputFile);
+      } catch {
+        throw new Error(`${post.sourceFile}: Markdown image not found: ${rawSrc}`);
+      }
+
+      publicSrc = `${basePath}assets/images/posts/${post.slug}/${numberedName}`;
+    }
+
+    result += `![${alt}](${publicSrc}${optionalTitle})`;
+    lastIndex = match.index + match[0].length;
+  }
+
+  result += post.bodyMarkdown.slice(lastIndex);
+  return result;
+}
+
 async function loadWritingPosts() {
   let files = [];
   try {
@@ -433,7 +1400,16 @@ async function loadWritingPosts() {
       updatedAt: String(meta.updated),
       category: String(meta.category),
       description: String(meta.description),
+      sourcePlatform: meta.sourcePlatform ? String(meta.sourcePlatform).toLowerCase() : "",
       sourceUrl: meta.sourceUrl ? String(meta.sourceUrl) : (meta.projectUrl ? String(meta.projectUrl) : ""),
+      canonicalUrl: meta.canonicalUrl ? String(meta.canonicalUrl) : "",
+      originalTitle: meta.originalTitle ? String(meta.originalTitle) : "",
+      originalPublished: meta.originalPublished ? String(meta.originalPublished) : "",
+      author: meta.author ? String(meta.author) : ownerName,
+      tags: meta.tags ? String(meta.tags).split(",").map((tag) => tag.trim()).filter(Boolean) : [],
+      sourceFeaturedImage: meta.sourceFeaturedImage ? String(meta.sourceFeaturedImage) : "",
+      importMethod: meta.importMethod ? String(meta.importMethod) : "",
+      importedAt: meta.importedAt ? String(meta.importedAt) : "",
       featuredImage: meta.featuredImage ? String(meta.featuredImage) : "",
       featuredImageAlt: meta.featuredImageAlt ? String(meta.featuredImageAlt) : "",
       featuredImageCredit: meta.featuredImageCredit ? String(meta.featuredImageCredit) : "",
@@ -486,14 +1462,9 @@ function blogCardHtml(post) {
 }
 
 function homePostHtml(post) {
-  const imageHtml = post.image?.publicUrl
-    ? `<a class="post-image" href="${escapeAttr(post.url)}"><img src="${escapeAttr(post.image.publicUrl)}" alt="${escapeAttr(post.image.alt || post.title)}" loading="lazy" decoding="async"></a>`
-    : "";
-
   return `<article class="post">
     <div class="post-date">${escapeHtml(formatDate(post.createdAt).toUpperCase())}</div>
     <div class="post-info">
-      ${imageHtml}
       <span class="category">${escapeHtml(post.category.toUpperCase())}</span>
       <a class="post-title" href="${escapeAttr(post.url)}">${escapeHtml(post.title)}</a>
       <p>${escapeHtml(post.description)}</p>
@@ -502,19 +1473,31 @@ function homePostHtml(post) {
 }
 
 const writingPosts = await loadWritingPosts();
+await prepareUrlPreviews(writingPosts);
+for (const post of writingPosts) {
+  post.publicBodyMarkdown = await resolveMarkdownBodyImages(post);
+}
 const postTemplate = await readFile(path.join(templatesDir, "post.html"), "utf8");
 const generatedPostsDir = path.join(distDir, "posts");
 await mkdir(generatedPostsDir, { recursive: true });
 
 for (const post of writingPosts) {
   post.image = await resolveFeaturedImage(post);
-  const bodyHtml = markdownToHtml(post.bodyMarkdown);
+  const bodyHtml = markdownToHtml(post.publicBodyMarkdown || post.bodyMarkdown);
   const updatedMeta = post.updatedAt !== post.createdAt
     ? `<span class="article-updated">Updated <time datetime="${escapeAttr(post.updatedAt)}">${escapeHtml(formatDate(post.updatedAt))}</time></span>`
     : "";
 
+  const sourcePlatformLabel = post.sourcePlatform === "hackernoon"
+    ? "HackerNoon"
+    : post.sourcePlatform === "medium"
+      ? "Medium"
+      : "";
+  const sourcePrefix = sourcePlatformLabel
+    ? `Originally published on ${sourcePlatformLabel}:`
+    : "Source:";
   const sourceHtml = post.sourceUrl
-    ? `<p class="article-source-note">Source: <a class="inline-link" href="${escapeAttr(post.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(post.sourceUrl.replace(/^https?:\/\//, ""))}</a></p>`
+    ? `<p class="article-source-note">${escapeHtml(sourcePrefix)} <a class="inline-link" href="${escapeAttr(post.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(post.sourceUrl.replace(/^https?:\/\//, ""))}</a></p>`
     : "";
 
   let html = postTemplate
@@ -532,19 +1515,31 @@ for (const post of writingPosts) {
       ? `<meta property="og:image" content="${escapeAttr(post.image.absoluteUrl)}">` +
         (post.image.alt ? `\n  <meta property="og:image:alt" content="${escapeAttr(post.image.alt)}">` : "")
       : "")
+    .replaceAll("{{POST_MARKDOWN_URL}}", `${siteUrl}/posts/${post.slug}.md`)
+    .replaceAll("{{POST_TWITTER_CARD}}", post.image?.absoluteUrl ? "summary_large_image" : "summary")
+    .replaceAll("{{POST_TWITTER_IMAGE}}", post.image?.absoluteUrl
+      ? `<meta name="twitter:image" content="${escapeAttr(post.image.absoluteUrl)}">` +
+        (post.image.alt ? `\n  <meta name="twitter:image:alt" content="${escapeAttr(post.image.alt)}">` : "")
+      : "")
+    .replaceAll("{{POST_JSON_LD}}", postJsonLd(post))
     .replaceAll("{{POST_FEATURED_IMAGE}}", featuredImageHtml(post.image))
     .replaceAll("{{POST_BODY}}", bodyHtml)
     .replaceAll("{{POST_PROJECT_SOURCE}}", sourceHtml)
-    .replaceAll("{{POST_CANONICAL}}", `${siteUrl}/posts/${post.slug}.html`);
+    .replaceAll("{{POST_CANONICAL}}", post.canonicalUrl || `${siteUrl}/posts/${post.slug}.html`);
 
   html = replaceSiteTokens(html);
   await writeFile(path.join(generatedPostsDir, `${post.slug}.html`), html, "utf8");
+  await writeFile(path.join(generatedPostsDir, `${post.slug}.md`), postMarkdown(post), "utf8");
 }
 
 const allBlogPosts = writingPosts.map((post) => ({
   title: post.title,
   url: `${basePath}posts/${post.slug}.html`,
-  source: "Rizwan3d",
+  source: post.sourcePlatform === "hackernoon"
+    ? "HackerNoon"
+    : post.sourcePlatform === "medium"
+      ? "Medium"
+      : "Rizwan3d",
   description: post.description,
   category: post.category,
   createdAt: post.createdAt,
@@ -619,6 +1614,54 @@ for (const file of files) {
   if (!textExtensions.has(path.extname(file))) continue;
   let text = await readFile(file, "utf8");
   text = replaceSiteTokens(text);
+
+  if (file.endsWith(".html")) {
+    const rel = path.relative(distDir, file).split(path.sep).join("/");
+
+    if (rel === "index.html") {
+      const verify = [
+        googleSiteVerification ? `<meta name="google-site-verification" content="${escapeAttr(googleSiteVerification)}">` : "",
+        bingSiteVerification ? `<meta name="msvalidate.01" content="${escapeAttr(bingSiteVerification)}">` : ""
+      ].filter(Boolean).join("\n  ");
+
+      if (verify) text = text.replace("</head>", `  ${verify}\n</head>`);
+
+      if (!text.includes('"@type":"WebSite"')) {
+        const websiteLd = JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: siteName,
+          url: `${siteUrl}/`,
+          inLanguage: siteLanguage,
+          publisher: {
+            "@type": "Person",
+            name: ownerName,
+            url: `${siteUrl}/about.html`,
+            sameAs: [githubUrl, mediumUrl, hackerNoonUrl].filter(Boolean)
+          }
+        }).replace(/</g, "\\u003c");
+        text = text.replace("</head>", `  <script type="application/ld+json">${websiteLd}</script>\n</head>`);
+      }
+    }
+
+    if (rel === "blog/index.html" && !text.includes('"@type":"Blog"')) {
+      const blogLd = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Blog",
+        name: `${siteName} Blog`,
+        url: `${siteUrl}/blog/`,
+        description: `Articles and technical writing by ${ownerName}.`,
+        inLanguage: siteLanguage,
+        author: {
+          "@type": "Person",
+          name: ownerName,
+          url: `${siteUrl}/about.html`
+        }
+      }).replace(/</g, "\\u003c");
+      text = text.replace("</head>", `  <script type="application/ld+json">${blogLd}</script>\n</head>`);
+    }
+  }
+
   await writeFile(file, text);
 }
 
@@ -637,19 +1680,255 @@ const htmlFiles = (await walk(distDir))
   .filter((file) => file.endsWith(".html"))
   .filter((file) => path.basename(file) !== "404.html");
 
-const urls = htmlFiles.map((file) => {
+const postByHtmlPath = new Map(
+  writingPosts.map((post) => [`posts/${post.slug}.html`, post])
+);
+
+const sitemapEntries = htmlFiles.map((file) => {
   let rel = path.relative(distDir, file).split(path.sep).join("/");
-  rel = rel === "index.html" ? "" : rel.replace(/index\.html$/, "");
-  return `${siteUrl}/${rel}`.replace(/([^:]\/)\/+/, "$1");
+  const post = postByHtmlPath.get(rel);
+  const urlRel = rel === "index.html" ? "" : rel.replace(/index\.html$/, "");
+  const url = `${siteUrl}/${urlRel}`.replace(/([^:]\/)\/+/, "$1");
+
+  return {
+    url,
+    lastmod: post?.updatedAt || "",
+    image: post?.image?.absoluteUrl || "",
+    imageTitle: post?.image?.alt || post?.title || ""
+  };
 });
 
+const sitemapHasImages = sitemapEntries.some((entry) => entry.image);
+const sitemapNamespaces = sitemapHasImages
+  ? ` xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"`
+  : ` xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"`;
+
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n` +
-  `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
-  urls.map((url) => `  <url><loc>${url}</loc></url>`).join("\n") +
+  `<urlset${sitemapNamespaces}>\n` +
+  sitemapEntries.map((entry) => {
+    const parts = [`    <loc>${escapeXml(entry.url)}</loc>`];
+    if (entry.lastmod) parts.push(`    <lastmod>${escapeXml(entry.lastmod)}</lastmod>`);
+    if (entry.image) {
+      parts.push(`    <image:image>`);
+      parts.push(`      <image:loc>${escapeXml(entry.image)}</image:loc>`);
+      if (entry.imageTitle) parts.push(`      <image:title>${escapeXml(entry.imageTitle)}</image:title>`);
+      parts.push(`    </image:image>`);
+    }
+    return `  <url>\n${parts.join("\n")}\n  </url>`;
+  }).join("\n") +
   `\n</urlset>\n`;
 await writeFile(path.join(distDir, "sitemap.xml"), sitemap, "utf8");
 
-const robots = `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`;
+const latestUpdated = writingPosts.reduce((latest, post) => (
+  !latest || post.updatedAt > latest ? post.updatedAt : latest
+), "");
+const feedBuildDate = latestUpdated ? new Date(`${latestUpdated}T00:00:00.000Z`) : new Date();
+
+const rssItems = writingPosts.map((post) => {
+  const link = `${siteUrl}/posts/${post.slug}.html`;
+  const bodyHtml = markdownToHtml(post.publicBodyMarkdown || post.bodyMarkdown);
+  return `    <item>
+      <title>${escapeXml(post.title)}</title>
+      <link>${escapeXml(link)}</link>
+      <guid isPermaLink="true">${escapeXml(link)}</guid>
+      <description>${cdata(post.description)}</description>
+      <content:encoded>${cdata(bodyHtml)}</content:encoded>
+      <pubDate>${new Date(isoDate(post.createdAt)).toUTCString()}</pubDate>
+      <category>${escapeXml(post.category)}</category>
+      <dc:creator>${escapeXml(ownerName)}</dc:creator>
+    </item>`;
+}).join("\n");
+
+const rss = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+  xmlns:atom="http://www.w3.org/2005/Atom"
+  xmlns:content="http://purl.org/rss/1.0/modules/content/"
+  xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>${escapeXml(siteName)}</title>
+    <link>${escapeXml(`${siteUrl}/`)}</link>
+    <description>${escapeXml(`Technical articles by ${ownerName}.`)}</description>
+    <language>${escapeXml(siteLanguage)}</language>
+    <lastBuildDate>${feedBuildDate.toUTCString()}</lastBuildDate>
+    <atom:link href="${escapeXml(`${siteUrl}/rss.xml`)}" rel="self" type="application/rss+xml"/>
+${rssItems}
+  </channel>
+</rss>
+`;
+await writeFile(path.join(distDir, "rss.xml"), rss, "utf8");
+
+const atomEntries = writingPosts.map((post) => {
+  const link = `${siteUrl}/posts/${post.slug}.html`;
+  const bodyHtml = markdownToHtml(post.publicBodyMarkdown || post.bodyMarkdown);
+  return `  <entry>
+    <title>${escapeXml(post.title)}</title>
+    <id>${escapeXml(link)}</id>
+    <link href="${escapeXml(link)}"/>
+    <link rel="alternate" type="text/markdown" href="${escapeXml(`${siteUrl}/posts/${post.slug}.md`)}"/>
+    <published>${escapeXml(isoDate(post.createdAt))}</published>
+    <updated>${escapeXml(isoDate(post.updatedAt))}</updated>
+    <author><name>${escapeXml(ownerName)}</name></author>
+    <category term="${escapeXml(post.category)}"/>
+    <summary>${escapeXml(post.description)}</summary>
+    <content type="html">${escapeXml(bodyHtml)}</content>
+  </entry>`;
+}).join("\n");
+
+const atom = `<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>${escapeXml(siteName)}</title>
+  <id>${escapeXml(`${siteUrl}/`)}</id>
+  <link href="${escapeXml(`${siteUrl}/`)}"/>
+  <link rel="self" href="${escapeXml(`${siteUrl}/atom.xml`)}"/>
+  <updated>${escapeXml(feedBuildDate.toISOString())}</updated>
+  <author><name>${escapeXml(ownerName)}</name></author>
+${atomEntries}
+</feed>
+`;
+await writeFile(path.join(distDir, "atom.xml"), atom, "utf8");
+
+const jsonFeed = {
+  version: "https://jsonfeed.org/version/1.1",
+  title: siteName,
+  home_page_url: `${siteUrl}/`,
+  feed_url: `${siteUrl}/feed.json`,
+  description: `Technical articles by ${ownerName}.`,
+  language: siteLanguage,
+  authors: [{
+    name: ownerName,
+    url: `${siteUrl}/about.html`,
+    avatar: `${siteUrl}/assets/images/muhammad-rizwan.webp`
+  }],
+  items: writingPosts.map((post) => ({
+    id: `${siteUrl}/posts/${post.slug}.html`,
+    url: `${siteUrl}/posts/${post.slug}.html`,
+    title: post.title,
+    summary: post.description,
+    content_html: markdownToHtml(post.publicBodyMarkdown || post.bodyMarkdown),
+    date_published: isoDate(post.createdAt),
+    date_modified: isoDate(post.updatedAt),
+    tags: [post.category],
+    ...(post.image?.absoluteUrl ? { image: post.image.absoluteUrl } : {})
+  }))
+};
+await writeFile(path.join(distDir, "feed.json"), `${JSON.stringify(jsonFeed, null, 2)}\n`, "utf8");
+
+const llmsPostList = writingPosts.map((post) =>
+  `- [${post.title}](${siteUrl}/posts/${post.slug}.md): ${post.description}`
+).join("\n");
+
+const llms = `# ${siteName}
+
+> Personal technical blog by ${ownerName}, focused on software engineering, AI agents, RISC-V, compilers, virtual machines, developer tooling, C#, .NET, PHP, and web technologies.
+
+Canonical site: ${siteUrl}/
+Blog archive: ${siteUrl}/blog/
+RSS: ${siteUrl}/rss.xml
+Atom: ${siteUrl}/atom.xml
+JSON Feed: ${siteUrl}/feed.json
+Sitemap: ${siteUrl}/sitemap.xml
+Author: ${siteUrl}/about.html
+
+## Articles
+
+${llmsPostList || "- No published articles yet."}
+
+## Useful pages
+
+- [About](${siteUrl}/about.html): About ${ownerName}.
+- [Contact](${siteUrl}/contact.html): Contact information.
+- [Blog archive](${siteUrl}/blog/): All published articles.
+`;
+await writeFile(path.join(distDir, "llms.txt"), llms, "utf8");
+
+const llmsFull = `# ${siteName} — Full article text
+
+> Clean Markdown export of all currently published articles.
+
+${writingPosts.map((post) => `---
+
+# ${post.title}
+
+Canonical: ${siteUrl}/posts/${post.slug}.html
+Published: ${post.createdAt}
+Updated: ${post.updatedAt}
+Category: ${post.category}
+
+> ${post.description}
+
+${(post.publicBodyMarkdown || post.bodyMarkdown).trim()}
+`).join("\n")}
+`;
+await writeFile(path.join(distDir, "llms-full.txt"), llmsFull, "utf8");
+
+const searchAgentRules = allowAiSearch
+  ? `User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+`
+  : `User-agent: OAI-SearchBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: Claude-SearchBot
+Disallow: /
+
+User-agent: Claude-User
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: Perplexity-User
+Disallow: /
+`;
+
+const trainingRules = allowAiTraining
+  ? `User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+`
+  : `User-agent: GPTBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+`;
+
+const robots = `# Search engines and ordinary web crawlers
+User-agent: *
+Allow: /
+
+# AI search and user-directed agents
+${searchAgentRules}
+# Dedicated model-training / AI-use controls
+${trainingRules}
+Sitemap: ${siteUrl}/sitemap.xml
+`;
 await writeFile(path.join(distDir, "robots.txt"), robots, "utf8");
 
 if (siteUrl === "https://example.com") {
@@ -658,4 +1937,6 @@ if (siteUrl === "https://example.com") {
 
 console.log(`[rizwan3d] Markdown posts: ${writingPosts.length}`);
 console.log(`[rizwan3d] Blog archive: ${allBlogPosts.length} item(s), ${totalPages} page chunk(s)`);
+console.log(`[rizwan3d] RSS/Atom/JSON feeds + llms.txt generated`);
+console.log(`[rizwan3d] AI search crawling: ${allowAiSearch ? "allowed" : "blocked"}; AI training crawling: ${allowAiTraining ? "allowed" : "blocked"}`);
 console.log(`[rizwan3d] Static files prepared in ${distDir}`);

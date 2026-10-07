@@ -7,7 +7,8 @@
     "repo": "rizwan3d/rizwan3d.xyz",
     "repoId": "R_kgDOU__LAQ",
     "category": "Announcements",
-    "categoryId": "DIC_kwDOU__LAc4DHSKT"
+    "categoryId": "DIC_kwDOU__LAc4DHSKT",
+    "reactionsEnabled": true
   },
   "kit": {
     "formUid": "2adca4963a",
@@ -25,5 +26,17 @@
   "blog": {
     "pageSize": 8,
     "latestOnHome": 4
+  },
+  "seo": {
+    "language": "en-US",
+    "googleSiteVerification": "",
+    "bingSiteVerification": "",
+    "allowAiSearch": true,
+    "allowAiTraining": false
+  },
+  "linkPreviews": {
+    "enabled": true,
+    "timeoutMs": 8000,
+    "maxBytes": 1500000
   }
 }

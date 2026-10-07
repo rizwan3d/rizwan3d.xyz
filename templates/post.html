@@ -13,6 +13,18 @@
   <meta property="og:url" content="{{POST_CANONICAL}}">
   <meta property="article:published_time" content="{{POST_CREATED_ISO}}">
   <meta property="article:modified_time" content="{{POST_UPDATED_ISO}}">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <link rel="alternate" type="application/rss+xml" title="{{SITE_NAME}} RSS" href="{{SITE_URL}}/rss.xml">
+  <link rel="alternate" type="application/atom+xml" title="{{SITE_NAME}} Atom" href="{{SITE_URL}}/atom.xml">
+  <link rel="alternate" type="application/feed+json" title="{{SITE_NAME}} JSON Feed" href="{{SITE_URL}}/feed.json">
+  <link rel="alternate" type="text/markdown" href="{{POST_MARKDOWN_URL}}">
+  <link rel="describedby" type="text/markdown" href="{{SITE_URL}}/llms.txt">
+  <link rel="author" href="{{SITE_URL}}/about.html">
+  <link rel="me" href="{{GITHUB_URL}}">
+  <meta name="twitter:card" content="{{POST_TWITTER_CARD}}">
+  <meta name="twitter:title" content="{{POST_TITLE_ATTR}}">
+  <meta name="twitter:description" content="{{POST_DESCRIPTION_ATTR}}">
+  {{POST_TWITTER_IMAGE}}
   <link rel="canonical" href="{{POST_CANONICAL}}">
   <link rel="icon" href="{{BASE_PATH}}favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="{{BASE_PATH}}manifest.webmanifest">
@@ -20,6 +32,7 @@
   <link rel="stylesheet" href="{{BASE_PATH}}assets/css/prism-theme.css">
   <meta data-pagefind-meta="category" content="{{POST_CATEGORY_ATTR}}">
   <meta data-pagefind-meta="date" content="{{POST_CREATED_DATE}}">
+  <script type="application/ld+json">{{POST_JSON_LD}}</script>
 </head>
 <body>
 <div class="page">
@@ -137,5 +150,6 @@
 <script src="{{BASE_PATH}}assets/js/newsletter.js" defer></script>
 <script src="{{BASE_PATH}}assets/js/giscus.js" defer></script>
 <script src="{{BASE_PATH}}assets/js/prism.min.js" defer></script>
+<script src="{{BASE_PATH}}assets/js/prism-languages.js" defer></script>
 </body>
 </html>

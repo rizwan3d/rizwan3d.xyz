@@ -42,7 +42,7 @@
     script.dataset.categoryId = config.categoryId;
     script.dataset.mapping = "pathname";
     script.dataset.strict = "0";
-    script.dataset.reactionsEnabled = "1";
+    script.dataset.reactionsEnabled = config.reactionsEnabled === false ? "0" : "1";
     script.dataset.emitMetadata = "0";
     script.dataset.inputPosition = "bottom";
     script.dataset.theme = "light";
