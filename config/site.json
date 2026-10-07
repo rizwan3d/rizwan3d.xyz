@@ -1,0 +1,29 @@
+{
+  "siteName": "Rizwan3d",
+  "siteUrl": "https://rizwan3d.xyz",
+  "basePath": "/",
+  "contactEmail": "allgame45@hotmail.com",
+  "giscus": {
+    "repo": "rizwan3d/rizwan3d.xyz",
+    "repoId": "R_kgDOU__LAQ",
+    "category": "Announcements",
+    "categoryId": "DIC_kwDOU__LAc4DHSKT"
+  },
+  "kit": {
+    "formUid": "2adca4963a",
+    "embedSrc": "https://muhammad-rizwan-7.kit.com/2adca4963a/index.js"
+  },
+  "ownerName": "Muhammad Rizwan",
+  "githubUrl": "https://github.com/rizwan3d",
+  "matomo": {
+    "url": "https://analytics.rizwan3d.xyz/",
+    "siteId": "1"
+  },
+  "mediumUrl": "https://medium.com/@rizwan3d",
+  "hackerNoonUrl": "https://hackernoon.com/u/rizwan3d",
+  "resumeUrl": "https://rizwan3d.github.io/rizwan3d/",
+  "blog": {
+    "pageSize": 8,
+    "latestOnHome": 4
+  }
+}

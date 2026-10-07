@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" data-base-path="{{BASE_PATH}}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blog — {{SITE_NAME}}</title>
+  <meta name="description" content="Articles and technical writing published directly on Rizwan3d.">
+  <meta name="theme-color" content="#ffffff">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Blog — {{SITE_NAME}}">
+  <meta property="og:description" content="Articles on AI agents, RISC-V, compilers, developer tools, and software engineering by Muhammad Rizwan.">
+  <meta property="og:url" content="{{SITE_URL}}/blog/">
+  <link rel="canonical" href="{{SITE_URL}}/blog/">
+  <link rel="icon" href="{{BASE_PATH}}favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="{{BASE_PATH}}manifest.webmanifest">
+  <link rel="stylesheet" href="{{BASE_PATH}}assets/css/style.css">
+</head>
+<body>
+<div class="page">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="header" data-pagefind-ignore>
+    <a href="{{BASE_PATH}}" class="logo">{{SITE_NAME}}</a>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="{{BASE_PATH}}">Home</a>
+      <a href="{{BASE_PATH}}blog/" class="active">Blog</a>
+      <a href="{{BASE_PATH}}about.html">About</a>
+      <a href="{{BASE_PATH}}contact.html">Contact</a>
+    </nav>
+    <button class="search-btn" type="button" aria-label="Search posts" data-search-open>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l5 5"></path></svg>
+    </button>
+  </header>
+
+  <main id="main" class="blog-page">
+    <section class="blog-hero">
+      <p class="eyebrow">ALL WRITING</p>
+      <h1>Blog</h1>
+      <p class="subpage-lead">Articles and technical writing published directly on Rizwan3d.</p>
+      <div class="blog-build-meta">
+        <span>{{BLOG_TOTAL}} articles available</span>
+        <span>Static archive</span>
+      </div>
+    </section>
+
+    <section class="blog-archive" aria-labelledby="blog-list-heading">
+      <div class="section-heading">
+        <h2 id="blog-list-heading">Latest first</h2>
+      </div>
+
+      <div
+        class="blog-list"
+        data-blog-list
+        data-blog-total-pages="{{BLOG_TOTAL_PAGES}}"
+        data-blog-page-size="{{BLOG_PAGE_SIZE}}"
+      >
+        <!-- BLOG_INITIAL_ITEMS -->
+      </div>
+
+      <div class="blog-load-state" data-blog-sentinel aria-live="polite">
+        <span data-blog-status>Scroll to load more</span>
+      </div>
+
+      <noscript>
+        <p class="blog-noscript">JavaScript is disabled, so only the first page of the archive is shown.</p>
+      </noscript>
+    </section>
+  </main>
+
+  <footer class="footer" data-pagefind-ignore>
+    <div class="footer-main">
+      <div class="footer-brand"><strong>{{SITE_NAME}}</strong><span>Software, AI agents, compilers, and systems.</span></div>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        <a href="{{BASE_PATH}}">Home</a>
+        <a href="{{BASE_PATH}}blog/">Blog</a>
+        <a href="{{BASE_PATH}}about.html">About</a>
+        <a href="{{BASE_PATH}}contact.html">Contact</a>
+      </nav>
+      <div class="socials">
+        <a href="{{GITHUB_URL}}" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="mailto:{{CONTACT_EMAIL}}">Email</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 {{OWNER_NAME}}. All rights reserved.</p>
+      <div>
+        <a href="{{BASE_PATH}}privacy.html">Privacy</a>
+        <a href="{{BASE_PATH}}terms.html">Terms</a>
+        <a href="{{BASE_PATH}}cookies.html">Cookies</a>
+        <button class="footer-link-button" type="button" data-cookie-settings>Cookie settings</button>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<div class="search-modal" data-search-modal aria-hidden="true">
+  <div class="search-backdrop" data-search-close></div>
+  <section class="search-dialog" role="dialog" aria-modal="true" aria-label="Search posts">
+    <div class="search-input-row">
+      <svg class="search-dialog-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l5 5"></path></svg>
+      <input type="search" placeholder="Search posts..." autocomplete="off" aria-label="Search posts" data-search-input>
+      <button class="search-close" type="button" aria-label="Close search" data-search-close><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+    </div>
+    <div class="search-divider"></div>
+    <p class="search-helper" data-search-helper>Start typing to search articles.</p>
+    <div class="search-results" data-search-results aria-live="polite"></div>
+  </section>
+</div>
+
+<script src="{{BASE_PATH}}assets/js/site-config.js" defer></script>
+<script src="{{BASE_PATH}}assets/js/main.js" defer></script>
+<script src="{{BASE_PATH}}assets/js/consent.js" defer></script>
+<script src="{{BASE_PATH}}assets/js/analytics.js" defer></script>
+<script src="{{BASE_PATH}}assets/js/blog.js" defer></script>
+</body>
+</html>

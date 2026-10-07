@@ -1,0 +1,13 @@
+{
+  "name": "rizwan3d-static",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Production static site for Rizwan3d with Pagefind, Prism.js, Kit, Giscus, and consent-gated third-party embeds",
+  "scripts": {
+    "build": "node scripts/build.mjs && pagefind --site dist",
+    "preview": "pagefind --site dist --serve"
+  },
+  "devDependencies": {
+    "pagefind": "latest"
+  }
+}

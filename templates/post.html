@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" data-base-path="{{BASE_PATH}}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{POST_TITLE}} — {{SITE_NAME}}</title>
+  <meta name="description" content="{{POST_DESCRIPTION_ATTR}}">
+  <meta name="theme-color" content="#ffffff">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="{{POST_TITLE_ATTR}} — {{SITE_NAME}}">
+  <meta property="og:description" content="{{POST_DESCRIPTION_ATTR}}">
+  {{POST_OG_IMAGE}}
+  <meta property="og:url" content="{{POST_CANONICAL}}">
+  <meta property="article:published_time" content="{{POST_CREATED_ISO}}">
+  <meta property="article:modified_time" content="{{POST_UPDATED_ISO}}">
+  <link rel="canonical" href="{{POST_CANONICAL}}">
+  <link rel="icon" href="{{BASE_PATH}}favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="{{BASE_PATH}}manifest.webmanifest">
+  <link rel="stylesheet" href="{{BASE_PATH}}assets/css/style.css">
+  <link rel="stylesheet" href="{{BASE_PATH}}assets/css/prism-theme.css">
+  <meta data-pagefind-meta="category" content="{{POST_CATEGORY_ATTR}}">
+  <meta data-pagefind-meta="date" content="{{POST_CREATED_DATE}}">
+</head>
+<body>
+<div class="page">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="header" data-pagefind-ignore>
+    <a href="{{BASE_PATH}}" class="logo">{{SITE_NAME}}</a>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="{{BASE_PATH}}">Home</a>
+      <a href="{{BASE_PATH}}blog/">Blog</a>
+      <a href="{{BASE_PATH}}about.html">About</a>
+      <a href="{{BASE_PATH}}contact.html">Contact</a>
+    </nav>
+    <button class="search-btn" type="button" aria-label="Search posts" data-search-open>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l5 5"></path></svg>
+    </button>
+  </header>
+
+  <main id="main" class="article-shell">
+    <article class="article-content" data-pagefind-body>
+      <div class="article-meta">
+        <time datetime="{{POST_CREATED_DATE}}">Published {{POST_CREATED_HUMAN}}</time>
+        {{POST_UPDATED_META}}
+      </div>
+      <h1 data-pagefind-meta="title">{{POST_TITLE}}</h1>
+      <p class="article-lead">{{POST_DESCRIPTION}}</p>
+
+      {{POST_FEATURED_IMAGE}}
+
+      {{POST_BODY}}
+
+      {{POST_PROJECT_SOURCE}}
+    </article>
+
+    <section class="article-author" data-pagefind-ignore>
+      <div class="author-avatar"><img src="{{BASE_PATH}}assets/images/muhammad-rizwan.webp" width="72" height="72" loading="lazy" alt="Muhammad Rizwan"></div>
+      <div class="author-copy">
+        <p class="eyebrow">WRITTEN BY</p>
+        <h3>{{OWNER_NAME}}</h3>
+        <p>Software engineer writing about AI agents, RISC-V, compilers, virtual machines, developer tooling, and software architecture.</p>
+      </div>
+    </section>
+
+    <section class="post-newsletter" data-pagefind-ignore>
+      <div class="post-newsletter-copy">
+        <p class="eyebrow">STAY IN THE LOOP</p>
+        <h2>Get new posts in your inbox.</h2>
+        <p>New articles, engineering ideas, and technical writing from {{OWNER_NAME}}.</p>
+      </div>
+      <div class="post-newsletter-form kit-subscribe" data-kit-newsletter>
+        <p class="kit-newsletter-status" data-kit-note>Loading newsletter signup…</p>
+        <noscript><p class="kit-newsletter-status">JavaScript is required to load the newsletter signup form.</p></noscript>
+      </div>
+    </section>
+
+    <section class="comments-section" data-pagefind-ignore>
+      <div class="comments-heading">
+        <p class="eyebrow">JOIN THE CONVERSATION</p>
+        <h2>Comments</h2>
+        <p>Comments are powered by GitHub Discussions using Giscus.</p>
+      </div>
+      <div class="giscus" data-giscus></div>
+      <p class="giscus-setup-note" data-giscus-note hidden>Giscus is included but not configured yet.</p>
+    </section>
+
+    <div class="back-to-posts" data-pagefind-ignore>
+      <a href="{{BASE_PATH}}blog/">←&nbsp;&nbsp; All posts</a>
+    </div>
+  </main>
+
+  <footer class="footer" data-pagefind-ignore>
+    <div class="footer-main">
+      <div class="footer-brand"><strong>{{SITE_NAME}}</strong><span>Software, AI agents, compilers, and systems.</span></div>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        <a href="{{BASE_PATH}}">Home</a>
+        <a href="{{BASE_PATH}}blog/">Blog</a>
+        <a href="{{BASE_PATH}}about.html">About</a>
+        <a href="{{BASE_PATH}}contact.html">Contact</a>
+      </nav>
+      <div class="socials">
+        <a href="{{GITHUB_URL}}" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="mailto:{{CONTACT_EMAIL}}">Email</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 {{OWNER_NAME}}. All rights reserved.</p>
+      <div>
+        <a href="{{BASE_PATH}}privacy.html">Privacy</a>
+        <a href="{{BASE_PATH}}terms.html">Terms</a>
+        <a href="{{BASE_PATH}}cookies.html">Cookies</a>
+        <button class="footer-link-button" type="button" data-cookie-settings>Cookie settings</button>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<div class="search-modal" data-search-modal aria-hidden="true">
+  <div class="search-backdrop" data-search-close></div>
+  <section class="search-dialog" role="dialog" aria-modal="true" aria-label="Search posts">
+    <div class="search-input-row">
+      <svg class="search-dialog-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l5 5"></path></svg>
+      <input type="search" placeholder="Search posts..." autocomplete="off" aria-label="Search posts" data-search-input>
+      <button class="search-close" type="button" aria-label="Close search" data-search-close><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+    </div>
+    <div class="search-divider"></div>
+    <p class="search-helper" data-search-helper>Start typing to search articles.</p>
+    <div class="search-results" data-search-results aria-live="polite"></div>
+  </section>
+</div>
+
+<script src="{{BASE_PATH}}assets/js/main.js" defer></script>
+<script src="{{BASE_PATH}}assets/js/site-config.js" defer></script>
+<script src="{{BASE_PATH}}assets/js/consent.js" defer></script>
+<script src="{{BASE_PATH}}assets/js/analytics.js" defer></script>
+<script src="{{BASE_PATH}}assets/js/newsletter.js" defer></script>
+<script src="{{BASE_PATH}}assets/js/giscus.js" defer></script>
+<script src="{{BASE_PATH}}assets/js/prism.min.js" defer></script>
+</body>
+</html>

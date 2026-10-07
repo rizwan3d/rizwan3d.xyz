@@ -1,0 +1,48 @@
+name: Node.js CD
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.13.0
+
+      - name: Install NPM dependencies
+        run: npm install --force
+
+      - name: Build the project
+        run: npm run build
+
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.ID_RSA }}
+
+      - name: Add Namecheap host key
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p 21098 -H 198.187.31.203 >> ~/.ssh/known_hosts
+
+      - name: Deploy dist to Namecheap via SCP
+        run: |
+          scp -P 21098 -r ./dist/. \
+            growmtdy@198.187.31.203:/home/growmtdy/rizwan3d.xyz/
