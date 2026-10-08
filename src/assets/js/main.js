@@ -110,6 +110,44 @@
   document.querySelectorAll("[data-search-close]").forEach((button) => button.addEventListener("click", closeSearch));
   input?.addEventListener("input", (event) => renderResults(event.target.value));
 
+  document.querySelectorAll("[data-blog-filter-list]").forEach((list) => {
+    const limit = Number(list.dataset.blogFilterLimit || 8);
+    const items = Array.from(list.querySelectorAll("a"));
+    if (!Number.isFinite(limit) || limit < 1 || items.length <= limit) return;
+
+    const activeItem = items.find((item) => item.getAttribute("aria-current") === "page");
+    const hiddenCount = items.filter((item, index) => index >= limit && item !== activeItem).length;
+    if (hiddenCount < 1) return;
+
+    const updateItems = (expanded) => {
+      items.forEach((item, index) => {
+        const shouldHide = !expanded && index >= limit && item !== activeItem;
+        item.classList.toggle("is-filter-hidden", shouldHide);
+      });
+    };
+
+    const button = document.createElement("button");
+    button.className = "blog-filter-more";
+    button.type = "button";
+    button.setAttribute("aria-expanded", "false");
+
+    const setButtonLabel = (expanded) => {
+      button.textContent = expanded ? "Show less" : `Show ${hiddenCount} more`;
+    };
+
+    updateItems(false);
+    setButtonLabel(false);
+
+    button.addEventListener("click", () => {
+      const expanded = button.getAttribute("aria-expanded") !== "true";
+      button.setAttribute("aria-expanded", String(expanded));
+      updateItems(expanded);
+      setButtonLabel(expanded);
+    });
+
+    list.append(button);
+  });
+
   const progressBar = document.querySelector("[data-reading-progress]");
   if (progressBar) {
     let ticking = false;
@@ -210,6 +248,21 @@
         if (label) label.textContent = "Copied";
         setTimeout(() => { if (label) label.textContent = "Copy"; }, 1400);
       } catch {}
+    });
+  });
+
+  document.querySelectorAll("[data-share-copy]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const label = button.querySelector("[data-share-label]");
+      const url = new URL(button.dataset.shareUrl || window.location.href, window.location.origin).href;
+      try {
+        await navigator.clipboard.writeText(url);
+        if (label) label.textContent = "Copied";
+        setTimeout(() => { if (label) label.textContent = "Copy link"; }, 1400);
+      } catch {
+        if (label) label.textContent = "Copy failed";
+        setTimeout(() => { if (label) label.textContent = "Copy link"; }, 1400);
+      }
     });
   });
 

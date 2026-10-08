@@ -18,6 +18,7 @@
   <meta property="og:description" content="Articles on AI agents, RISC-V, compilers, developer tools, and software engineering by Muhammad Rizwan.">
   <meta property="og:url" content="{{SITE_URL}}/blog/">
   <link rel="canonical" href="{{SITE_URL}}/blog/">
+  {{BLOG_PAGINATION_LINKS}}
   <link rel="icon" href="{{BASE_PATH}}favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="{{BASE_PATH}}manifest.webmanifest">
   <link rel="stylesheet" href="{{BASE_PATH}}assets/css/style.css">
@@ -50,6 +51,8 @@
       </div>
     </section>
 
+    {{BLOG_FILTERS}}
+
     <section class="blog-archive" aria-labelledby="blog-list-heading">
       <div class="section-heading">
         <h2 id="blog-list-heading">Latest first</h2>
@@ -63,6 +66,8 @@
       >
         <!-- BLOG_INITIAL_ITEMS -->
       </div>
+
+      {{BLOG_PAGINATION}}
 
       <div class="blog-load-state" data-blog-sentinel aria-live="polite">
         <span data-blog-status>Scroll to load more</span>

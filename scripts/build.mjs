@@ -1373,6 +1373,33 @@ function sourceClass(source) {
   return String(source || "article").toLowerCase().replace(/[^a-z0-9]+/g, "-");
 }
 
+function archiveSlug(value = "") {
+  return slugify(value) || "uncategorized";
+}
+
+function displayTaxonomy(value = "") {
+  const text = String(value || "").trim();
+  if (!text) return "";
+  if (/[A-Z]/.test(text.replace(/[._-]/g, ""))) return text;
+  return text
+    .split(/[-_\s]+/)
+    .filter(Boolean)
+    .map((part) => part.length <= 3 ? part.toUpperCase() : part[0].toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function categoryUrl(category) {
+  return `${basePath}blog/category/${archiveSlug(category)}/`;
+}
+
+function tagUrl(tag) {
+  return `${basePath}blog/tag/${archiveSlug(tag)}/`;
+}
+
+function yearUrl(year) {
+  return `${basePath}blog/year/${archiveSlug(year)}/`;
+}
+
 function replaceSiteTokens(text) {
   return text
     .replaceAll("{{SITE_URL}}", siteUrl)
@@ -1539,6 +1566,7 @@ function postMarkdown(post) {
   const updatedLine = post.updatedAt !== post.createdAt
     ? `Updated: ${post.updatedAt}\n`
     : "";
+  const tagsLine = post.tags?.length ? `Tags: ${post.tags.join(", ")}\n` : "";
   const canonical = post.resolvedCanonical;
   const sourceLine = post.sourceUrl
     ? `Original source: ${post.sourceUrl}\n`
@@ -1550,7 +1578,7 @@ function postMarkdown(post) {
 
 Published: ${post.createdAt}
 ${updatedLine}Category: ${post.category}
-Canonical: ${canonical}
+${tagsLine}Canonical: ${canonical}
 ${sourceLine}
 ${(post.publicBodyMarkdown || post.bodyMarkdown).trim()}
 `;
@@ -1695,6 +1723,9 @@ async function loadWritingPosts() {
       originalPublished: meta.originalPublished ? String(meta.originalPublished) : "",
       author: meta.author ? String(meta.author) : ownerName,
       tags: meta.tags ? String(meta.tags).split(",").map((tag) => tag.trim()).filter(Boolean) : [],
+      series: meta.series ? String(meta.series) : "",
+      seriesSlug: meta.seriesSlug ? String(meta.seriesSlug) : "",
+      seriesPart: meta.seriesPart ? Number(meta.seriesPart) : 0,
       sourceFeaturedImage: meta.sourceFeaturedImage ? String(meta.sourceFeaturedImage) : "",
       importMethod: meta.importMethod ? String(meta.importMethod) : "",
       importedAt: meta.importedAt ? String(meta.importedAt) : "",
@@ -1747,6 +1778,45 @@ function blogCardHtml(post) {
     <p>${escapeHtml(post.description)}</p>
     <span class="blog-card-action">Read article →</span>
   </article>`;
+}
+
+function blogFilterHtml(posts, active = {}) {
+  const filterVisibleLimit = 8;
+  const categories = [...new Map(posts.map((post) => [archiveSlug(post.category), post.category]))]
+    .sort((a, b) => displayTaxonomy(a[1]).localeCompare(displayTaxonomy(b[1])));
+  const tags = [...new Map(posts.flatMap((post) => post.tags || []).map((tag) => [archiveSlug(tag), tag]))]
+    .sort((a, b) => displayTaxonomy(a[1]).localeCompare(displayTaxonomy(b[1])));
+  const years = [...new Set(posts.map((post) => post.createdAt.slice(0, 4)))].sort((a, b) => b.localeCompare(a));
+
+  const link = (href, label, isActive = false) =>
+    `<a href="${escapeAttr(href)}"${isActive ? ' aria-current="page"' : ""}>${escapeHtml(label)}</a>`;
+
+  const categoryLinks = categories.map(([slug, category]) =>
+    link(categoryUrl(category), displayTaxonomy(category), active.type === "category" && active.slug === slug)
+  ).join("\n          ");
+  const tagLinks = tags.length
+    ? tags.map(([slug, tag]) =>
+        link(tagUrl(tag), displayTaxonomy(tag), active.type === "tag" && active.slug === slug)
+      ).join("\n          ")
+    : '<span class="blog-filter-empty">No tags yet</span>';
+  const yearLinks = years.map((year) =>
+    link(yearUrl(year), year, active.type === "year" && active.slug === year)
+  ).join("\n          ");
+
+  return `<section class="blog-filters" aria-label="Blog filters">
+      <div class="blog-filter-group">
+        <h2>Categories</h2>
+        <div class="blog-filter-options" data-blog-filter-list data-blog-filter-limit="${filterVisibleLimit}">${categoryLinks}</div>
+      </div>
+      <div class="blog-filter-group">
+        <h2>Tags</h2>
+        <div class="blog-filter-options" data-blog-filter-list data-blog-filter-limit="${filterVisibleLimit}">${tagLinks}</div>
+      </div>
+      <div class="blog-filter-group">
+        <h2>Years</h2>
+        <div class="blog-filter-options" data-blog-filter-list data-blog-filter-limit="${filterVisibleLimit}">${yearLinks}</div>
+      </div>
+    </section>`;
 }
 
 function homePostHtml(post) {
@@ -1896,6 +1966,131 @@ function postNavigationHtml(post, posts) {
   </nav>`;
 }
 
+function inferSeriesInfo(post) {
+  const title = post.title || "";
+  const match = title.match(/^(.*?)(?:\s*[-:]\s*)?part\s+(\d+)(?:\s*[-:(].*)?$/i);
+  if (!match) return null;
+  const name = match[1].trim().replace(/\s+[-:]\s*$/, "");
+  const part = Number(match[2]);
+  if (!name || !Number.isFinite(part)) return null;
+  return {
+    name,
+    slug: archiveSlug(name),
+    part
+  };
+}
+
+function enrichSeries(posts) {
+  const groups = new Map();
+  for (const post of posts) {
+    const explicitName = String(post.series || "").trim();
+    const inferred = explicitName ? {
+      name: explicitName,
+      slug: archiveSlug(post.seriesSlug || explicitName),
+      part: Number(post.seriesPart || 0)
+    } : inferSeriesInfo(post);
+    if (!inferred?.slug) continue;
+    post.series = {
+      name: inferred.name,
+      slug: inferred.slug,
+      part: Number.isFinite(inferred.part) && inferred.part > 0 ? inferred.part : null
+    };
+    if (!groups.has(post.series.slug)) groups.set(post.series.slug, []);
+    groups.get(post.series.slug).push(post);
+  }
+
+  for (const postsInSeries of groups.values()) {
+    if (postsInSeries.length < 2) {
+      delete postsInSeries[0].series;
+      continue;
+    }
+    postsInSeries.sort((a, b) => {
+      const partDiff = (a.series.part || 9999) - (b.series.part || 9999);
+      if (partDiff !== 0) return partDiff;
+      return a.createdAt.localeCompare(b.createdAt);
+    });
+    postsInSeries.forEach((item, index) => {
+      item.series.items = postsInSeries;
+      item.series.index = index;
+    });
+  }
+}
+
+function postSeriesNavigationHtml(post) {
+  const items = post.series?.items || [];
+  if (items.length < 2) return "";
+
+  return `<section class="article-series" data-pagefind-ignore>
+    <div class="section-heading">
+      <h2>${escapeHtml(post.series.name)}</h2>
+    </div>
+    <ol>
+      ${items.map((item, index) => `<li${item.slug === post.slug ? ' aria-current="step"' : ""}>
+        <a href="${escapeAttr(`${basePath}posts/${item.slug}.html`)}">
+          <span>Part ${escapeHtml(String(item.series.part || index + 1))}</span>
+          <strong>${escapeHtml(item.title)}</strong>
+        </a>
+      </li>`).join("\n      ")}
+    </ol>
+  </section>`;
+}
+
+function postRelatedArticlesHtml(post, posts) {
+  const tagSet = new Set(post.tags || []);
+  const related = posts
+    .filter((item) => item.slug !== post.slug)
+    .map((item) => {
+      let score = item.category === post.category ? 3 : 0;
+      for (const tag of item.tags || []) if (tagSet.has(tag)) score += 2;
+      if (post.series?.slug && item.series?.slug === post.series.slug) score += 1;
+      return { item, score };
+    })
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score || b.item.createdAt.localeCompare(a.item.createdAt))
+    .slice(0, 3)
+    .map((entry) => entry.item);
+
+  if (!related.length) return "";
+
+  return `<section class="related-articles" data-pagefind-ignore>
+    <div class="section-heading">
+      <h2>Related articles</h2>
+    </div>
+    <div class="related-article-grid">
+      ${related.map((item) => `<a class="related-article-card" href="${escapeAttr(`${basePath}posts/${item.slug}.html`)}">
+        <span>${escapeHtml(displayTaxonomy(item.category))}</span>
+        <strong>${escapeHtml(item.title)}</strong>
+        <small>${escapeHtml(formatDate(item.createdAt))}</small>
+      </a>`).join("\n      ")}
+    </div>
+  </section>`;
+}
+
+function postTaxonomyHtml(post) {
+  const tagLinks = (post.tags || [])
+    .map((tag) => `<a href="${escapeAttr(tagUrl(tag))}">${escapeHtml(displayTaxonomy(tag))}</a>`)
+    .join("\n      ");
+
+  return `<div class="article-taxonomy" data-pagefind-ignore>
+      <a href="${escapeAttr(categoryUrl(post.category))}">${escapeHtml(displayTaxonomy(post.category))}</a>
+      ${tagLinks}
+    </div>`;
+}
+
+function postShareHtml(post) {
+  const url = `${basePath}posts/${post.slug}.html`;
+  const absolute = `${siteUrl}/posts/${post.slug}.html`;
+  const encodedUrl = encodeURIComponent(absolute);
+  const encodedTitle = encodeURIComponent(post.title);
+
+  return `<div class="article-share" data-pagefind-ignore>
+      <span>Share</span>
+      <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a href="https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}" target="_blank" rel="noopener noreferrer">X</a>
+      <button type="button" data-share-copy data-share-url="${escapeAttr(url)}"><span data-share-label>Copy link</span></button>
+    </div>`;
+}
+
 function postTocHtml(toc) {
   const items = (toc || [])
     .filter((item) => item.id && item.label)
@@ -1922,6 +2117,7 @@ function afterNavigationAdHtml() {
 }
 
 const writingPosts = await loadWritingPosts();
+enrichSeries(writingPosts);
 for (const post of writingPosts) {
   if (!String(post.description || "").trim()) {
     const summary = post.bodyMarkdown
@@ -1988,24 +2184,28 @@ for (const post of writingPosts) {
     .replaceAll("{{POST_CREATED_HUMAN}}", escapeHtml(formatDate(post.createdAt)))
     .replaceAll("{{POST_READING_TIME}}", escapeHtml(readingTime(post.publicBodyMarkdown || post.bodyMarkdown)))
     .replaceAll("{{POST_UPDATED_META}}", updatedMeta)
-    .replaceAll("{{POST_OG_IMAGE}}", post.image?.absoluteUrl
+    .replaceAll("{{POST_OG_IMAGE}}", () => post.image?.absoluteUrl
       ? `<meta property="og:image" content="${escapeAttr(post.image.absoluteUrl)}">` +
         (post.image.alt ? `\n  <meta property="og:image:alt" content="${escapeAttr(post.image.alt)}">` : "")
       : "")
     .replaceAll("{{POST_MARKDOWN_URL}}", `${siteUrl}/posts/${post.slug}.md`)
     .replaceAll("{{POST_TWITTER_CARD}}", post.image?.absoluteUrl ? "summary_large_image" : "summary")
-    .replaceAll("{{POST_TWITTER_IMAGE}}", post.image?.absoluteUrl
+    .replaceAll("{{POST_TWITTER_IMAGE}}", () => post.image?.absoluteUrl
       ? `<meta name="twitter:image" content="${escapeAttr(post.image.absoluteUrl)}">` +
         (post.image.alt ? `\n  <meta name="twitter:image:alt" content="${escapeAttr(post.image.alt)}">` : "")
       : "")
     .replaceAll("{{POST_JSON_LD}}", postJsonLd(post))
-    .replaceAll("{{POST_ADSENSE_SCRIPT}}", adsenseScriptHtml())
-    .replaceAll("{{POST_TOC}}", postTocHtml(renderedBody.toc))
-    .replaceAll("{{POST_FEATURED_IMAGE}}", featuredImageHtml(post.image))
-    .replaceAll("{{POST_BODY_WITH_AD}}", bodyHtmlWithAd)
-    .replaceAll("{{POST_PROJECT_SOURCE}}", sourceHtml)
-    .replaceAll("{{POST_NAVIGATION}}", postNavigationHtml(post, writingPosts))
-    .replaceAll("{{POST_AFTER_NAVIGATION_AD}}", afterNavigationAdHtml())
+    .replaceAll("{{POST_ADSENSE_SCRIPT}}", () => adsenseScriptHtml())
+    .replaceAll("{{POST_TOC}}", () => postTocHtml(renderedBody.toc))
+    .replaceAll("{{POST_FEATURED_IMAGE}}", () => featuredImageHtml(post.image))
+    .replaceAll("{{POST_TAXONOMY}}", () => postTaxonomyHtml(post))
+    .replaceAll("{{POST_SHARE}}", () => postShareHtml(post))
+    .replaceAll("{{POST_BODY_WITH_AD}}", () => bodyHtmlWithAd)
+    .replaceAll("{{POST_PROJECT_SOURCE}}", () => sourceHtml)
+    .replaceAll("{{POST_NAVIGATION}}", () => postNavigationHtml(post, writingPosts))
+    .replaceAll("{{POST_SERIES_NAVIGATION}}", () => postSeriesNavigationHtml(post))
+    .replaceAll("{{POST_RELATED_ARTICLES}}", () => postRelatedArticlesHtml(post, writingPosts))
+    .replaceAll("{{POST_AFTER_NAVIGATION_AD}}", () => afterNavigationAdHtml())
     .replaceAll("{{POST_CANONICAL}}", post.resolvedCanonical);
 
   html = replaceSiteTokens(html);
@@ -2023,6 +2223,7 @@ const allBlogPosts = writingPosts.map((post) => ({
       : "Rizwan3d",
   description: post.description,
   category: post.category,
+  tags: post.tags || [],
   createdAt: post.createdAt,
   updatedAt: post.updatedAt,
   featuredImage: post.image?.publicUrl || "",
@@ -2063,17 +2264,43 @@ function blogPaginationHtml(page, total) {
   if (page < total) links.push('<a rel="next" href="' + escapeAttr(urlFor(page + 1)) + '">Next →</a>');
   return '<nav class="blog-pagination" aria-label="Blog archive pages">' + links.join(" ") + '</nav>';
 }
+function blogPaginationUrl(page) {
+  return page === 1 ? `${basePath}blog/` : `${basePath}blog/page/${page}/`;
+}
+
+function blogPaginationHeadLinks(page, total) {
+  if (total <= 1) return "";
+  const links = [];
+  if (page > 1) links.push(`<link rel="prev" href="${escapeAttr(siteUrl + blogPaginationUrl(page - 1))}">`);
+  if (page < total) links.push(`<link rel="next" href="${escapeAttr(siteUrl + blogPaginationUrl(page + 1))}">`);
+  return links.join("\n  ");
+}
+
+function blogArchivePaginationHtml(page, total) {
+  if (total <= 1) return "";
+  const links = [];
+  if (page > 1) links.push('<a rel="prev" href="' + escapeAttr(blogPaginationUrl(page - 1)) + '">&larr; Previous</a>');
+  for (let n = 1; n <= total; n += 1) {
+    links.push('<a href="' + escapeAttr(blogPaginationUrl(n)) + '"' +
+      (page === n ? ' aria-current="page"' : '') + '>' + n + '</a>');
+  }
+  if (page < total) links.push('<a rel="next" href="' + escapeAttr(blogPaginationUrl(page + 1)) + '">Next &rarr;</a>');
+  return '<nav class="blog-pagination" aria-label="Blog archive pages">' + links.join(" ") + '</nav>';
+}
+
 const blogPagePath = path.join(distDir, "blog", "index.html");
 const blogTemplate = await readFile(blogPagePath, "utf8");
+const blogFilters = blogFilterHtml(writingPosts);
 for (let page = 1; page <= totalPages; page += 1) {
   const chunk = allBlogPosts.slice((page - 1) * blogPageSize, page * blogPageSize);
   let pageHtml = blogTemplate
     .replace("<!-- BLOG_INITIAL_ITEMS -->", chunk.map(blogCardHtml).join("\n"))
+    .replaceAll("{{BLOG_FILTERS}}", blogFilters)
     .replaceAll("{{BLOG_TOTAL}}", String(allBlogPosts.length))
     .replaceAll("{{BLOG_TOTAL_PAGES}}", String(totalPages))
     .replaceAll("{{BLOG_PAGE_SIZE}}", String(blogPageSize))
-    .replace('      <div class="blog-load-state" data-blog-sentinel aria-live="polite">',
-      blogPaginationHtml(page, totalPages) + '\n      <div class="blog-load-state" data-blog-sentinel aria-live="polite">');
+    .replaceAll("{{BLOG_PAGINATION_LINKS}}", blogPaginationHeadLinks(page, totalPages))
+    .replaceAll("{{BLOG_PAGINATION}}", blogArchivePaginationHtml(page, totalPages));
   if (page > 1) {
     const pageUrl = siteUrl + "/blog/page/" + page + "/";
     const pageTitle = "Blog Articles - Page " + page + " - " + siteName;
@@ -2098,6 +2325,113 @@ for (let page = 1; page <= totalPages; page += 1) {
     path.join(distDir, "blog", "page", String(page), "index.html");
   await mkdir(path.dirname(outputFile), { recursive: true });
   await writeFile(outputFile, pageHtml, "utf8");
+}
+
+function renderFilteredArchivePage({ title, eyebrow, description, posts, outputFile, canonicalUrl, active }) {
+  const archivePosts = posts.map((post) => ({
+    title: post.title,
+    url: `${basePath}posts/${post.slug}.html`,
+    source: post.sourcePlatform === "hackernoon"
+      ? "HackerNoon"
+      : post.sourcePlatform === "medium"
+        ? "Medium"
+        : "Rizwan3d",
+    description: post.description,
+    category: post.category,
+    tags: post.tags || [],
+    createdAt: post.createdAt,
+    updatedAt: post.updatedAt,
+    featuredImage: post.image?.publicUrl || "",
+    featuredImageAlt: post.image?.alt || "",
+    publishedAt: isoDate(post.createdAt),
+    external: false
+  }));
+
+  const pageTitle = `${title} - ${siteName}`;
+  let html = blogTemplate
+    .replace("<!-- BLOG_INITIAL_ITEMS -->", archivePosts.map(blogCardHtml).join("\n"))
+    .replaceAll("{{BLOG_FILTERS}}", blogFilterHtml(writingPosts, active))
+    .replaceAll("{{BLOG_TOTAL}}", String(archivePosts.length))
+    .replaceAll("{{BLOG_TOTAL_PAGES}}", "1")
+    .replaceAll("{{BLOG_PAGE_SIZE}}", String(Math.max(archivePosts.length, 1)))
+    .replaceAll("{{BLOG_PAGINATION_LINKS}}", "")
+    .replaceAll("{{BLOG_PAGINATION}}", "")
+    .replace('<p class="eyebrow">ALL WRITING</p>', `<p class="eyebrow">${escapeHtml(eyebrow)}</p>`)
+    .replace('<h1>Blog</h1>', `<h1>${escapeHtml(title)}</h1>`)
+    .replace('<p class="subpage-lead">Articles and technical writing published directly on Rizwan3d.</p>',
+      `<p class="subpage-lead">${escapeHtml(description)}</p>`)
+    .replace('<span>{{BLOG_TOTAL}} articles available</span>', `<span>${escapeHtml(String(archivePosts.length))} articles available</span>`)
+    .replace('<span>Static archive</span>', '<span>Filtered archive</span>')
+    .replace('<h2 id="blog-list-heading">Latest first</h2>', '<h2 id="blog-list-heading">Latest first</h2>')
+    .replace('<title>Blog - {{SITE_NAME}}</title>', `<title>${escapeHtml(pageTitle)}</title>`)
+    .replace('<meta name="description" content="Articles and technical writing published directly on Rizwan3d.">',
+      `<meta name="description" content="${escapeAttr(description)}">`)
+    .replace('<meta property="og:title" content="Blog - {{SITE_NAME}}">',
+      `<meta property="og:title" content="${escapeAttr(pageTitle)}">`)
+    .replace('<meta property="og:description" content="Articles on AI agents, RISC-V, compilers, developer tools, and software engineering by Muhammad Rizwan.">',
+      `<meta property="og:description" content="${escapeAttr(description)}">`)
+    .replaceAll('{{SITE_URL}}/blog/', canonicalUrl)
+    .replace('      <div class="blog-load-state" data-blog-sentinel aria-live="polite">\n        <span data-blog-status>Scroll to load more</span>\n      </div>', '')
+    .replace('        <p class="blog-noscript">JavaScript is disabled. Use the page links above to browse the complete archive.</p>', '')
+    .replace('<script src="{{BASE_PATH}}assets/js/blog.js" defer></script>', "");
+
+  return mkdir(path.dirname(outputFile), { recursive: true })
+    .then(() => writeFile(outputFile, html, "utf8"));
+}
+
+const categories = new Map();
+const tags = new Map();
+const years = new Map();
+for (const post of writingPosts) {
+  const categoryKey = archiveSlug(post.category);
+  if (!categories.has(categoryKey)) categories.set(categoryKey, { label: post.category, posts: [] });
+  categories.get(categoryKey).posts.push(post);
+
+  for (const tag of post.tags || []) {
+    const tagKey = archiveSlug(tag);
+    if (!tags.has(tagKey)) tags.set(tagKey, { label: tag, posts: [] });
+    tags.get(tagKey).posts.push(post);
+  }
+
+  const year = post.createdAt.slice(0, 4);
+  if (!years.has(year)) years.set(year, { label: year, posts: [] });
+  years.get(year).posts.push(post);
+}
+
+for (const [slug, group] of categories) {
+  await renderFilteredArchivePage({
+    title: displayTaxonomy(group.label),
+    eyebrow: "CATEGORY ARCHIVE",
+    description: `Articles filed under ${displayTaxonomy(group.label)}.`,
+    posts: group.posts,
+    outputFile: path.join(distDir, "blog", "category", slug, "index.html"),
+    canonicalUrl: `${siteUrl}/blog/category/${slug}/`,
+    active: { type: "category", slug }
+  });
+}
+
+for (const [slug, group] of tags) {
+  await renderFilteredArchivePage({
+    title: displayTaxonomy(group.label),
+    eyebrow: "TAG ARCHIVE",
+    description: `Articles tagged ${displayTaxonomy(group.label)}.`,
+    posts: group.posts,
+    outputFile: path.join(distDir, "blog", "tag", slug, "index.html"),
+    canonicalUrl: `${siteUrl}/blog/tag/${slug}/`,
+    active: { type: "tag", slug }
+  });
+}
+
+for (const [slug, group] of years) {
+  await renderFilteredArchivePage({
+    title: group.label,
+    eyebrow: "YEAR ARCHIVE",
+    description: `Articles published in ${group.label}.`,
+    posts: group.posts,
+    outputFile: path.join(distDir, "blog", "year", slug, "index.html"),
+    canonicalUrl: `${siteUrl}/blog/year/${slug}/`,
+    active: { type: "year", slug }
+  });
 }
 
 const homePath = path.join(distDir, "index.html");
