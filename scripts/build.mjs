@@ -2049,14 +2049,54 @@ await writeFile(
   "utf8"
 );
 
+function blogPaginationHtml(page, total) {
+  if (total <= 1) return "";
+  const urlFor = (n) => n === 1 ? basePath + "blog/" : basePath + "blog/page/" + n + "/";
+  const links = [];
+  if (page > 1) links.push('<a rel="prev" href="' + escapeAttr(urlFor(page - 1)) + '">← Previous</a>');
+  for (let n = 1; n <= total; n += 1) {
+    links.push('<a href="' + escapeAttr(urlFor(n)) + '"' +
+      (page === n ? ' aria-current="page"' : '') + '>' + n + '</a>');
+  }
+  if (page < total) links.push('<a rel="next" href="' + escapeAttr(urlFor(page + 1)) + '">Next →</a>');
+  return '<nav class="blog-pagination" aria-label="Blog archive pages">' + links.join(" ") + '</nav>';
+}
 const blogPagePath = path.join(distDir, "blog", "index.html");
-let blogPage = await readFile(blogPagePath, "utf8");
-blogPage = blogPage
-  .replace("<!-- BLOG_INITIAL_ITEMS -->", allBlogPosts.slice(0, blogPageSize).map(blogCardHtml).join("\n"))
-  .replaceAll("{{BLOG_TOTAL}}", String(allBlogPosts.length))
-  .replaceAll("{{BLOG_TOTAL_PAGES}}", String(totalPages))
-  .replaceAll("{{BLOG_PAGE_SIZE}}", String(blogPageSize));
-await writeFile(blogPagePath, blogPage, "utf8");
+const blogTemplate = await readFile(blogPagePath, "utf8");
+for (let page = 1; page <= totalPages; page += 1) {
+  const chunk = allBlogPosts.slice((page - 1) * blogPageSize, page * blogPageSize);
+  let pageHtml = blogTemplate
+    .replace("<!-- BLOG_INITIAL_ITEMS -->", chunk.map(blogCardHtml).join("\n"))
+    .replaceAll("{{BLOG_TOTAL}}", String(allBlogPosts.length))
+    .replaceAll("{{BLOG_TOTAL_PAGES}}", String(totalPages))
+    .replaceAll("{{BLOG_PAGE_SIZE}}", String(blogPageSize))
+    .replace('      <div class="blog-load-state" data-blog-sentinel aria-live="polite">',
+      blogPaginationHtml(page, totalPages) + '\n      <div class="blog-load-state" data-blog-sentinel aria-live="polite">');
+  if (page > 1) {
+    const pageUrl = siteUrl + "/blog/page/" + page + "/";
+    const pageTitle = "Blog Articles - Page " + page + " - " + siteName;
+    const description = "Browse page " + page + " of " + totalPages + " of Muhammad Rizwan's technical articles and developer notes.";
+    pageHtml = pageHtml
+      .replace('<title>Blog - {{SITE_NAME}}</title>', '<title>' + escapeHtml(pageTitle) + '</title>')
+      .replace('<meta name="description" content="Articles and technical writing published directly on Rizwan3d.">',
+        '<meta name="description" content="' + escapeAttr(description) + '">')
+      .replace('<meta property="og:title" content="Blog - {{SITE_NAME}}">',
+        '<meta property="og:title" content="' + escapeAttr(pageTitle) + '">')
+      .replace('<meta property="og:description" content="Articles on AI agents, RISC-V, compilers, developer tools, and software engineering by Muhammad Rizwan.">',
+        '<meta property="og:description" content="' + escapeAttr(description) + '">')
+      .replaceAll('{{SITE_URL}}/blog/', pageUrl)
+      .replace('<h1>Blog</h1>', '<h1>Blog - Page ' + page + '</h1>')
+      .replace('<span>Static archive</span>', '<span>Page ' + page + ' of ' + totalPages + '</span>')
+      .replace('      <div class="blog-load-state" data-blog-sentinel aria-live="polite">\n        <span data-blog-status>Scroll to load more</span>\n      </div>', '')
+      .replace('        <p class="blog-noscript">JavaScript is disabled, so only the first page of the archive is shown.</p>',
+        '        <p class="blog-noscript">Use the archive links above to browse all pages.</p>')
+      .replace('<script src="{{BASE_PATH}}assets/js/blog.js" defer></script>', "");
+  }
+  const outputFile = page === 1 ? blogPagePath :
+    path.join(distDir, "blog", "page", String(page), "index.html");
+  await mkdir(path.dirname(outputFile), { recursive: true });
+  await writeFile(outputFile, pageHtml, "utf8");
+}
 
 const homePath = path.join(distDir, "index.html");
 let home = await readFile(homePath, "utf8");
