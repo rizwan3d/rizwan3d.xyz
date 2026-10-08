@@ -42,6 +42,7 @@ const linkPreviewConfig = config.linkPreviews || {};
 const linkPreviewsEnabled = linkPreviewConfig.enabled !== false;
 const linkPreviewTimeoutMs = Math.max(1000, Number(linkPreviewConfig.timeoutMs || 8000));
 const linkPreviewMaxBytes = Math.max(65536, Number(linkPreviewConfig.maxBytes || 1500000));
+const outboundRef = "rizwan3d.xyz";
 
 await rm(distDir, { recursive: true, force: true });
 await mkdir(distDir, { recursive: true });
@@ -134,6 +135,19 @@ function safeMarkdownHref(value = "") {
   return "#";
 }
 
+function withOutboundRef(value = "") {
+  const raw = String(value || "").trim();
+  if (!/^https?:\/\//i.test(raw)) return raw;
+
+  try {
+    const parsed = new URL(raw);
+    parsed.searchParams.set("ref", outboundRef);
+    return parsed.href;
+  } catch {
+    return raw;
+  }
+}
+
 function safeMarkdownImageSrc(value = "") {
   const raw = String(value || "").trim();
   if (/^https:\/\//i.test(raw) || raw.startsWith("/")) return raw;
@@ -175,11 +189,12 @@ function inlineMarkdown(value = "", context = {}) {
       const external = /^https?:\/\//i.test(safeHref);
       const attrs = external ? ' target="_blank" rel="noopener noreferrer"' : "";
       const titleAttr = title ? ` title="${escapeAttr(title)}"` : "";
+      const renderedHref = external ? withOutboundRef(safeHref) : safeHref;
       const labelHtml = escapeHtml(label)
         .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
         .replace(/~~([^~]+)~~/g, "<del>$1</del>");
       return token(
-        `<a class="inline-link" href="${escapeAttr(safeHref)}"${titleAttr}${attrs}>${labelHtml}</a>`
+        `<a class="inline-link" href="${escapeAttr(renderedHref)}"${titleAttr}${attrs}>${labelHtml}</a>`
       );
     }
   );
@@ -227,7 +242,7 @@ function inlineMarkdown(value = "", context = {}) {
       if (href === "#") return `${prefix}${rawUrl}`;
 
       return `${prefix}${token(
-        `<a class="inline-link auto-link" href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(url)}</a>`
+        `<a class="inline-link auto-link" href="${escapeAttr(withOutboundRef(href))}" target="_blank" rel="noopener noreferrer">${escapeHtml(url)}</a>`
       )}${suffix}`;
     }
   );
@@ -632,7 +647,7 @@ async function prepareUrlPreviews(posts) {
 }
 
 function normalPreviewFallback(url) {
-  return `<p class="url-preview-fallback"><a class="inline-link" href="${escapeAttr(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(url)}</a></p>`;
+  return `<p class="url-preview-fallback"><a class="inline-link" href="${escapeAttr(withOutboundRef(url))}" target="_blank" rel="noopener noreferrer">${escapeHtml(url)}</a></p>`;
 }
 
 function parseUrlPreviewBlock(lines, startIndex) {
@@ -709,7 +724,7 @@ function urlPreviewHtml(preview) {
     ? `<p>${escapeHtml(preview.description)}</p>`
     : "";
 
-  return `<a class="url-preview-card" href="${escapeAttr(preview.url)}" target="_blank" rel="noopener noreferrer">
+  return `<a class="url-preview-card" href="${escapeAttr(withOutboundRef(preview.url))}" target="_blank" rel="noopener noreferrer">
     ${imageHtml}
     <div class="url-preview-copy">
       <span class="url-preview-site">${escapeHtml(preview.site)}</span>
@@ -731,7 +746,7 @@ function youtubePreviewHtml(preview) {
     </div>
     <figcaption class="youtube-preview-copy">
       <span class="url-preview-site">${escapeHtml(preview.site)}</span>
-      <a class="youtube-preview-title" href="${escapeAttr(preview.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(preview.title)}</a>
+      <a class="youtube-preview-title" href="${escapeAttr(withOutboundRef(preview.url))}" target="_blank" rel="noopener noreferrer">${escapeHtml(preview.title)}</a>
       ${descriptionHtml}
       <span class="url-preview-host">youtube.com ↗</span>
     </figcaption>
