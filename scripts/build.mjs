@@ -1539,8 +1539,7 @@ function postMarkdown(post) {
   const updatedLine = post.updatedAt !== post.createdAt
     ? `Updated: ${post.updatedAt}\n`
     : "";
-  const localUrl = `${siteUrl}/posts/${post.slug}.html`;
-  const canonical = post.canonicalUrl || localUrl;
+  const canonical = post.resolvedCanonical;
   const sourceLine = post.sourceUrl
     ? `Original source: ${post.sourceUrl}\n`
     : "";
@@ -1566,8 +1565,8 @@ function postJsonLd(post) {
     description: post.description,
     datePublished: isoDate(post.createdAt),
     dateModified: isoDate(post.updatedAt),
-    mainEntityOfPage: `${siteUrl}/posts/${post.slug}.html`,
-    url: `${siteUrl}/posts/${post.slug}.html`,
+    mainEntityOfPage: post.resolvedCanonical,
+    url: post.resolvedCanonical,
     inLanguage: siteLanguage,
     articleSection: post.category,
     author: {
@@ -1590,7 +1589,9 @@ function postJsonLd(post) {
 
   if (image) data.image = image;
   if (post.tags?.length) data.keywords = post.tags;
-  if (post.sourceUrl) {
+  if (post.sourceUrl &&
+      !/^https:\/\/medium\.com\/@[^/]+\/?$/i.test(post.sourceUrl) &&
+      !/^https:\/\/hackernoon\.com\/u\/[^/]+\/?$/i.test(post.sourceUrl)) {
     data.isBasedOn = post.sourceUrl;
     data.sameAs = [post.sourceUrl];
   }
@@ -1921,6 +1922,31 @@ function afterNavigationAdHtml() {
 }
 
 const writingPosts = await loadWritingPosts();
+for (const post of writingPosts) {
+  if (!String(post.description || "").trim()) {
+    const summary = post.bodyMarkdown
+      .replace(/!\[[^\]]*\]\([^)]+\)/g, " ")
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+      .replace(/^[\s#>*-]+/gm, "")
+      .replace(/\s+/g, " ").trim();
+    post.description = summary.length > 155
+      ? summary.slice(0, 152).replace(/\s+\S*$/, "") + "…"
+      : summary || "Read " + post.title + " by " + ownerName + ".";
+  }
+  const fallbackCanonical = siteUrl + "/posts/" + post.slug;
+  const rawCanonical = String(post.canonicalUrl || "").trim();
+  try {
+    const declared = rawCanonical ? new URL(rawCanonical) : null;
+    const generic = !declared || !/^https?:$/.test(declared.protocol) ||
+      declared.hostname === new URL(siteUrl).hostname ||
+      declared.pathname === "/" ||
+      /^\/@[^/]+\/?$/.test(declared.pathname) ||
+      /^\/u\/[^/]+\/?$/.test(declared.pathname);
+    post.resolvedCanonical = generic ? fallbackCanonical : declared.href;
+  } catch {
+    post.resolvedCanonical = fallbackCanonical;
+  }
+}
 await prepareUrlPreviews(writingPosts);
 for (const post of writingPosts) {
   post.publicBodyMarkdown = await resolveMarkdownBodyImages(post);
@@ -1980,7 +2006,7 @@ for (const post of writingPosts) {
     .replaceAll("{{POST_PROJECT_SOURCE}}", sourceHtml)
     .replaceAll("{{POST_NAVIGATION}}", postNavigationHtml(post, writingPosts))
     .replaceAll("{{POST_AFTER_NAVIGATION_AD}}", afterNavigationAdHtml())
-    .replaceAll("{{POST_CANONICAL}}", post.canonicalUrl || `${siteUrl}/posts/${post.slug}.html`);
+    .replaceAll("{{POST_CANONICAL}}", post.resolvedCanonical);
 
   html = replaceSiteTokens(html);
   await writeFile(path.join(generatedPostsDir, `${post.slug}.html`), html, "utf8");
@@ -2025,14 +2051,54 @@ await writeFile(
   "utf8"
 );
 
+function blogPaginationHtml(page, total) {
+  if (total <= 1) return "";
+  const urlFor = (n) => n === 1 ? basePath + "blog/" : basePath + "blog/page/" + n + "/";
+  const links = [];
+  if (page > 1) links.push('<a rel="prev" href="' + escapeAttr(urlFor(page - 1)) + '">← Previous</a>');
+  for (let n = 1; n <= total; n += 1) {
+    links.push('<a href="' + escapeAttr(urlFor(n)) + '"' +
+      (page === n ? ' aria-current="page"' : '') + '>' + n + '</a>');
+  }
+  if (page < total) links.push('<a rel="next" href="' + escapeAttr(urlFor(page + 1)) + '">Next →</a>');
+  return '<nav class="blog-pagination" aria-label="Blog archive pages">' + links.join(" ") + '</nav>';
+}
 const blogPagePath = path.join(distDir, "blog", "index.html");
-let blogPage = await readFile(blogPagePath, "utf8");
-blogPage = blogPage
-  .replace("<!-- BLOG_INITIAL_ITEMS -->", allBlogPosts.slice(0, blogPageSize).map(blogCardHtml).join("\n"))
-  .replaceAll("{{BLOG_TOTAL}}", String(allBlogPosts.length))
-  .replaceAll("{{BLOG_TOTAL_PAGES}}", String(totalPages))
-  .replaceAll("{{BLOG_PAGE_SIZE}}", String(blogPageSize));
-await writeFile(blogPagePath, blogPage, "utf8");
+const blogTemplate = await readFile(blogPagePath, "utf8");
+for (let page = 1; page <= totalPages; page += 1) {
+  const chunk = allBlogPosts.slice((page - 1) * blogPageSize, page * blogPageSize);
+  let pageHtml = blogTemplate
+    .replace("<!-- BLOG_INITIAL_ITEMS -->", chunk.map(blogCardHtml).join("\n"))
+    .replaceAll("{{BLOG_TOTAL}}", String(allBlogPosts.length))
+    .replaceAll("{{BLOG_TOTAL_PAGES}}", String(totalPages))
+    .replaceAll("{{BLOG_PAGE_SIZE}}", String(blogPageSize))
+    .replace('      <div class="blog-load-state" data-blog-sentinel aria-live="polite">',
+      blogPaginationHtml(page, totalPages) + '\n      <div class="blog-load-state" data-blog-sentinel aria-live="polite">');
+  if (page > 1) {
+    const pageUrl = siteUrl + "/blog/page/" + page + "/";
+    const pageTitle = "Blog Articles - Page " + page + " - " + siteName;
+    const description = "Browse page " + page + " of " + totalPages + " of Muhammad Rizwan's technical articles and developer notes.";
+    pageHtml = pageHtml
+      .replace('<title>Blog - {{SITE_NAME}}</title>', '<title>' + escapeHtml(pageTitle) + '</title>')
+      .replace('<meta name="description" content="Articles and technical writing published directly on Rizwan3d.">',
+        '<meta name="description" content="' + escapeAttr(description) + '">')
+      .replace('<meta property="og:title" content="Blog - {{SITE_NAME}}">',
+        '<meta property="og:title" content="' + escapeAttr(pageTitle) + '">')
+      .replace('<meta property="og:description" content="Articles on AI agents, RISC-V, compilers, developer tools, and software engineering by Muhammad Rizwan.">',
+        '<meta property="og:description" content="' + escapeAttr(description) + '">')
+      .replaceAll('{{SITE_URL}}/blog/', pageUrl)
+      .replace('<h1>Blog</h1>', '<h1>Blog - Page ' + page + '</h1>')
+      .replace('<span>Static archive</span>', '<span>Page ' + page + ' of ' + totalPages + '</span>')
+      .replace('      <div class="blog-load-state" data-blog-sentinel aria-live="polite">\n        <span data-blog-status>Scroll to load more</span>\n      </div>', '')
+      .replace('        <p class="blog-noscript">JavaScript is disabled, so only the first page of the archive is shown.</p>',
+        '        <p class="blog-noscript">Use the archive links above to browse all pages.</p>')
+      .replace('<script src="{{BASE_PATH}}assets/js/blog.js" defer></script>', "");
+  }
+  const outputFile = page === 1 ? blogPagePath :
+    path.join(distDir, "blog", "page", String(page), "index.html");
+  await mkdir(path.dirname(outputFile), { recursive: true });
+  await writeFile(outputFile, pageHtml, "utf8");
+}
 
 const homePath = path.join(distDir, "index.html");
 let home = await readFile(homePath, "utf8");
@@ -2072,6 +2138,45 @@ for (const file of files) {
 
   if (file.endsWith(".html")) {
     const rel = path.relative(distDir, file).split(path.sep).join("/");
+    if (rel !== "404.html") {
+      const pageUrl = rel === "index.html" ? siteUrl + "/" :
+        rel.endsWith("/index.html") ? siteUrl + "/" + rel.slice(0, -"index.html".length) :
+        siteUrl + "/" + rel.replace(/\.html$/, "");
+      const title = (text.match(/<title>([\s\S]*?)<\/title>/i) || [])[1] || "";
+      const description = (text.match(/<meta name="description" content="([^"]*)"/i) || [])[1] || "";
+      const image = (text.match(/<meta property="og:image" content="([^"]*)"/i) || [])[1] ||
+        siteUrl + "/assets/images/muhammad-rizwan.webp";
+      const extras = [];
+      const missing = (check, value) => { if (!check.test(text)) extras.push(value); };
+      missing(/<link rel="canonical"/i, '<link rel="canonical" href="' + escapeAttr(pageUrl) + '">');
+      missing(/<meta property="og:url"/i, '<meta property="og:url" content="' + escapeAttr(pageUrl) + '">');
+      missing(/<meta property="og:site_name"/i, '<meta property="og:site_name" content="' + escapeAttr(siteName) + '">');
+      missing(/<meta property="og:locale"/i, '<meta property="og:locale" content="' + escapeAttr(siteLanguage.replace("-", "_")) + '">');
+      missing(/<meta property="og:image"/i, '<meta property="og:image" content="' + escapeAttr(image) + '">');
+      missing(/<meta property="og:image:alt"/i, '<meta property="og:image:alt" content="' + escapeAttr(title) + '">');
+      missing(/<meta name="twitter:card"/i, '<meta name="twitter:card" content="summary">');
+      missing(/<meta name="twitter:title"/i, '<meta name="twitter:title" content="' + escapeAttr(title) + '">');
+      missing(/<meta name="twitter:description"/i, '<meta name="twitter:description" content="' + escapeAttr(description) + '">');
+      missing(/<meta name="twitter:image"/i, '<meta name="twitter:image" content="' + escapeAttr(image) + '">');
+      if (!rel.startsWith("posts/")) {
+        const kind = rel === "about.html" ? "AboutPage" :
+          rel === "contact.html" ? "ContactPage" :
+          rel.startsWith("blog/") ? "CollectionPage" : "WebPage";
+        const pageData = {
+          "@context": "https://schema.org", "@type": kind,
+          name: title, description, url: pageUrl, inLanguage: siteLanguage,
+          isPartOf: { "@type": "WebSite", name: siteName, url: siteUrl + "/" }
+        };
+        if (kind === "AboutPage") pageData.mainEntity = {
+          "@type": "Person", name: ownerName, url: siteUrl + "/about",
+          image: siteUrl + "/assets/images/muhammad-rizwan.webp",
+          sameAs: [githubUrl, mediumUrl, hackerNoonUrl].filter(Boolean)
+        };
+        extras.push('<script type="application/ld+json">' +
+          JSON.stringify(pageData).replace(/</g, "\\u003c") + '</script>');
+      }
+      text = text.replace("</head>", "  " + extras.join("\n  ") + "\n</head>");
+    }
 
     if (rel === "index.html") {
       const verify = [
@@ -2142,8 +2247,10 @@ const postByHtmlPath = new Map(
 const sitemapEntries = htmlFiles.map((file) => {
   let rel = path.relative(distDir, file).split(path.sep).join("/");
   const post = postByHtmlPath.get(rel);
-  const urlRel = rel === "index.html" ? "" : rel.replace(/index\.html$/, "");
-  const url = `${siteUrl}/${urlRel}`.replace(/([^:]\/)\/+/, "$1");
+  const url = rel === "index.html" ? siteUrl + "/" :
+    rel.endsWith("/index.html") ? siteUrl + "/" + rel.slice(0, -"index.html".length) :
+    siteUrl + "/" + rel.replace(/\.html$/, "");
+  if (post && post.resolvedCanonical !== url) return null;
 
   return {
     url,
@@ -2151,7 +2258,7 @@ const sitemapEntries = htmlFiles.map((file) => {
     image: post?.image?.absoluteUrl || "",
     imageTitle: post?.image?.alt || post?.title || ""
   };
-});
+}).filter(Boolean);
 
 const sitemapHasImages = sitemapEntries.some((entry) => entry.image);
 const sitemapNamespaces = sitemapHasImages
