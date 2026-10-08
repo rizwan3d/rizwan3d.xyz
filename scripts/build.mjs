@@ -1588,7 +1588,7 @@ async function loadWritingPosts() {
     const source = await readFile(file, "utf8");
     const { meta, body } = parseFrontMatter(source, rel);
 
-    for (const required of ["title", "created", "updated", "category", "description"]) {
+    for (const required of ["title", "created", "updated", "category"]) {
       if (!String(meta[required] ?? "").trim()) {
         throw new Error(`${rel}: missing required front matter field "${required}"`);
       }
@@ -1615,7 +1615,7 @@ async function loadWritingPosts() {
       createdAt: String(meta.created),
       updatedAt: String(meta.updated),
       category: String(meta.category),
-      description: String(meta.description),
+      description: String(meta.description ?? ""),
       sourcePlatform: meta.sourcePlatform ? String(meta.sourcePlatform).toLowerCase() : "",
       sourceUrl: meta.sourceUrl ? String(meta.sourceUrl) : (meta.projectUrl ? String(meta.projectUrl) : ""),
       canonicalUrl: meta.canonicalUrl ? String(meta.canonicalUrl) : "",
