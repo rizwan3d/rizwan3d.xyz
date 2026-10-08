@@ -4,10 +4,14 @@
   "private": true,
   "description": "Production static site for Rizwan3d with Pagefind, Prism.js, Kit, Giscus, and consent-gated third-party embeds",
   "scripts": {
-    "build": "node scripts/build.mjs && pagefind --site dist",
+    "build": "node scripts/build.mjs && tailwindcss -i ./src/assets/css/style.css -o ./dist/assets/css/style.css --minify && pagefind --site dist",
+    "build:css": "tailwindcss -i ./src/assets/css/style.css -o ./dist/assets/css/style.css --minify",
     "preview": "pagefind --site dist --serve"
   },
   "devDependencies": {
-    "pagefind": "latest"
+    "autoprefixer": "^10.4.20",
+    "pagefind": "latest",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17"
   }
 }
