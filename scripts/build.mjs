@@ -1586,6 +1586,14 @@ function postJsonLd(post) {
 
   if (image) data.image = image;
   if (post.tags?.length) data.keywords = post.tags;
+  data.breadcrumb = {
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: siteUrl + "/" },
+      { "@type": "ListItem", position: 2, name: "Blog", item: siteUrl + "/blog/" },
+      { "@type": "ListItem", position: 3, name: post.title, item: siteUrl + "/posts/" + post.slug }
+    ]
+  };
   if (post.sourceUrl &&
       !/^https:\/\/medium\.com\/@[^/]+\/?$/i.test(post.sourceUrl) &&
       !/^https:\/\/hackernoon\.com\/u\/[^/]+\/?$/i.test(post.sourceUrl)) {
@@ -2147,6 +2155,10 @@ for (const post of writingPosts) {
     .replaceAll("{{POST_DESCRIPTION}}", escapeHtml(post.description))
     .replaceAll("{{POST_DESCRIPTION_ATTR}}", escapeAttr(post.description))
     .replaceAll("{{POST_CATEGORY_ATTR}}", escapeAttr(post.category))
+    .replaceAll("{{POST_ARTICLE_TAXONOMY_META}}", [
+      `<meta property="article:section" content="${escapeAttr(post.category)}">`,
+      ...(post.tags || []).map((tag) => `<meta property="article:tag" content="${escapeAttr(tag)}">`)
+    ].join("\n  "))
     .replaceAll("{{POST_CREATED_DATE}}", escapeAttr(post.createdAt))
     .replaceAll("{{POST_CREATED_ISO}}", escapeAttr(isoDate(post.createdAt)))
     .replaceAll("{{POST_UPDATED_ISO}}", escapeAttr(isoDate(post.updatedAt)))
