@@ -1357,6 +1357,26 @@ function displayTaxonomy(value = "") {
     .join(" ");
 }
 
+// Conservative topic labels for legacy imports with empty tag front matter.
+function inferredTopicTags(title = "") {
+  const tests = [
+    ["Laravel", /\\blaravel\\b/i],
+    ["PHP", /\\bphp\\b/i],
+    ["Angular", /\\bangular\\b/i],
+    ["C#", /\\bc#\\b|\\bcsharp\\b|\\b\\.net\\b/i],
+    ["RISC-V", /\\brisc[ -]?v\\b/i],
+    ["WebSocket", /\\bwebsockets?\\b/i],
+    ["Python", /\\bpython\\b/i],
+    ["Git", /\\bgit\\b|\\bcommit messages?\\b/i],
+    ["Valorant", /\\bvalorant\\b/i],
+    ["Game Development", /\\bgame development\\b|\\bgame design\\b/i],
+    ["Data Mining", /\\bdata mining\\b|\\bapriori\\b/i],
+    ["AI Agents", /\\bai (?:coding )?agents?\\b/i],
+    ["Compilers", /\\bcompilers?\\b|\\bassemblers?\\b/i]
+  ];
+  return tests.filter(([, pattern]) => pattern.test(title)).map(([label]) => label);
+}
+
 function categoryUrl(category) {
   return `${basePath}blog/category/${archiveSlug(category)}/`;
 }
@@ -2106,6 +2126,7 @@ for (const post of writingPosts) {
       ? summary.slice(0, 152).replace(/\s+\S*$/, "") + "…"
       : summary || "Read " + post.title + " by " + ownerName + ".";
   }
+  if (!post.tags.length) post.tags = inferredTopicTags(post.title);
   const fallbackCanonical = siteUrl + "/posts/" + post.slug;
   const rawCanonical = String(post.canonicalUrl || "").trim();
   try {
