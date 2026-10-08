@@ -864,9 +864,9 @@ And that is usually where programming becomes interesting.
 
 ## Contribute to the Project
 
-StemCode is an open-source project available on GitHub. If you find this tool valuable and helpful, consider giving it a star on GitHub. Your support encourages the continuous improvement of StemCode.
+SteSharpRISCVmCode is an open-source project available on GitHub. If you find this tool valuable and helpful, consider giving it a star on GitHub. Your support encourages the continuous improvement of SharpRISCV.
 
 :::url-preview
-https://github.com/rizwan3d/StemCode
+https://github.com/rizwan3d/SharpRISCV
 :::
 
