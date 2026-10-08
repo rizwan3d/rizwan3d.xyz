@@ -25,7 +25,7 @@ featuredImageCreditUrl: "https://unsplash.com/@richygreat"
 
 ### Introduction:
 
-In the ever-evolving landscape of [computer architecture](https://hackernoon.com/c/programming), RISC-V has emerged as an open-source instruction set architecture (ISA), gaining popularity for its simplicity, flexibility, and scalability. One intriguing development in this space is the SharpRISCV project, which brings RISC-V assembly right to your web browser. In this article, we'll delve into the capabilities of SharpRISCV, exploring its features, applications, and how you can contribute to this exciting open-source initiative.
+In the ever-evolving landscape of computer architecture, RISC-V has emerged as an open-source instruction set architecture (ISA), gaining popularity for its simplicity, flexibility, and scalability. One intriguing development in this space is the SharpRISCV project, which brings RISC-V assembly right to your web browser. In this article, we'll delve into the capabilities of SharpRISCV, exploring its features, applications, and how you can contribute to this exciting open-source initiative.
 
 ![Exploring RISC-V Assembly in the Web Browser with SharpRISCV image 1](/assets/images/posts/exploring-risc-v-assembly-in-the-web-browser-with-sharpriscv/content-1.jpg)
 
