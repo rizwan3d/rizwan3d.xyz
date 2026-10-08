@@ -52,7 +52,10 @@
     </button>
   </header>
 
-  <main id="main" class="article-shell">
+  <div class="article-layout">
+    {{POST_TOC}}
+
+    <main id="main" class="article-shell">
     <article class="article-content" data-pagefind-body>
       <h1 data-pagefind-meta="title">{{POST_TITLE}}</h1>
       <div class="article-meta">
@@ -108,7 +111,8 @@
     <div class="back-to-posts" data-pagefind-ignore>
       <a href="{{BASE_PATH}}blog/">←&nbsp;&nbsp; All posts</a>
     </div>
-  </main>
+    </main>
+  </div>
 
   <footer class="footer" data-pagefind-ignore>
     <div class="footer-main">

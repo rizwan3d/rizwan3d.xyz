@@ -144,6 +144,22 @@ function slugify(value = "") {
     .replace(/^-+|-+$/g, "");
 }
 
+function plainMarkdownText(value = "") {
+  return String(value || "")
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/[`*_~]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function uniqueHeadingId(text, context) {
+  const base = slugify(plainMarkdownText(text)) || "section";
+  const count = context.headingIds.get(base) || 0;
+  context.headingIds.set(base, count + 1);
+  return count ? `${base}-${count + 1}` : base;
+}
+
 function safeMarkdownHref(value = "") {
   const raw = String(value || "").trim();
   if (/^(https?:\/\/|mailto:|\/|#)/i.test(raw)) return raw;
@@ -1223,7 +1239,14 @@ function renderBlocks(lines, context) {
     const heading = line.match(/^(#{1,6})\s+(.+)$/);
     if (heading) {
       const level = heading[1].length;
-      out.push(`<h${level}${level === 1 ? ' class="article-body-h1"' : ""}>${inlineMarkdown(heading[2], context)}</h${level}>`);
+      const id = uniqueHeadingId(heading[2], context);
+      const label = plainMarkdownText(heading[2]);
+      if (level === 2) context.toc.push({ id, label });
+      const attrs = [
+        `id="${escapeAttr(id)}"`,
+        level === 1 ? 'class="article-body-h1"' : ""
+      ].filter(Boolean).join(" ");
+      out.push(`<h${level} ${attrs}>${inlineMarkdown(heading[2], context)}</h${level}>`);
       index += 1;
       continue;
     }
@@ -1297,7 +1320,9 @@ function markdownToHtml(markdown) {
     footnotes: extracted.footnotes,
     footnoteNumbers: new Map(),
     footnoteOrder: [],
-    footnoteRefCounts: new Map()
+    footnoteRefCounts: new Map(),
+    headingIds: new Map(),
+    toc: []
   };
 
   let html = renderBlocks(extracted.lines, context);
@@ -1305,12 +1330,14 @@ function markdownToHtml(markdown) {
 
   // Preserve the existing article-section spacing from each H2 onward.
   const parts = html.split(/(?=<h2(?:\s|>))/g);
-  if (parts.length <= 1) return html;
+  if (parts.length <= 1) return { html, toc: context.toc };
 
-  return parts.map((part, index) => {
+  html = parts.map((part, index) => {
     if (index === 0 && !part.startsWith("<h2")) return part;
     return `<section class="article-section">${part}</section>`;
   }).join("\n");
+
+  return { html, toc: context.toc };
 }
 
 function formatDate(value) {
@@ -1868,6 +1895,21 @@ function postNavigationHtml(post, posts) {
   </nav>`;
 }
 
+function postTocHtml(toc) {
+  const items = (toc || [])
+    .filter((item) => item.id && item.label)
+    .slice(0, 18);
+
+  if (items.length < 2) return "";
+
+  return `<aside class="article-toc" aria-label="Article sections" data-pagefind-ignore>
+    <p>In this article</p>
+    <nav>
+      ${items.map((item) => `<a href="#${escapeAttr(item.id)}" data-toc-link>${escapeHtml(item.label)}</a>`).join("\n      ")}
+    </nav>
+  </aside>`;
+}
+
 function afterNavigationAdHtml() {
   const adHtml = inArticleAdHtml();
   if (!adHtml) return "";
@@ -1889,7 +1931,8 @@ await mkdir(generatedPostsDir, { recursive: true });
 
 for (const post of writingPosts) {
   post.image = await resolveFeaturedImage(post);
-  const bodyHtml = markdownToHtml(post.publicBodyMarkdown || post.bodyMarkdown);
+  const renderedBody = markdownToHtml(post.publicBodyMarkdown || post.bodyMarkdown);
+  const bodyHtml = renderedBody.html;
   const bodyHtmlWithAd = insertInArticleAd(bodyHtml, inArticleAdHtml());
   const updatedMeta = post.updatedAt !== post.createdAt
     ? `<span class="article-updated">Updated <time datetime="${escapeAttr(post.updatedAt)}">${escapeHtml(formatDate(post.updatedAt))}</time></span>`
@@ -1931,6 +1974,7 @@ for (const post of writingPosts) {
       : "")
     .replaceAll("{{POST_JSON_LD}}", postJsonLd(post))
     .replaceAll("{{POST_ADSENSE_SCRIPT}}", adsenseScriptHtml())
+    .replaceAll("{{POST_TOC}}", postTocHtml(renderedBody.toc))
     .replaceAll("{{POST_FEATURED_IMAGE}}", featuredImageHtml(post.image))
     .replaceAll("{{POST_BODY_WITH_AD}}", bodyHtmlWithAd)
     .replaceAll("{{POST_PROJECT_SOURCE}}", sourceHtml)
@@ -2137,7 +2181,7 @@ const feedBuildDate = latestUpdated ? new Date(`${latestUpdated}T00:00:00.000Z`)
 
 const rssItems = writingPosts.map((post) => {
   const link = `${siteUrl}/posts/${post.slug}.html`;
-  const bodyHtml = markdownToHtml(post.publicBodyMarkdown || post.bodyMarkdown);
+  const bodyHtml = markdownToHtml(post.publicBodyMarkdown || post.bodyMarkdown).html;
   return `    <item>
       <title>${escapeXml(post.title)}</title>
       <link>${escapeXml(link)}</link>
@@ -2170,7 +2214,7 @@ await writeFile(path.join(distDir, "rss.xml"), rss, "utf8");
 
 const atomEntries = writingPosts.map((post) => {
   const link = `${siteUrl}/posts/${post.slug}.html`;
-  const bodyHtml = markdownToHtml(post.publicBodyMarkdown || post.bodyMarkdown);
+  const bodyHtml = markdownToHtml(post.publicBodyMarkdown || post.bodyMarkdown).html;
   return `  <entry>
     <title>${escapeXml(post.title)}</title>
     <id>${escapeXml(link)}</id>
@@ -2215,7 +2259,7 @@ const jsonFeed = {
     url: `${siteUrl}/posts/${post.slug}.html`,
     title: post.title,
     summary: post.description,
-    content_html: markdownToHtml(post.publicBodyMarkdown || post.bodyMarkdown),
+    content_html: markdownToHtml(post.publicBodyMarkdown || post.bodyMarkdown).html,
     date_published: isoDate(post.createdAt),
     date_modified: isoDate(post.updatedAt),
     tags: [post.category],

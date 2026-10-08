@@ -124,7 +124,17 @@
   .reading-progress { @apply fixed left-0 top-0 z-[1900] h-[6px] w-full bg-transparent; }
   .reading-progress span { @apply block h-full origin-left scale-x-0 bg-[#244f86]; transition: transform 80ms linear; }
 
+  .article-layout { @apply relative; }
   .article-shell { @apply mx-auto mt-[34px] w-[min(100%,780px)]; }
+  .article-toc { @apply hidden; }
+  .article-content h2 { scroll-margin-top: 90px; }
+  @media (min-width: 1250px) {
+    .article-toc { @apply fixed z-10 block overflow-hidden border-l border-[#dfe5ee] pl-4 text-sm; left: max(24px, calc(50vw - 646px)); top: 300px; width: min(229px, calc(50vw - 450px)); max-height: calc(100vh - 330px); }
+    .article-toc p { @apply mb-3 mt-0 text-[10px] font-semibold uppercase tracking-[1.8px] text-[#7d8ca3]; }
+    .article-toc nav { @apply grid gap-2; }
+    .article-toc a { @apply block leading-[1.35] text-[#667892] transition hover:text-[#142033]; }
+    .article-toc a.is-active { @apply font-semibold text-[#142033]; }
+  }
   .article-content { @apply text-[17px] leading-[1.75] text-[#26364d]; }
   .article-content h1 { @apply mb-4 mt-0 text-[clamp(42px,5vw,54px)] font-bold leading-[1.06] tracking-[-2.2px] text-[#0d1117] max-[650px]:text-[38px]; }
   .article-lead { @apply mb-8 mt-0 max-w-[710px] text-[19px] leading-[1.6] text-[#394d68]; }

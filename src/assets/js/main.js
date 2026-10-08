@@ -129,6 +129,69 @@
     updateProgress();
   }
 
+  const tocLinks = Array.from(document.querySelectorAll("[data-toc-link]"));
+  if (tocLinks.length) {
+    const toc = tocLinks[0].closest(".article-toc");
+    const article = document.querySelector(".article-content");
+    const layout = document.querySelector(".article-layout");
+    const tocById = new Map(tocLinks.map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
+    const headings = Array.from(tocById.keys())
+      .map((id) => document.getElementById(id))
+      .filter(Boolean);
+
+    const updateTocStop = () => {
+      if (!toc || !article || !layout || window.matchMedia("(max-width: 1249px)").matches) {
+        toc?.removeAttribute("style");
+        return;
+      }
+
+      const fixedTop = 300;
+      const fixedLeft = Math.max(24, window.innerWidth * 0.5 - 646);
+      const articleBottom = article.getBoundingClientRect().bottom + window.scrollY;
+      const layoutLeft = layout.getBoundingClientRect().left + window.scrollX;
+      const tocHeight = toc.offsetHeight;
+      const shouldStop = window.scrollY + fixedTop + tocHeight >= articleBottom;
+
+      if (shouldStop) {
+        toc.style.position = "absolute";
+        toc.style.top = `${articleBottom - (layout.getBoundingClientRect().top + window.scrollY) - tocHeight}px`;
+        toc.style.left = `${fixedLeft - layoutLeft}px`;
+      } else {
+        toc.removeAttribute("style");
+      }
+    };
+
+    let tocStopTicking = false;
+    const requestTocStopUpdate = () => {
+      if (tocStopTicking) return;
+      tocStopTicking = true;
+      requestAnimationFrame(() => {
+        updateTocStop();
+        tocStopTicking = false;
+      });
+    };
+
+    window.addEventListener("scroll", requestTocStopUpdate, { passive: true });
+    window.addEventListener("resize", requestTocStopUpdate);
+    updateTocStop();
+
+    if ("IntersectionObserver" in window && headings.length) {
+      const setActiveTocLink = (id) => {
+        tocLinks.forEach((link) => link.classList.toggle("is-active", link === tocById.get(id)));
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+        if (visible?.target?.id) setActiveTocLink(visible.target.id);
+      }, { rootMargin: "-20% 0px -65% 0px", threshold: 0 });
+
+      headings.forEach((heading) => observer.observe(heading));
+      setActiveTocLink(headings[0].id);
+    }
+  }
+
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && modal?.classList.contains("is-open")) closeSearch();
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
