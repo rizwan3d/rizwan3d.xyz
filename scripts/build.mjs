@@ -1539,8 +1539,7 @@ function postMarkdown(post) {
   const updatedLine = post.updatedAt !== post.createdAt
     ? `Updated: ${post.updatedAt}\n`
     : "";
-  const localUrl = `${siteUrl}/posts/${post.slug}.html`;
-  const canonical = post.canonicalUrl || localUrl;
+  const canonical = post.resolvedCanonical;
   const sourceLine = post.sourceUrl
     ? `Original source: ${post.sourceUrl}\n`
     : "";
@@ -1566,8 +1565,8 @@ function postJsonLd(post) {
     description: post.description,
     datePublished: isoDate(post.createdAt),
     dateModified: isoDate(post.updatedAt),
-    mainEntityOfPage: `${siteUrl}/posts/${post.slug}.html`,
-    url: `${siteUrl}/posts/${post.slug}.html`,
+    mainEntityOfPage: post.resolvedCanonical,
+    url: post.resolvedCanonical,
     inLanguage: siteLanguage,
     articleSection: post.category,
     author: {
@@ -1921,6 +1920,31 @@ function afterNavigationAdHtml() {
 }
 
 const writingPosts = await loadWritingPosts();
+for (const post of writingPosts) {
+  if (!String(post.description || "").trim()) {
+    const summary = post.bodyMarkdown
+      .replace(/![[^\]]*\]\([^)]+\)/g, " ")
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+      .replace(/^[\s#>*-]+/gm, "")
+      .replace(/\s+/g, " ").trim();
+    post.description = summary.length > 155
+      ? summary.slice(0, 152).replace(/\s+\S*$/, "") + "…"
+      : summary || "Read " + post.title + " by " + ownerName + ".";
+  }
+  const fallbackCanonical = siteUrl + "/posts/" + post.slug;
+  const rawCanonical = String(post.canonicalUrl || "").trim();
+  try {
+    const declared = rawCanonical ? new URL(rawCanonical) : null;
+    const generic = !declared || !/^https?:$/.test(declared.protocol) ||
+      declared.hostname === new URL(siteUrl).hostname ||
+      declared.pathname === "/" ||
+      /^\/@[^/]+\/?$/.test(declared.pathname) ||
+      /^\/u\/[^/]+\/?$/.test(declared.pathname);
+    post.resolvedCanonical = generic ? fallbackCanonical : declared.href;
+  } catch {
+    post.resolvedCanonical = fallbackCanonical;
+  }
+}
 await prepareUrlPreviews(writingPosts);
 for (const post of writingPosts) {
   post.publicBodyMarkdown = await resolveMarkdownBodyImages(post);
@@ -1980,7 +2004,7 @@ for (const post of writingPosts) {
     .replaceAll("{{POST_PROJECT_SOURCE}}", sourceHtml)
     .replaceAll("{{POST_NAVIGATION}}", postNavigationHtml(post, writingPosts))
     .replaceAll("{{POST_AFTER_NAVIGATION_AD}}", afterNavigationAdHtml())
-    .replaceAll("{{POST_CANONICAL}}", post.canonicalUrl || `${siteUrl}/posts/${post.slug}.html`);
+    .replaceAll("{{POST_CANONICAL}}", post.resolvedCanonical);
 
   html = replaceSiteTokens(html);
   await writeFile(path.join(generatedPostsDir, `${post.slug}.html`), html, "utf8");
