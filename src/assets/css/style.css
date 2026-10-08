@@ -26,8 +26,11 @@
   .nav a { @apply relative px-[3px] py-2.5 text-base font-medium text-[#3f506b] hover:text-[#111]; }
   .nav a.active { @apply text-[#111]; }
   .nav a.active::after { content: ""; @apply absolute bottom-0.5 left-0 right-0 h-px bg-[#111]; }
-  .search-btn { @apply grid h-[42px] w-[42px] place-items-center justify-self-end border-0 bg-transparent text-[#203553]; }
+  .header-actions { @apply flex items-center justify-end gap-1.5 justify-self-end; }
+  .search-btn, .theme-btn { @apply grid h-[42px] w-[42px] place-items-center rounded-full border-0 bg-transparent text-[#203553] transition hover:bg-[#f2f5f9]; }
   .search-btn svg { @apply h-[23px] w-[23px] fill-none stroke-current stroke-[1.8]; }
+  .theme-btn svg { @apply h-[21px] w-[21px] fill-none stroke-current stroke-[1.8]; stroke-linecap: round; stroke-linejoin: round; }
+  .theme-btn .theme-icon-sun { @apply hidden; }
 
   .hero { @apply grid min-h-[390px] grid-cols-[55%_45%] items-center pb-10 pt-[50px] max-[900px]:grid-cols-1 max-[650px]:pt-[45px]; }
   .hero h1, .about-hero h1, .contact-intro h1 { @apply mb-[15px] mt-3 max-w-[700px] text-[clamp(46px,5vw,62px)] leading-[1.08] tracking-[-1.4px] max-[650px]:text-[40px]; }
@@ -396,3 +399,183 @@
 .blog-pagination a { display: inline-flex; min-width: 38px; height: 46px; align-items: center; justify-content: center; padding: 0 14px; border: 1px solid #d5dbe5; border-radius: 7px; background: #fff; color: #0f172a; text-decoration: none; }
 .blog-pagination a:hover { border-color: #9aa6b6; background: #f8fafc; }
 .blog-pagination a[aria-current="page"] { border-color: #7d8796; font-weight: 700; }
+
+html.dark { color-scheme: dark; }
+html.dark body { background: #0f141b; color: #e8edf5; }
+html.dark .logo,
+html.dark .nav a.active,
+html.dark .hero h1,
+html.dark .section-heading h2,
+html.dark .about-content h2,
+html.dark .footer-brand strong,
+html.dark .about-hero h1,
+html.dark .contact-intro h1,
+html.dark .story-copy h2,
+html.dark .contact-info-item a,
+html.dark .contact-info-item p,
+html.dark .article-content h1,
+html.dark .article-section h2,
+html.dark .author-copy h3,
+html.dark .article-byline,
+html.dark .article-byline a,
+html.dark .article-meta a,
+html.dark .post-newsletter-copy h2,
+html.dark .blog-hero h1,
+html.dark .blog-filter-group h2,
+html.dark .legal-hero h1,
+html.dark .legal-section h2,
+html.dark .legal-section h3,
+html.dark .not-found h1 { color: #f7f9fc; }
+html.dark .nav a,
+html.dark .eyebrow,
+html.dark .hero-description,
+html.dark .subpage-lead,
+html.dark .post-info p,
+html.dark .about-content > p:not(.eyebrow),
+html.dark .footer-brand span,
+html.dark .footer-nav a,
+html.dark .footer-bottom,
+html.dark .story-copy p,
+html.dark .contact-note,
+html.dark .form-status,
+html.dark .article-lead,
+html.dark .article-meta,
+html.dark .article-source-note,
+html.dark .article-content,
+html.dark .article-content ul,
+html.dark .article-content ol,
+html.dark .blog-card p,
+html.dark .legal-hero > p:not(.eyebrow):not(.legal-updated),
+html.dark .legal-updated,
+html.dark .legal-section p,
+html.dark .legal-section li,
+html.dark .not-found p { color: #b8c4d6; }
+html.dark .nav a:hover,
+html.dark .article-toc a:hover,
+html.dark .article-toc a.is-active,
+html.dark .inline-link,
+html.dark .text-link,
+html.dark .view-all,
+html.dark .blog-card-action,
+html.dark .back-to-posts a { color: #9fc3ff; }
+html.dark .nav a.active::after,
+html.dark .quote-line { background: #f7f9fc; }
+html.dark .search-btn,
+html.dark .theme-btn { color: #dbe7f7; }
+html.dark .search-btn:hover,
+html.dark .theme-btn:hover,
+html.dark .search-close:hover { background: #1d2633; }
+html.dark .theme-btn .theme-icon-moon { display: none; }
+html.dark .theme-btn .theme-icon-sun { display: block; }
+html.dark .blob { background: rgba(54, 66, 84, .48); }
+html.dark .outline-circle,
+html.dark .about-orbit-one,
+html.dark .post,
+html.dark .post-info,
+html.dark .footer,
+html.dark .about-story,
+html.dark .article-author,
+html.dark .article-series,
+html.dark .related-articles,
+html.dark .comments-section,
+html.dark .blog-hero,
+html.dark .blog-filters,
+html.dark .blog-card,
+html.dark .legal-hero,
+html.dark .legal-section { border-color: #273243; }
+html.dark .category,
+html.dark .about-btn,
+html.dark .article-taxonomy a,
+html.dark .article-share a,
+html.dark .article-share button,
+html.dark .article-series li a,
+html.dark .blog-filter-group a,
+html.dark .blog-filter-more,
+html.dark .blog-pagination a,
+html.dark .profile-links a { border-color: #303c4f; background: #151c26; color: #c9d5e6; }
+html.dark .category,
+html.dark .url-preview-site,
+html.dark .legal-table th,
+html.dark .markdown-table th,
+html.dark .article-series li[aria-current="step"] a { background: #1b2430; }
+html.dark .post-title,
+html.dark .blog-card-title,
+html.dark .article-series li strong,
+html.dark .related-article-card strong,
+html.dark .post-nav-card,
+html.dark .url-preview-card,
+html.dark .url-preview-title,
+html.dark .youtube-preview-title { color: #eef3fa; }
+html.dark .newsletter,
+html.dark .about-cta,
+html.dark .post-newsletter { border-color: #283344; background: linear-gradient(105deg, rgba(26,34,45,.97), rgba(19,26,36,.94)); }
+html.dark .contact-panel,
+html.dark .github-contribution-chart,
+html.dark .post-nav-card,
+html.dark .related-article-card,
+html.dark .url-preview-card,
+html.dark .url-preview-copy,
+html.dark .youtube-preview-card,
+html.dark .youtube-preview-copy,
+html.dark .search-dialog,
+html.dark .cookie-banner,
+html.dark .cookie-dialog,
+html.dark .legal-table,
+html.dark .markdown-table { border-color: #2b3647; background: #141b25; color: #dce6f3; }
+html.dark .field input,
+html.dark .field textarea,
+html.dark .newsletter .formkit-input,
+html.dark .post-newsletter .formkit-input { border-color: #344156 !important; background: #0f141b !important; color: #edf3fb !important; }
+html.dark .primary-btn,
+html.dark .cookie-btn-primary,
+html.dark .newsletter .formkit-submit,
+html.dark .post-newsletter .formkit-submit { background: #e8edf5 !important; color: #0f141b !important; }
+html.dark .search-backdrop,
+html.dark .cookie-modal-backdrop { background: rgba(4, 7, 11, .62); }
+html.dark .search-dialog-icon,
+html.dark .search-input-row input,
+html.dark .search-close { color: #dbe7f7; stroke: currentColor; }
+html.dark .search-input-row input { caret-color: #9fc3ff; }
+html.dark .search-input-row input::placeholder { color: #74849a; }
+html.dark .search-divider,
+html.dark .legal-table th,
+html.dark .legal-table td,
+html.dark .markdown-table th,
+html.dark .markdown-table td,
+html.dark .cookie-choice,
+html.dark .cookie-dialog-actions { border-color: #2b3647; }
+html.dark .search-result-item:hover,
+html.dark .search-result-item:focus-visible,
+html.dark .article-taxonomy a:hover,
+html.dark .article-share a:hover,
+html.dark .article-share button:hover,
+html.dark .article-series li a:hover,
+html.dark .related-article-card:hover,
+html.dark .post-nav-card:hover,
+html.dark .blog-pagination a:hover,
+html.dark .cookie-btn-secondary:hover { background: #1a2330; }
+html.dark .search-result-item strong,
+html.dark .legal-table th,
+html.dark .markdown-table th { color: #eef3fa; }
+html.dark .search-result-category,
+html.dark .search-helper,
+html.dark .search-result-snippet,
+html.dark .cookie-banner-copy p,
+html.dark .cookie-dialog-intro,
+html.dark .cookie-choice p { color: #9fadc0; }
+html.dark .post-newsletter-copy > p:last-child,
+html.dark .post-newsletter .kit-newsletter-status,
+html.dark .newsletter .kit-newsletter-status { color: #aebbcf; }
+html.dark .post-newsletter .formkit-guarantee,
+html.dark .post-newsletter .formkit-powered-by,
+html.dark .newsletter .formkit-guarantee,
+html.dark .newsletter .formkit-powered-by { color: #9fadc0 !important; }
+html.dark .code-toolbar { border-color: #2b3647; background: #101720; color: #dce6f3; }
+html.dark .url-preview-visual,
+html.dark .url-preview-visual-fallback,
+html.dark .blog-card-image,
+html.dark .article-featured-image img { background: #111821; }
+html.dark .article-content blockquote { border-color: #40506a; color: #c9d5e6; }
+html.dark .article-content hr { border-color: #2b3647; }
+html.dark .article-content code,
+html.dark .legal-section code { background: #1d2633; color: #dbe7f7; }

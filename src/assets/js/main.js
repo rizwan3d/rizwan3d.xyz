@@ -1,5 +1,53 @@
 (() => {
   const basePath = document.documentElement.dataset.basePath || "/";
+  const themeToggle = document.querySelector("[data-theme-toggle]");
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+  const darkMedia = window.matchMedia?.("(prefers-color-scheme: dark)");
+
+  const getStoredTheme = () => {
+    try {
+      return localStorage.getItem("rizwan-theme");
+    } catch {
+      return null;
+    }
+  };
+
+  const setStoredTheme = (theme) => {
+    try {
+      localStorage.setItem("rizwan-theme", theme);
+    } catch {}
+  };
+
+  const postGiscusTheme = (theme) => {
+    const frame = document.querySelector("iframe.giscus-frame");
+    if (!frame) return;
+    frame.contentWindow?.postMessage({ giscus: { setConfig: { theme } } }, "https://giscus.app");
+  };
+
+  const applyTheme = (theme) => {
+    const isDark = theme === "dark";
+    document.documentElement.classList.toggle("dark", isDark);
+    document.documentElement.dataset.theme = theme;
+    themeMeta?.setAttribute("content", isDark ? "#0f141b" : "#ffffff");
+    if (themeToggle) {
+      themeToggle.setAttribute("aria-pressed", String(isDark));
+      themeToggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+    }
+    postGiscusTheme(isDark ? "dark" : "light");
+  };
+
+  const resolveTheme = () => getStoredTheme() || (darkMedia?.matches ? "dark" : "light");
+
+  applyTheme(resolveTheme());
+  themeToggle?.addEventListener("click", () => {
+    const nextTheme = document.documentElement.classList.contains("dark") ? "light" : "dark";
+    setStoredTheme(nextTheme);
+    applyTheme(nextTheme);
+  });
+  darkMedia?.addEventListener("change", () => {
+    if (!getStoredTheme()) applyTheme(resolveTheme());
+  });
+
   const modal = document.querySelector("[data-search-modal]");
   const input = document.querySelector("[data-search-input]");
   const results = document.querySelector("[data-search-results]");

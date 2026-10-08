@@ -47,9 +47,15 @@
       <a href="{{BASE_PATH}}about.html">About</a>
       <a href="{{BASE_PATH}}contact.html">Contact</a>
     </nav>
-    <button class="search-btn" type="button" aria-label="Search posts" data-search-open>
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l5 5"></path></svg>
-    </button>
+    <div class="header-actions">
+      <button class="search-btn" type="button" aria-label="Search posts" data-search-open>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l5 5"></path></svg>
+      </button>
+      <button class="theme-btn" type="button" aria-label="Switch to dark mode" aria-pressed="false" data-theme-toggle>
+        <svg class="theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A7.3 7.3 0 0 1 9.8 3 8.7 8.7 0 1 0 21 14.2Z"></path></svg>
+        <svg class="theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
+      </button>
+    </div>
   </header>
 
   <div class="article-layout">

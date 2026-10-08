@@ -45,7 +45,7 @@
     script.dataset.reactionsEnabled = config.reactionsEnabled === false ? "0" : "1";
     script.dataset.emitMetadata = "0";
     script.dataset.inputPosition = "bottom";
-    script.dataset.theme = "light";
+    script.dataset.theme = document.documentElement.classList.contains("dark") ? "dark" : "light";
     script.dataset.lang = "en";
     script.dataset.loading = "lazy";
     mount.append(script);
