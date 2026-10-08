@@ -2096,6 +2096,45 @@ for (const file of files) {
 
   if (file.endsWith(".html")) {
     const rel = path.relative(distDir, file).split(path.sep).join("/");
+    if (rel !== "404.html") {
+      const pageUrl = rel === "index.html" ? siteUrl + "/" :
+        rel.endsWith("/index.html") ? siteUrl + "/" + rel.slice(0, -"index.html".length) :
+        siteUrl + "/" + rel.replace(/\.html$/, "");
+      const title = (text.match(/<title>([\s\S]*?)<\/title>/i) || [])[1] || "";
+      const description = (text.match(/<meta name="description" content="([^"]*)"/i) || [])[1] || "";
+      const image = (text.match(/<meta property="og:image" content="([^"]*)"/i) || [])[1] ||
+        siteUrl + "/assets/images/muhammad-rizwan.webp";
+      const extras = [];
+      const missing = (check, value) => { if (!check.test(text)) extras.push(value); };
+      missing(/<link rel="canonical"/i, '<link rel="canonical" href="' + escapeAttr(pageUrl) + '">');
+      missing(/<meta property="og:url"/i, '<meta property="og:url" content="' + escapeAttr(pageUrl) + '">');
+      missing(/<meta property="og:site_name"/i, '<meta property="og:site_name" content="' + escapeAttr(siteName) + '">');
+      missing(/<meta property="og:locale"/i, '<meta property="og:locale" content="' + escapeAttr(siteLanguage.replace("-", "_")) + '">');
+      missing(/<meta property="og:image"/i, '<meta property="og:image" content="' + escapeAttr(image) + '">');
+      missing(/<meta property="og:image:alt"/i, '<meta property="og:image:alt" content="' + escapeAttr(title) + '">');
+      missing(/<meta name="twitter:card"/i, '<meta name="twitter:card" content="summary">');
+      missing(/<meta name="twitter:title"/i, '<meta name="twitter:title" content="' + escapeAttr(title) + '">');
+      missing(/<meta name="twitter:description"/i, '<meta name="twitter:description" content="' + escapeAttr(description) + '">');
+      missing(/<meta name="twitter:image"/i, '<meta name="twitter:image" content="' + escapeAttr(image) + '">');
+      if (!rel.startsWith("posts/")) {
+        const kind = rel === "about.html" ? "AboutPage" :
+          rel === "contact.html" ? "ContactPage" :
+          rel.startsWith("blog/") ? "CollectionPage" : "WebPage";
+        const pageData = {
+          "@context": "https://schema.org", "@type": kind,
+          name: title, description, url: pageUrl, inLanguage: siteLanguage,
+          isPartOf: { "@type": "WebSite", name: siteName, url: siteUrl + "/" }
+        };
+        if (kind === "AboutPage") pageData.mainEntity = {
+          "@type": "Person", name: ownerName, url: siteUrl + "/about",
+          image: siteUrl + "/assets/images/muhammad-rizwan.webp",
+          sameAs: [githubUrl, mediumUrl, hackerNoonUrl].filter(Boolean)
+        };
+        extras.push('<script type="application/ld+json">' +
+          JSON.stringify(pageData).replace(/</g, "\\u003c") + '</script>');
+      }
+      text = text.replace("</head>", "  " + extras.join("\n  ") + "\n</head>");
+    }
 
     if (rel === "index.html") {
       const verify = [
@@ -2166,8 +2205,10 @@ const postByHtmlPath = new Map(
 const sitemapEntries = htmlFiles.map((file) => {
   let rel = path.relative(distDir, file).split(path.sep).join("/");
   const post = postByHtmlPath.get(rel);
-  const urlRel = rel === "index.html" ? "" : rel.replace(/index\.html$/, "");
-  const url = `${siteUrl}/${urlRel}`.replace(/([^:]\/)\/+/, "$1");
+  const url = rel === "index.html" ? siteUrl + "/" :
+    rel.endsWith("/index.html") ? siteUrl + "/" + rel.slice(0, -"index.html".length) :
+    siteUrl + "/" + rel.replace(/\.html$/, "");
+  if (post && post.resolvedCanonical !== url) return null;
 
   return {
     url,
@@ -2175,7 +2216,7 @@ const sitemapEntries = htmlFiles.map((file) => {
     image: post?.image?.absoluteUrl || "",
     imageTitle: post?.image?.alt || post?.title || ""
   };
-});
+}).filter(Boolean);
 
 const sitemapHasImages = sitemapEntries.some((entry) => entry.image);
 const sitemapNamespaces = sitemapHasImages
