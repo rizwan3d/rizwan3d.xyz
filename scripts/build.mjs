@@ -2341,7 +2341,7 @@ function renderFilteredArchivePage({ title, eyebrow, description, posts, outputF
     .replace('<h1>Blog</h1>', `<h1>${escapeHtml(title)}</h1>`)
     .replace('<p class="subpage-lead">Articles and technical writing published directly on Rizwan3d.</p>',
       `<p class="subpage-lead">${escapeHtml(description)}</p>`)
-    .replace('<span>{{BLOG_TOTAL}} articles available</span>', `<span>${escapeHtml(String(archivePosts.length))} articles available</span>`)
+    .replace('<span>${archivePosts.length} articles available</span>', `<span>${escapeHtml(String(archivePosts.length))} articles available</span>`)
     .replace('<span>Static archive</span>', '<span>Filtered archive</span>')
     .replace('<h2 id="blog-list-heading">Latest first</h2>', '<h2 id="blog-list-heading">Latest first</h2>')
     .replace('<title>Blog - {{SITE_NAME}}</title>', `<title>${escapeHtml(pageTitle)}</title>`)
@@ -2352,6 +2352,7 @@ function renderFilteredArchivePage({ title, eyebrow, description, posts, outputF
     .replace('<meta property="og:description" content="Articles on AI agents, RISC-V, compilers, developer tools, and software engineering by Muhammad Rizwan.">',
       `<meta property="og:description" content="${escapeAttr(description)}">`)
     .replaceAll('{{SITE_URL}}/blog/', canonicalUrl)
+
     .replace('      <div class="blog-load-state" data-blog-sentinel aria-live="polite">\n        <span data-blog-status>Scroll to load more</span>\n      </div>', '')
     .replace('        <p class="blog-noscript">JavaScript is disabled. Use the page links above to browse the complete archive.</p>', '')
     .replace('<script src="{{BASE_PATH}}assets/js/blog.js" defer></script>', "");
