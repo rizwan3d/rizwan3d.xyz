@@ -10,7 +10,7 @@
   const setConsentMessage = () => {
     if (!note || mount.dataset.loaded === "true") return;
     note.hidden = false;
-    note.innerHTML = 'Comments are off until you allow <strong>Comments — Giscus / GitHub</strong> in your privacy settings. <button class="consent-inline-button" type="button" data-cookie-settings>Manage cookies</button>';
+    note.innerHTML = 'Comments are off until you allow <strong>Comments - Giscus / GitHub</strong> in your privacy settings. <button class="consent-inline-button" type="button" data-cookie-settings>Manage cookies</button>';
   };
 
   if (!ready) {

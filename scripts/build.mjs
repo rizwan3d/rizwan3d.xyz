@@ -2174,7 +2174,7 @@ ${llmsPostList || "- No published articles yet."}
 `;
 await writeFile(path.join(distDir, "llms.txt"), llms, "utf8");
 
-const llmsFull = `# ${siteName} — Full article text
+const llmsFull = `# ${siteName} - Full article text
 
 > Clean Markdown export of all currently published articles.
 

@@ -16,7 +16,7 @@
   const setConsentMessage = () => {
     if (!note || mount.dataset.loaded === "true") return;
     note.hidden = false;
-    note.innerHTML = 'Newsletter signup is off until you allow <strong>Newsletter — Kit</strong> in your privacy settings. <button class="consent-inline-button" type="button" data-cookie-settings>Manage cookies</button>';
+    note.innerHTML = 'Newsletter signup is off until you allow <strong>Newsletter - Kit</strong> in your privacy settings. <button class="consent-inline-button" type="button" data-cookie-settings>Manage cookies</button>';
   };
 
   if (!configured) {

@@ -97,7 +97,7 @@
 
         <div class="cookie-choice">
           <div>
-            <strong>Analytics — Matomo</strong>
+            <strong>Analytics - Matomo</strong>
             <p>Allows self-hosted Matomo analytics from analytics.rizwan3d.xyz to measure visits and site usage.</p>
           </div>
           <label class="cookie-switch"><input type="checkbox" data-consent-analytics><span>Allow</span></label>
@@ -105,7 +105,7 @@
 
         <div class="cookie-choice">
           <div>
-            <strong>Newsletter — Kit</strong>
+            <strong>Newsletter - Kit</strong>
             <p>Allows the Kit signup form to load. Kit may use cookies or similar technologies as described in its own privacy information.</p>
           </div>
           <label class="cookie-switch"><input type="checkbox" data-consent-newsletter><span>Allow</span></label>
@@ -113,7 +113,7 @@
 
         <div class="cookie-choice">
           <div>
-            <strong>Comments — Giscus / GitHub</strong>
+            <strong>Comments - Giscus / GitHub</strong>
             <p>Allows GitHub-powered comments to load. GitHub may use cookies or similar technologies when the comments widget is enabled.</p>
           </div>
           <label class="cookie-switch"><input type="checkbox" data-consent-comments><span>Allow</span></label>
