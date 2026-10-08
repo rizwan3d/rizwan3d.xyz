@@ -27,7 +27,7 @@
     "pageSize": 10,
     "latestOnHome": 8,
     "inArticleAd": {
-      "enabled": true,
+      "enabled": false,
       "provider": "custom",
       "label": "Advertisement",
       "minParagraphsBefore": 3,
@@ -41,6 +41,11 @@
         "title": "Want to work together?",
         "text": "I build practical software, AI tooling, compilers, and web systems. Reach out if you have a project that needs careful engineering.",
         "cta": "Contact Muhammad",
+        "url": "https://rizwan3d.xyz/contact.html"
+      },
+      "image": {
+        "src": "",
+        "alt": "Advertisement",
         "url": "https://rizwan3d.xyz/contact.html"
       }
     }

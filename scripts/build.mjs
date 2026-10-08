@@ -72,6 +72,21 @@ function escapeAttr(value = "") {
   return escapeHtml(value);
 }
 
+function resolveConfiguredUrl(raw = "") {
+  const value = String(raw || "").trim();
+  if (!value) return "";
+
+  try {
+    return new URL(value, siteUrl || "https://example.com").href;
+  } catch {
+    return "";
+  }
+}
+
+function externalLinkAttrs(href) {
+  return siteUrl && href.startsWith(siteUrl) ? "" : ' target="_blank" rel="noopener noreferrer"';
+}
+
 function parseScalar(raw = "") {
   const value = raw.trim();
   if (value === "true") return true;
@@ -1741,6 +1756,22 @@ function inArticleAdHtml() {
   </aside>`;
   }
 
+  if (inArticleAdProvider === "image") {
+    const imageAd = inArticleAdConfig.image || {};
+    const imageSrc = resolveConfiguredUrl(imageAd.src || imageAd.image || imageAd.imageUrl);
+    const clickUrl = resolveConfiguredUrl(imageAd.url || imageAd.clickUrl || imageAd.href);
+    const alt = String(imageAd.alt || label).trim();
+
+    if (!imageSrc || !clickUrl) return "";
+
+    return `<aside class="in-article-image-ad" aria-label="${escapeAttr(label)}" data-pagefind-ignore>
+    <strong class="in-article-ad-label">${escapeHtml(label)}</strong>
+    <a class="in-article-image-ad-link" href="${escapeAttr(clickUrl)}"${externalLinkAttrs(clickUrl)}>
+      <img src="${escapeAttr(imageSrc)}" alt="${escapeAttr(alt)}" loading="lazy" decoding="async">
+    </a>
+  </aside>`;
+  }
+
   const custom = inArticleAdConfig.custom || inArticleAdConfig;
   const title = String(custom.title || "Sponsored").trim();
   const text = String(custom.text || "").trim();
@@ -1749,17 +1780,10 @@ function inArticleAdHtml() {
 
   if (!title && !text && !rawUrl) return "";
 
-  let href = "";
-  if (rawUrl) {
-    try {
-      href = new URL(rawUrl, siteUrl || "https://example.com").href;
-    } catch {
-      href = "";
-    }
-  }
+  const href = resolveConfiguredUrl(rawUrl);
 
   const ctaHtml = href
-    ? `<a class="in-article-ad-link" href="${escapeAttr(href)}"${href.startsWith(siteUrl) ? "" : ' target="_blank" rel="noopener noreferrer"'}>${escapeHtml(cta)}</a>`
+    ? `<a class="in-article-ad-link" href="${escapeAttr(href)}"${externalLinkAttrs(href)}>${escapeHtml(cta)}</a>`
     : "";
   const textHtml = text ? `<p>${escapeHtml(text)}</p>` : "";
 

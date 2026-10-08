@@ -275,6 +275,9 @@
   .in-article-ad-title { @apply mb-1.5 block text-lg leading-[1.25] tracking-[-.25px] text-[#171b22]; }
   .in-article-ad p { @apply m-0 max-w-[620px] text-[13px] leading-[1.55] text-[#657692]; }
   .in-article-ad-link { @apply mt-3 inline-flex text-xs font-semibold text-[#456388] hover:underline; }
+  .in-article-image-ad { @apply my-7; }
+  .in-article-image-ad-link { @apply block overflow-hidden rounded-[9px] border border-[#dfe4ec] bg-[#f3f5f9] transition hover:-translate-y-px hover:border-[#cfd8e4] hover:shadow-[0_7px_18px_rgba(23,34,52,.07)]; }
+  .in-article-image-ad-link img { @apply block h-auto w-full; }
   .after-navigation-ad { @apply mt-5; }
 }
 
