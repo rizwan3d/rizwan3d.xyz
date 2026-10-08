@@ -1830,6 +1830,16 @@ function postNavigationHtml(post, posts) {
   </nav>`;
 }
 
+function afterNavigationAdHtml() {
+  const adHtml = inArticleAdHtml();
+  if (!adHtml) return "";
+
+  return adHtml.replace(
+    /class="([^"]+)"/,
+    'class="$1 after-navigation-ad"'
+  );
+}
+
 const writingPosts = await loadWritingPosts();
 await prepareUrlPreviews(writingPosts);
 for (const post of writingPosts) {
@@ -1886,6 +1896,7 @@ for (const post of writingPosts) {
     .replaceAll("{{POST_BODY_WITH_AD}}", bodyHtmlWithAd)
     .replaceAll("{{POST_PROJECT_SOURCE}}", sourceHtml)
     .replaceAll("{{POST_NAVIGATION}}", postNavigationHtml(post, writingPosts))
+    .replaceAll("{{POST_AFTER_NAVIGATION_AD}}", afterNavigationAdHtml())
     .replaceAll("{{POST_CANONICAL}}", post.canonicalUrl || `${siteUrl}/posts/${post.slug}.html`);
 
   html = replaceSiteTokens(html);

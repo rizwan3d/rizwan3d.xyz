@@ -275,6 +275,7 @@
   .in-article-ad-title { @apply mb-1.5 block text-lg leading-[1.25] tracking-[-.25px] text-[#171b22]; }
   .in-article-ad p { @apply m-0 max-w-[620px] text-[13px] leading-[1.55] text-[#657692]; }
   .in-article-ad-link { @apply mt-3 inline-flex text-xs font-semibold text-[#456388] hover:underline; }
+  .after-navigation-ad { @apply mt-5; }
 }
 
 @layer components {

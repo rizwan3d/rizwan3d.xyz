@@ -27,7 +27,7 @@
     "pageSize": 10,
     "latestOnHome": 8,
     "inArticleAd": {
-      "enabled": false,
+      "enabled": true,
       "provider": "custom",
       "label": "Advertisement",
       "minParagraphsBefore": 3,
