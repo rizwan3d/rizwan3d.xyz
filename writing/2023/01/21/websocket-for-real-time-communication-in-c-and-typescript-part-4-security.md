@@ -20,7 +20,7 @@ featured: true
 
 ### WebSocket for real-time communication in C# and Typescript - Part 4 (Security)
 
-In our previous blog we added [Data Serialization](https://medium.com/@rizwan3d/websocket-for-real-time-communication-in-c-and-typescript-part-3-data-serialization-c4ada68864e7) now we will add [Security](https://medium.com/@rizwan3d/websocket-for-real-time-communication-in-c-and-typescript-part-5-scaling-apache-kafka-5f1f4cb786cd).
+In our previous blog we added [Data Serialization](/posts/websocket-for-real-time-communication-in-c-and-typescript-part-3-data-serialization.html) now we will add Security.
 
 Adding security to a WebSocket connection can help to protect against potential attacks and keep your data safe. Here are a few ways you could secure your WebSocket server and client:
 
@@ -52,4 +52,4 @@ It's worth noting that the right value for the CSP header will depend on your ap
 
 It's also worth noting that CSP is just one aspect of web application security and it should not be relied on as the sole security measure. It's important to also take other steps to secure your application, such as validating user
 
-In next part we add [scalability](https://medium.com/@rizwan3d/websocket-for-real-time-communication-in-c-and-typescript-part-5-scaling-apache-kafka-5f1f4cb786cd).
+In next part we add [scalability](/posts/websocket-for-real-time-communication-in-c-and-typescript-part-5-scaling-apache-kafka.html).

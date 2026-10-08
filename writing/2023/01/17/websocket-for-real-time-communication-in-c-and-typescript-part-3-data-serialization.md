@@ -23,7 +23,7 @@ featuredImageCreditUrl: "https://unsplash.com/@markusspiske"
 
 ### WebSocket for real-time communication in C# and Typescript - Part 3 (Data Serialization)
 
-In our previous blog we added [Authentication](https://medium.com/@rizwan3d/websocket-for-real-time-communication-in-c-and-typescript-part-2-authentication-b719981ba14f) now we will add Data Serialization.
+In our previous blog we added [Authentication](/posts/websocket-for-real-time-communication-in-c-and-typescript-part-2-authentication.html) now we will add Data Serialization.
 To add data serialization to the WebSocket server and client, you can use a library that supports a particular data serialization format, such as JSON or Protocol Buffers.
 
 Here's an example of how you could modify the previous C# WebSocket server code to use JSON for data serialization:
@@ -34,4 +34,4 @@ You can also use `Protocol Buffers` to Serialize the data, it is a language and 
 
 In summary, serializing data before sending it over the WebSocket connection can make it easier to work with complex data structures and also it allows for more efficient data transmission. JSON and Protocol Buffers are two popular choices for data serialization, but you can also use other formats such as BSON, CBOR, or Avro. It depends on your needs and the characteristics of your application.
 
-In next part we add [Security](https://medium.com/@rizwan3d/websocket-for-real-time-communication-in-c-and-typescript-part-4-security-8fe63b0763a8) and [scalability](https://medium.com/@rizwan3d/websocket-for-real-time-communication-in-c-and-typescript-part-5-scaling-apache-kafka-5f1f4cb786cd).
+In next part we add [Security](/posts/websocket-for-real-time-communication-in-c-and-typescript-part-4-security.html) and [scalability](/posts/websocket-for-real-time-communication-in-c-and-typescript-part-5-scaling-apache-kafka.html).

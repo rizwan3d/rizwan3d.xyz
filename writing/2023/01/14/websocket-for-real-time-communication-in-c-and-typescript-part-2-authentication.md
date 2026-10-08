@@ -23,7 +23,7 @@ featuredImageCreditUrl: "https://unsplash.com/@markusspiske"
 
 ### WebSocket for real-time communication in C# and Typescript - Part 2 (Authentication)
 
-This one extraction to previous work, first look a [part 1.](https://medium.com/@rizwan3d/websocket-for-real-time-communication-in-c-and-typescript-part-1-connection-51e17c9090ca])
+This one extraction to previous work, first look a [part 1.](/posts/websocket-for-real-time-communication-in-c-and-typescript-part-1-connection.html)
 
 There are several ways to add authentication to a WebSocket server, but one common approach is to use JSON Web Tokens (JWT). With this approach, the client would need to obtain a JWT from an authentication server, and then send the JWT in the WebSocket request to the server. The server can then verify the JWT and authenticate the client.
 
@@ -37,4 +37,4 @@ In this example, the client is using the `jsonwebtoken` library to generate a JW
 
 Please keep in mind that, JWT validation/generation should be done securely, and JWT Secret should be kept private, also you can use different libraries and approaches that fits your use case.
 
-In next part we add [Data Serialization](https://medium.com/@rizwan3d/websocket-for-real-time-communication-in-c-and-typescript-part-3-data-serialization-c4ada68864e7), [Security](https://medium.com/@rizwan3d/websocket-for-real-time-communication-in-c-and-typescript-part-4-security-8fe63b0763a8) and [scalability](https://medium.com/@rizwan3d/websocket-for-real-time-communication-in-c-and-typescript-part-5-scaling-apache-kafka-5f1f4cb786cd).
+In next part we add [Data Serialization](/posts/websocket-for-real-time-communication-in-c-and-typescript-part-3-data-serialization.html), [Security](/posts/websocket-for-real-time-communication-in-c-and-typescript-part-4-security.html) and [scalability](/posts/websocket-for-real-time-communication-in-c-and-typescript-part-5-scaling-apache-kafka.html).

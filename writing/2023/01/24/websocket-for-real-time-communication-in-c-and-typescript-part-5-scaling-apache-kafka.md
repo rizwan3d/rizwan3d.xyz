@@ -20,7 +20,7 @@ featured: true
 
 ### WebSocket for real-time communication in C# and Typescript - Part 5 (Scaling- Apache Kafka)
 
-In our previous blog we added [Security](https://medium.com/@rizwan3d/websocket-for-real-time-communication-in-c-and-typescript-part-4-security-8fe63b0763a8) now we will add Scaling.
+In our previous blog we added [Security](/posts/websocket-for-real-time-communication-in-c-and-typescript-part-4-security.html) now we will add Scaling.
 
 Scaling a WebSocket server can be a bit more challenging than scaling a traditional HTTP server because WebSockets are full-duplex connections that can stay open for long periods of time. Here are a few ways you can scale a WebSocket server:
 
