@@ -110,6 +110,25 @@
   document.querySelectorAll("[data-search-close]").forEach((button) => button.addEventListener("click", closeSearch));
   input?.addEventListener("input", (event) => renderResults(event.target.value));
 
+  const progressBar = document.querySelector("[data-reading-progress]");
+  if (progressBar) {
+    let ticking = false;
+    const updateProgress = () => {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = scrollable > 0 ? window.scrollY / scrollable : 0;
+      progressBar.style.transform = `scaleX(${Math.min(1, Math.max(0, progress))})`;
+      ticking = false;
+    };
+    const requestProgressUpdate = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(updateProgress);
+    };
+    window.addEventListener("scroll", requestProgressUpdate, { passive: true });
+    window.addEventListener("resize", requestProgressUpdate);
+    updateProgress();
+  }
+
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && modal?.classList.contains("is-open")) closeSearch();
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {

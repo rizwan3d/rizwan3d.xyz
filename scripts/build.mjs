@@ -1328,6 +1328,20 @@ function isoDate(value) {
   return `${String(value).slice(0, 10)}T00:00:00.000Z`;
 }
 
+function readingTime(markdown = "") {
+  const text = String(markdown)
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/`[^`\n]+`/g, " ")
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, " ")
+    .replace(/\[[^\]]+\]\([^)]+\)/g, " ")
+    .replace(/[#>*_~\-[\]()]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const words = text ? text.split(/\s+/).length : 0;
+  const minutes = Math.max(1, Math.ceil(words / 225));
+  return `${minutes} min read`;
+}
+
 function sourceClass(source) {
   return String(source || "article").toLowerCase().replace(/[^a-z0-9]+/g, "-");
 }
@@ -1903,6 +1917,7 @@ for (const post of writingPosts) {
     .replaceAll("{{POST_CREATED_ISO}}", escapeAttr(isoDate(post.createdAt)))
     .replaceAll("{{POST_UPDATED_ISO}}", escapeAttr(isoDate(post.updatedAt)))
     .replaceAll("{{POST_CREATED_HUMAN}}", escapeHtml(formatDate(post.createdAt)))
+    .replaceAll("{{POST_READING_TIME}}", escapeHtml(readingTime(post.publicBodyMarkdown || post.bodyMarkdown)))
     .replaceAll("{{POST_UPDATED_META}}", updatedMeta)
     .replaceAll("{{POST_OG_IMAGE}}", post.image?.absoluteUrl
       ? `<meta property="og:image" content="${escapeAttr(post.image.absoluteUrl)}">` +
