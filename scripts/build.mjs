@@ -1803,6 +1803,33 @@ function insertInArticleAd(bodyHtml, adHtml) {
   });
 }
 
+function postNavigationHtml(post, posts) {
+  const index = posts.findIndex((item) => item.slug === post.slug);
+  if (index === -1) return "";
+
+  const nextPost = posts[index - 1] || null;
+  const previousPost = posts[index + 1] || null;
+  if (!nextPost && !previousPost) return "";
+
+  const cardHtml = (item, kind) => {
+    if (!item) return "";
+
+    const label = kind === "previous" ? "&larr; Previous" : "Up Next &rarr;";
+    const directionClass = kind === "previous" ? "post-nav-previous" : "post-nav-next";
+    const singleNextClass = kind === "next" && !previousPost ? " post-nav-single-next" : "";
+
+    return `<a class="post-nav-card ${directionClass}${singleNextClass}" href="${escapeAttr(`${basePath}posts/${item.slug}.html`)}">
+      <span>${label}</span>
+      <strong>${escapeHtml(item.title)}</strong>
+    </a>`;
+  };
+
+  return `<nav class="post-navigation" aria-label="Adjacent posts" data-pagefind-ignore>
+    ${cardHtml(previousPost, "previous")}
+    ${cardHtml(nextPost, "next")}
+  </nav>`;
+}
+
 const writingPosts = await loadWritingPosts();
 await prepareUrlPreviews(writingPosts);
 for (const post of writingPosts) {
@@ -1858,6 +1885,7 @@ for (const post of writingPosts) {
     .replaceAll("{{POST_FEATURED_IMAGE}}", featuredImageHtml(post.image))
     .replaceAll("{{POST_BODY_WITH_AD}}", bodyHtmlWithAd)
     .replaceAll("{{POST_PROJECT_SOURCE}}", sourceHtml)
+    .replaceAll("{{POST_NAVIGATION}}", postNavigationHtml(post, writingPosts))
     .replaceAll("{{POST_CANONICAL}}", post.canonicalUrl || `${siteUrl}/posts/${post.slug}.html`);
 
   html = replaceSiteTokens(html);

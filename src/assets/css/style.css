@@ -134,6 +134,15 @@
   .author-copy .eyebrow { @apply text-[9px] tracking-[2px]; }
   .author-copy h3 { @apply mb-0.5 mt-px text-base text-[#111]; }
   .author-copy p:last-child { @apply m-0 max-w-[650px] text-[13px] leading-[1.45] text-[#7183a0]; }
+  .post-navigation { @apply mt-[32px] grid grid-cols-2 gap-5 max-[650px]:grid-cols-1 max-[650px]:gap-3.5; }
+  .post-nav-card { @apply block min-h-[106px] rounded-[7px] border border-[#dfe6ee] bg-white px-5 py-4 text-[#12151a] transition hover:-translate-y-px hover:border-[#cbd6e4] hover:shadow-[0_7px_18px_rgba(23,34,52,.06)] max-[650px]:min-h-0; }
+  .post-nav-card span { @apply mb-2 block text-sm font-semibold text-[#405673]; }
+  .post-nav-card strong { @apply block text-[15px] font-medium leading-[1.45] text-[#5f718d]; overflow-wrap: anywhere; }
+  .post-nav-next { @apply text-right max-[650px]:text-left; }
+  .post-nav-single-next { grid-column: 2; }
+  @media (max-width: 650px) {
+    .post-nav-single-next { grid-column: auto; }
+  }
   .back-to-posts { @apply mb-5 mt-4; }
   .back-to-posts a { @apply text-xs text-[#526f9e]; }
   .comments-section { @apply mb-7 mt-[35px] border-t border-[#dfe4eb] pb-2.5 pt-[30px]; }
