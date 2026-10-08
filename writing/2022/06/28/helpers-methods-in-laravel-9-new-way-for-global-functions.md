@@ -21,7 +21,7 @@ featuredImageCredit: "Photo by Astrid Schaffner on Unsplash"
 featuredImageCreditUrl: "https://unsplash.com/@familyschaffner"
 ---
 
-### Helpers Methods In Laravel 9 - New way for Global functions
+## Helpers Methods In Laravel 9 - New way for Global functions
 
 Most of the time we need some functions to available in whole application it type of thing can be possible with singleton design pattern but there is easy and nicer way to do.
 
@@ -29,7 +29,7 @@ PHP has some global helper functions such as **strtoupper() .**We can call this 
 
 Helper method help to make own this type of furcation. Lets start step by step.
 
-### **Step 1:**
+## **Step 1:**
 
 you have to update you "composer.json" file by adding following lines.
 bold text is new one to add.
@@ -45,15 +45,15 @@ bold text is new one to add.
 >  ]**
 > },
 
-### **Step 2:**
+## **Step 2:**
 
 Now, you have to make new file in "app/Helpers/helpers.php", if there is no folder named Helpers create new one.
 
-### **Step 3:**
+## **Step 3:**
 
 You have to run following command to update autoload.php of project. Don't take "autoload.php" seriously.
 
-### **Step 4:**
+## **Step 4:**
 
 Now, you can add you global function in helper.php and you use these functions where ever you want in whole project.
 

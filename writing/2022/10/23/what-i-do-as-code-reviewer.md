@@ -21,7 +21,7 @@ featuredImageCredit: "Photo by Lewis Kang'ethe Ngugi on Unsplash"
 featuredImageCreditUrl: "https://unsplash.com/@ngeshlew"
 ---
 
-### What I do? As Code Reviewer.
+## What I do? As Code Reviewer.
 
 Code Review is used to control quality, refactoring, prevent bugs, etc. in code written by other developers before merging it into Master branch.
 

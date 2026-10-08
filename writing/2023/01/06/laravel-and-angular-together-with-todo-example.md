@@ -19,7 +19,7 @@ featured: true
 featuredImageAlt: "Laravel and Angular together with ToDo example"
 ---
 
-### Laravel and Angular together with ToDo example
+## Laravel and Angular together with ToDo example
 
 Laravel and Angular are both popular frameworks that can be used together to build modern web applications. In this article, we will walk through an example of how to use these two frameworks together to build a simple to-do list application, including code examples to demonstrate how the different components of the application fit together.
 

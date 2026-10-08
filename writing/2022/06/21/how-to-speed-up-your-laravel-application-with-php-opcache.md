@@ -21,11 +21,11 @@ featuredImageCredit: "Photo by Austin Distel on Unsplash"
 featuredImageCreditUrl: "https://unsplash.com/@austindistel"
 ---
 
-### How to speed up your Laravel application with PHP OPcache
+## How to speed up your Laravel application with PHP OPcache
 
 Using PHP OPcache is a incer way to inhance performance of PHP. OPcache stores pre-compiled bytecode in memory, which reduce proceess of PHP to load.
 
-### **Server Configure**
+## **Server Configure**
 
 **Step 1.1:**
 
@@ -61,9 +61,9 @@ you need to restart PHP FPM:
 
 > systemctl restart php7.4-fpm.service
 
-### **Configure Laravel OPCache**
+## **Configure Laravel OPCache**
 
-#### **Step 2.1:**
+### **Step 2.1:**
 
 You can install the package via Composer:
 

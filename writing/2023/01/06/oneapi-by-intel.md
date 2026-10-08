@@ -21,7 +21,7 @@ featuredImageCredit: "Photo by Ryan on Unsplash"
 featuredImageCreditUrl: "https://unsplash.com/@rioryan"
 ---
 
-### oneAPI by Intel
+## oneAPI by Intel
 
 oneAPI by Intel is a new, open, and unified programming model that provides developers with a single interface to optimize their software across diverse architectures. It is designed to enable developers to easily write code that can run on a wide range of devices and platforms, including CPUs, GPUs, FPGAs, and other accelerator architectures.
 

@@ -18,7 +18,7 @@ importedAt: "2026-10-08"
 featured: true
 ---
 
-### WebSocket for real-time communication in C# and Typescript - Part 4 (Security)
+## WebSocket for real-time communication in C# and Typescript - Part 4 (Security)
 
 In our previous blog we added [Data Serialization](/posts/websocket-for-real-time-communication-in-c-and-typescript-part-3-data-serialization.html) now we will add Security.
 
@@ -30,7 +30,7 @@ Adding security to a WebSocket connection can help to protect against potential 
 - HttpOnly and Secure flags on Cookies: To prevent cross-site request forgery (CSRF) attacks, you should use the HttpOnly and Secure flags on any cookies associated with your WebSocket connection. This will ensure that the cookies cannot be accessed by client-side scripts and will only be sent over an encrypted connection.
 - WebSocket Secure: To further secure the WebSocket connection you could use WebSocket Secure (WSS) protocol instead of WS, this is a secure version of the WebSocket protocol that uses SSL/TLS to encrypt the data being sent over the connection.
 
-### Origin validation
+## Origin validation
 
 One way to add origin validation to a WebSocket server is to check the `Origin` header in the WebSocket request and only accept connections from trusted origins. Here's an example of how you could modify the previous C# WebSocket server code to include origin validation:
 
@@ -40,7 +40,7 @@ You can also use a whitelist of allowed origins, this approach is more secure bu
 
 It's worth noting that the browser may include an `Origin` header even if the WebSocket connection was initiated from a file (e.g. `file://`), in that case the origin validation could fail, and you would need to handle that case accordingly.
 
-### Content-Security-Policy
+## Content-Security-Policy
 
 Content-Security-Policy (CSP) is a security feature that helps to protect against cross-site scripting (XSS) and other code injection attacks by specifying the sources from which a browser should load resources for a page. By setting the appropriate CSP headers on the server, you can restrict the types of resources that can be loaded by the client and reduce the risk of XSS attacks.
 

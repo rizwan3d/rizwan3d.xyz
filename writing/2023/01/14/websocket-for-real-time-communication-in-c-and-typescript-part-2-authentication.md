@@ -21,7 +21,7 @@ featuredImageCredit: "Photo by Markus Spiske on Unsplash"
 featuredImageCreditUrl: "https://unsplash.com/@markusspiske"
 ---
 
-### WebSocket for real-time communication in C# and Typescript - Part 2 (Authentication)
+## WebSocket for real-time communication in C# and Typescript - Part 2 (Authentication)
 
 This one extraction to previous work, first look a [part 1.](/posts/websocket-for-real-time-communication-in-c-and-typescript-part-1-connection.html)
 

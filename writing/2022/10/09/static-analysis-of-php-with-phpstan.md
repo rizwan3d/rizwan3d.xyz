@@ -21,7 +21,7 @@ featuredImageCredit: "Photo by Markus Spiske on Unsplash"
 featuredImageCreditUrl: "https://unsplash.com/@markusspiske"
 ---
 
-### Static Analysis of PHP with PHPStan.
+## Static Analysis of PHP with PHPStan.
 
 Writing code that produce no error is difficult. Discuss every edge case is not possible while writing code first time.
 

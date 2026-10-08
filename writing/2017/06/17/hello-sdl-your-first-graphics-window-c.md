@@ -23,7 +23,7 @@ first we have to download SDL form GitHub and add dll in reference. add some req
 
 ---
 
-### Hello SDL: Your First Graphics Window C#
+## Hello SDL: Your First Graphics Window C#
 
 first we have to download [SDL](https://github.com/flibitijibibo/SDL2-CS) form [GitHub](https://github.com/flibitijibibo/SDL2-CS) and add dll in reference. add some required namespaces SDL as shown blow.
 

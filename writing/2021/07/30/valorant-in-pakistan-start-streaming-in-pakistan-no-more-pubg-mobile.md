@@ -21,7 +21,7 @@ featuredImageCredit: "Photo by SCREEN POST on Unsplash"
 featuredImageCreditUrl: "https://unsplash.com/@screenpost"
 ---
 
-### Valorant in Pakistan: Start Streaming in Pakistan| No More PUBG Mobile
+## Valorant in Pakistan: Start Streaming in Pakistan| No More PUBG Mobile
 
 two years back from now the game name PUBG Mobile has a high marketplace in Pakistan and everyone doesn't matter its age, sex, and qualification download PUBG Mobile on it's mobile.
 
@@ -37,4 +37,4 @@ Valorant is a free-to-play game with in-game Purchases of battel pass and gun sk
 
 [2Thoughst](https://www.youtube.com/watch?v=7AwkM4CPOEI) is an upcoming and rapidly growing YouTuber of Pakistan and he loves to play Valornat on livestream.
 
-### **Valorant Game Play Montage by 2Thoughts**
+## **Valorant Game Play Montage by 2Thoughts**

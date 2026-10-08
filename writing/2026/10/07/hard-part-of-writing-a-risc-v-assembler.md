@@ -148,7 +148,7 @@ There are several ways of dealing with this, but the traditional solution is sim
 
 **assemble the program in multiple passes.**
 
-### Pass one: discover addresses
+## Pass one: discover addresses
 
 During the first pass, don't worry about producing final machine code.
 

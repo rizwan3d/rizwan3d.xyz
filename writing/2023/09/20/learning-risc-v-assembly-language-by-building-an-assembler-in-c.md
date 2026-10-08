@@ -20,13 +20,13 @@ featuredImageAlt: "Learning RISC-V Assembly Language by Building an Assembler in
 featuredImageCredit: "Photo by Johannes Plenio on Unsplash"
 featuredImageCreditUrl: "https://unsplash.com/@jplenio"
 ---
-### Learning RISC-V Assembly Language by Building an Assembler in C#
+## Learning RISC-V Assembly Language by Building an Assembler in C#
 
-### Introduction
+## Introduction
 
 RISC-V is an open-source instruction set architecture (ISA) that has gained popularity due to its simplicity and flexibility. In this article, we'll explore the fundamentals of RISC-V assembly language by building an assembler in C#. Our goal is to read RISC-V assembly code, identify the instruction type, and convert it into machine code. We'll use Visual Studio as our development environment for this project.
 
-### Setting Up the Project
+## Setting Up the Project
 
 Let's begin by creating a new project in Visual Studio. We'll build our RISC-V assembler step by step. We mention that we will be building the assembler incrementally, and the first task is to set up a loop to read a file containing RISC-V assembly code and iterate over each line. This loop will serve as the foundation for processing the assembly code.
 
@@ -39,7 +39,7 @@ foreach (string line in lines)
 }
 ```
 
-### Identifying Instruction Types
+## Identifying Instruction Types
 
 RISC-V instructions are categorized into different types: R, U, I, B, S, and J. To determine the type of instruction, we'll use a lookup table for opcodes, func2, and func7. You can find the lookup table in this [file](https://github.com/rizwan3d/SharpRISCV/tree/master/SharpRISCV/Enums).
 
@@ -71,7 +71,7 @@ switch (opCode)
 
 You can find the implementation of this function in the [RiscVAssembler.cs](https://github.com/rizwan3d/SharpRISCV/blob/master/SharpRISCV/RiscVAssembler.cs) file.
 
-### Parsing Instructions
+## Parsing Instructions
 
 Now that we can identify the instruction type, let's parse each instruction based on its type. We'll start with the R-type instructions, which have the syntax: `op rd, rs1, rs2`.
 
@@ -97,7 +97,7 @@ if (rTypeMatch.Success)
 
 You can find the complete implementation of the R-type instruction parser in the [R\_Parser.cs](https://github.com/rizwan3d/SharpRISCV/blob/master/SharpRISCV/Parser/Instruction/R_Parser.cs) file.
 
-### Converting to Machine Code
+## Converting to Machine Code
 
 Once we've parsed an instruction, we can convert it into machine code. Each instruction type has its own format. For R-type instructions, the format is as follows:
 
@@ -133,7 +133,7 @@ return new MachineCode($"{func7}{rs2Binary}{rs1Binary}{func3}{rdBinary}{opcode}"
 
 You can find the complete implementation of machine code generation in the [R\_MachineCode.cs](https://github.com/rizwan3d/SharpRISCV/blob/master/SharpRISCV/MachineCode/R_MachineCode.cs) file.
 
-### Conclusion
+## Conclusion
 
 In this article, we've embarked on a journey to learn RISC-V assembly language by building an assembler in C#. We've covered the basics of reading RISC-V assembly code, identifying instruction types, parsing instructions, and converting them into machine code. This project serves as a valuable learning experience for understanding the inner workings of RISC-V assembly language and its translation into machine code. To delve deeper into the RISC-V architecture, refer to the [RISC-V Specification](https://riscv.org/wp-content/uploads/2017/05/riscv-spec-v2.2.pdf).
 

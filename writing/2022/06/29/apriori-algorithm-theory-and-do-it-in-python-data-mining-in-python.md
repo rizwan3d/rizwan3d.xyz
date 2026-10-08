@@ -21,11 +21,11 @@ featuredImageCredit: "Photo by Chris Liverani on Unsplash"
 featuredImageCreditUrl: "https://unsplash.com/@chrisliverani"
 ---
 
-### Apriori Algorithm Theory And Do It In Python- Data Mining In Python
+## Apriori Algorithm Theory And Do It In Python- Data Mining In Python
 
 In 1994, Mr. R. Agarwal and Mr. R. Srikant working to find frequent set of item in Boolean based dataset. They are come up with algorithm named Apriori. We are not going to word it's definition and other theoretical thing, lets get in hand with example.
 
-### **Theory:**
+## **Theory:**
 
 Let we have following dataset with minimum support of 0 and minimum confidence of 50%.
 
@@ -72,7 +72,7 @@ We have our most frequent items and we are ready to write our association rules.
 
 As our minimum confidence in 50% so fist 3 rules are strong and we can consider it.
 
-### **Code:**
+## **Code:**
 
 Let me share data set of 7500 transaction with different products, you can download it form [here](https://drive.google.com/file/d/1y5DYn0dGoSbC22xowBq2d4po6h1JxcTQ/view?usp=sharing).
 

@@ -17,7 +17,7 @@ importMethod: "medium-original-export"
 importedAt: "2026-10-08"
 featured: true
 ---
-### Sundook - Blockchain For Academic Records
+## Sundook - Blockchain For Academic Records
 
 Millions of graduates passing out each year. The authorities seem to be compromised for the security credentials of student data. Due to the lack of effective anti-forge mechanism, events that cause forged records often get noticed and it is getting easier day by day. Public and private educational institutes are struggling to maintain the Immutability of records.
 

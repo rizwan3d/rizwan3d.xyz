@@ -21,7 +21,7 @@ featuredImageCredit: "Photo by Wan San Yip on Unsplash"
 featuredImageCreditUrl: "https://unsplash.com/@wansan_99"
 ---
 
-### Exceeding Expectations: How I Earned a Star Performer Award with Just Five Tasks
+## Exceeding Expectations: How I Earned a Star Performer Award with Just Five Tasks
 
 This article is about my one-year (seven-month) experience in a product-based software company. When I joined the company, they were stuck with some tasks, and their current developers weren't able to complete them. I got hired as a Senior Software Engineer/ Team lead, and during my interview, the COO asked me if I could understand their system without any help from documentation or other resources. My answer was yes. They were building a medical billing software for New York-based facilities. I had never worked on any medical billing system before.
 

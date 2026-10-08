@@ -21,7 +21,7 @@ featuredImageCredit: "Photo by Fredy Jacob on Unsplash"
 featuredImageCreditUrl: "https://unsplash.com/@thefredyjacob"
 ---
 
-### AI Coding Agents Should Not Hide Memory - Why Stemcode Stores It in Repo Files
+## AI Coding Agents Should Not Hide Memory - Why Stemcode Stores It in Repo Files
 
 The next big challenge in AI coding agents is not only model intelligence. It is **trust**.
 
@@ -37,7 +37,7 @@ That is the core idea behind Stemcode's approach:
 
 Stemcode is a local AI coding agent designed for desktop, terminal, editor, and CI workflows. Its README describes it as a tool that can work inside a real repository while keeping the human in control: understanding codebases, planning changes, editing files, running validation, reviewing diffs, and automating PR review from the same toolchain developers already use.
 
-### The problem with hidden agent memory
+## The problem with hidden agent memory
 
 Hidden memory sounds convenient at first.
 
@@ -53,7 +53,7 @@ Repos already support history, diffs, pull requests, code review, ownership, bla
 
 So why should AI agent memory be different?
 
-### Stemcode's answer: memory as repo files
+## Stemcode's answer: memory as repo files
 
 Stemcode stores structured team memory as ordinary files under:
 
@@ -80,7 +80,7 @@ It means Stemcode memory is not just "agent state." It becomes part of the engin
 
 A developer can open the memory files. A reviewer can see what changed. A maintainer can reject a wrong memory update. A team can decide what should be committed and what should remain local. The agent's long-term understanding of the project becomes visible instead of mysterious.
 
-### What each memory file is for
+## What each memory file is for
 
 The memory structure is practical. It separates different types of project knowledge instead of dumping everything into one large file.
 
@@ -98,7 +98,7 @@ The memory structure is practical. It separates different types of project knowl
 
 This structure matters because good memory is not just storage. Good memory is **organized context**.
 
-### Why repo-based memory is better for teams
+## Why repo-based memory is better for teams
 
 Repo-based memory gives teams five major advantages.
 
@@ -114,7 +114,7 @@ Fifth, it is **debuggable**. When the agent behaves strangely, the team can insp
 
 That is a great improvement over hidden memory. In coding, invisible context is a source of bugs. Visible context is a source of control.
 
-### Memory should influence the agent, not replace verification
+## Memory should influence the agent, not replace verification
 
 Stemcode's documentation makes an important point: it loads non-empty team memory files into the model context as a durable project context, but memory should be treated as the starting context and verified against current files and fresh tool output when correctness matters.
 
@@ -128,7 +128,7 @@ That balance is important because memory can become stale. Architecture changes.
 
 Stemcode's approach is stronger because it combines memory with repository inspection, file tools, permission controls, and review workflows.
 
-### Memory writes need permission
+## Memory writes need permission
 
 The most important part of memory design is not only where memory is stored. It is also **who can change it**.
 
@@ -142,7 +142,7 @@ By making memory writes permissioned, Stemcode treats memory as a sensitive proj
 
 That is the right default.
 
-### Stemcode is built around visible control
+## Stemcode is built around visible control
 
 The repo-memory idea fits the rest of Stemcode's positioning.
 
@@ -154,7 +154,7 @@ That matters because memory should not be trapped inside one UI.
 
 A team may use the agent in the terminal. Another developer may use it from VS Code. CI may use it for PR review. The same repo memory can guide all of those workflows because the memory is attached to the workspace, not to one chat screen.
 
-### The deeper idea: AI agents need a software engineering discipline
+## The deeper idea: AI agents need a software engineering discipline
 
 A lot of AI tooling focuses on model power.
 
@@ -168,7 +168,7 @@ Stemcode's repo-memory design is important because it treats agent context as pa
 
 That is how serious developer tools should be built.
 
-### A simple example
+## A simple example
 
 Imagine a team decides:
 
@@ -194,7 +194,7 @@ That is not just memory.
 
 That is governance.
 
-### Why this matters for open-source projects
+## Why this matters for open-source projects
 
 For open-source projects, visible memory is even more valuable.
 
@@ -206,7 +206,7 @@ Because Stemcode's own repository includes `.Stemcode/memory` files, the project
 
 That makes the idea concrete.
 
-### The real message
+## The real message
 
 AI coding agents should not become invisible coworkers with invisible memories.
 
@@ -230,7 +230,7 @@ For developers and teams, that is the difference between using an AI assistant a
 
 ---
 
-### Contribute to the Project:
+## Contribute to the Project:
 
 Stemcode is an open-source project available on GitHub at [https://github.com/rizwan3d/Stemcode](https://github.com/rizwan3d/Stemcode). If you find this tool valuable and helpful, consider giving it a star on GitHub. Your support encourages the continuous improvement of Stemcode.
 

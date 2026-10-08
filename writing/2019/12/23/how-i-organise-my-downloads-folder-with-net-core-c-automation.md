@@ -159,7 +159,7 @@ for(int i = 2;i < Config.Length;i++)
 File.AppendAllText("Log.csv",$"{now},{watchFilePath},{OrgEdPath}{Environment.NewLine}");
 ```
 
-### Config File
+## Config File
 
 Keep folder paths, organisation preferences, and related options in external configuration.
 

@@ -19,7 +19,7 @@ featured: true
 featuredImageAlt: "Mathematics and Programming"
 ---
 
-### Mathematics and Programming
+## Mathematics and Programming
 
 Math and programming are two subjects that may seem unrelated at first glance, but they are actually closely connected. In fact, math is a fundamental part of programming and is used in a variety of ways.
 

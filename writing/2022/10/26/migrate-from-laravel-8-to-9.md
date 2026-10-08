@@ -19,24 +19,24 @@ featured: true
 featuredImageAlt: "Migrate from Laravel 8 to 9"
 ---
 
-### Migrate from Laravel 8 to 9
+## Migrate from Laravel 8 to 9
 
-### Minimum Requirements
+## Minimum Requirements
 
 Laravel 9 can only run-on PHP 8.0 or above because of Symfony 6 components.
 
-### Step 1:
+## Step 1:
 
 Open composer.json and change version of following dependences.
 
 > "laravel/framework": "9.0",
 > "nunomaduro/collision": "6.1",
 
-### Step 2:
+## Step 2:
 
 Replace the "facade/ignition": "2.5" with "spatie/laravel-ignition": "1.0" and if your using pusher/pusher-php-server with "pusher/pusher-php-server": "5.0".
 
-### Step 3:
+## Step 3:
 
 Open app/Http/Middleware/TrustProxies.php and replace use Fideloper\Proxy\TrustProxies as Middleware with use Illuminate\Http\Middleware\TrustProxies as Middleware.
 
@@ -53,7 +53,7 @@ with
 >  Request::HEADER\_X\_FORWARDED\_PROTO |
 >  Request::HEADER\_X\_FORWARDED\_AWS\_ELB;
 
-### Step 4:
+## Step 4:
 
 Last thing is to update composer by just running.
 

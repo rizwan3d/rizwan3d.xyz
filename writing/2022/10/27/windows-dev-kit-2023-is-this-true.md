@@ -19,35 +19,36 @@ featured: true
 featuredImageAlt: "Windows Dev Kit 2023! Is this true?"
 ---
 
-### Windows Dev Kit 2023! Is this true?
+
+## Windows Dev Kit 2023! Is this true?
 
 *Stacked Windows Dev Kits 2023* ***(source: Microsoft).***
 
 Windows Dev Kit 2023 is an Arm based computer device for Windows developers. This device makes the developer's life so easy by providing everything in one place with powerful processing power. This kit case is developed with 20% recycled ocean plastic.
 
-### Device specifics
+## Device specifics
 
 > 32GB LPDDR4x RAM.
 > 512GB fast NVMe storage
 > Snapdragon® 8cx Gen 3 compute platform.
 > Ports: 3x USB-A, 2x USB-C, Mini-Display (HBR2 support), Ethernet (RJ45).
 
-### Connectivity
+## Connectivity
 
 > Bluetooth
 > WiFi 6
 > RJ45 for ethernet
 
-### Power
+## Power
 
 > 90W
 
-### Display
+## Display
 
 > mDP HBR2 4 lane x 5.4 Gbps/lane SST: 3840 x 2160 @ 60Hz, MST: (x2) 2560 x 1600 @ 60Hz
 > USB-C (x2) HBR3 4 lane x 8.1 Gbps/lane SST: 5120x2880 @ 60Hz, SST: 4096x2160 @ 60Hz, MST: (x2) 3840x2160 @ 60Hz (RB2), MST: (x2) 2560x1600 @ 60Hz (CVT, RB)
 
-### Tools
+## Tools
 
 > Install Arm-native developer tools
 > Visual Studio 2022 17.4 Preview 2 for Arm64
@@ -65,6 +66,6 @@ Windows Dev Kit 2023 is an Arm based computer device for Windows developers. Thi
 > Microsoft PowerToys
 > Windows Subsystem for Android
 
-### Last Thoughts
+## Last Thoughts
 
 I think this device is not only good for home setup for development, but it can also be useable in software companies and can be useable for people who want small and nice setup for just internet browsing and watching video.

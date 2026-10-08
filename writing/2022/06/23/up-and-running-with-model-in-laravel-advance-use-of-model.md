@@ -21,13 +21,13 @@ featuredImageCredit: "Photo by Mohammad Rahmani on Unsplash"
 featuredImageCreditUrl: "https://unsplash.com/@afgprogrammer"
 ---
 
-### Up and Running with Model in Laravel - Advance use of Model
+## Up and Running with Model in Laravel - Advance use of Model
 
 This article is for advance user who know basics of Model in Laravel such as relations, soft delete, Mass assignment and Timestamps. now we are goin to discuses about Eager loading, Query Scopes, Accessors and Mutators, Model Events and Model Observers. lets get started.
 
 At the date of publish of this article Laravel 9 is out.
 
-### **Eager Loading**
+## **Eager Loading**
 
 ORM in Laravel provide very nice and clean solution for N+1 query problem with Eager loading, suppose we have a query and loop that get its image.
 
@@ -45,7 +45,7 @@ In this scenario we are executing another query for each item. To prevent this w
 
 this will make you query faster and use less CPU time.
 
-### **Query Scopes**
+## **Query Scopes**
 
 When you have to use where so common, for example we have to fetch all Post with 50 views that mean this post is popular, let have our common way to do.
 
@@ -65,7 +65,7 @@ we call combine scopes with each other like
 
 > $pPost = Post:newPosts()->populer()->get();
 
-### **Accessors and Mutators**
+## **Accessors and Mutators**
 
 suppose we have to make Title of post uppercase and need to store it in lowercase so we will use Attribute type from ORM. following need to add our Post Model
 
@@ -76,7 +76,7 @@ suppose we have to make Title of post uppercase and need to store it in lowercas
 >  );
 > }
 
-### **Model Events**
+## **Model Events**
 
 Laravel had retrieved, creating, created, updating, updated, saving, saved, deleting, deleted, trashed, forceDeleted, restoring, restored, and replicating event that are embedded with Model's lifecycle, Closures are the easy way to do so far. Following code can help you to archive this.
 
@@ -86,7 +86,7 @@ protected static function booted(){
  });
 }
 
-### **Observers**
+## **Observers**
 
 if you are listening to many events for you model you can create observer of group all events in single class. following command help to make observer for a model.
 

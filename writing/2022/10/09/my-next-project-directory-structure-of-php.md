@@ -21,7 +21,7 @@ featuredImageCredit: "Photo by Andreas Klassen on Unsplash"
 featuredImageCreditUrl: "https://unsplash.com/@schmaendels"
 ---
 
-### My Next Project Directory Structure Of PHP
+## My Next Project Directory Structure Of PHP
 
 Every time I have stated new project, thinking about best directory structure is problem. I have tried to may directory structure that may fit my need of SOLID principles and design patterns.
 
@@ -31,11 +31,11 @@ I have check directory structure of many open-source framework like Laravel, Cak
 
 ![My Next Project Directory Structure Of PHP image 1](/assets/images/posts/my-next-project-directory-structure-of-php/content-1.png)
 
-### **Framework**
+## **Framework**
 
 Framework contain everything that required to load project and reusable in whole project like bootstrap.php, load all Middleware, Routes etc.
 
-### Modules
+## Modules
 
 This directory is most import that has all the business logic, Model and views. this is split in Domain, Presentation, Repository and Services. Domain has all Model and its exceptions; Presentation has Actions (I am not use controllers right now) and Middleware. Complete directory structure is presented below.
 
@@ -43,7 +43,7 @@ This directory is most import that has all the business logic, Model and views. 
 
 ![My Next Project Directory Structure Of PHP image 3](/assets/images/posts/my-next-project-directory-structure-of-php/content-3.png)
 
-### Public
+## Public
 
 This one is a starting point of system that load functions from frameworks bootstrap.php
 

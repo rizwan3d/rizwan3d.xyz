@@ -21,7 +21,7 @@ featuredImageCredit: "Photo by Christopher Robin Ebbinghaus on Unsplash"
 featuredImageCreditUrl: "https://unsplash.com/@cebbinghaus"
 ---
 
-### WebSocket for real-time communication in C# and Typescript - Part 1 (Connection)
+## WebSocket for real-time communication in C# and Typescript - Part 1 (Connection)
 
 WebSockets are a protocol for bi-directional, real-time communication between clients and servers over the web. They allow a browser or other client to establish a connection to a server and maintain that connection open for real-time communication. This can be useful for a wide range of applications, such as real-time chat, multiplayer games, and live data updates.
 

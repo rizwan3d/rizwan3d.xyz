@@ -21,7 +21,7 @@ featuredImageCredit: "Photo by Vanna Phon on Unsplash"
 featuredImageCreditUrl: "https://unsplash.com/@phonvanna"
 ---
 
-### Write good Git commit message and standardize it with tools.
+## Write good Git commit message and standardize it with tools.
 
 I am writing this to sum up all the information that I gained with experience and learned for different sources about making a nice and understandable commit message.
 
@@ -31,7 +31,7 @@ My commit message look like.
 
 Commit message is split into two parts, type and subject. Type tells what you for example did you fix the things or refactored the code and subject describe what you did actually in other term short explanation of task.
 
-### **Type:**
+## **Type:**
 
 **Build:** Build related changes such as add or removed dependency packages.
 **Feat:** A new feature (Sprint task.)
@@ -41,7 +41,7 @@ Commit message is split into two parts, type and subject. Type tells what you fo
 **Perf:** A code that improves performance.
 **Style:** A code that is related to styling.
 
-### Subject:
+## Subject:
 
 Subject must be use imperative, present tense (eg: use "add" instead of "added" or "adds")
 don't use period (.) at end of commit message.

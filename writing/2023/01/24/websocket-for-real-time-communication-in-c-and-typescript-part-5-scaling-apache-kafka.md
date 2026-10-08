@@ -18,25 +18,25 @@ importedAt: "2026-10-08"
 featured: true
 ---
 
-### WebSocket for real-time communication in C# and Typescript - Part 5 (Scaling- Apache Kafka)
+## WebSocket for real-time communication in C# and Typescript - Part 5 (Scaling- Apache Kafka)
 
 In our previous blog we added [Security](/posts/websocket-for-real-time-communication-in-c-and-typescript-part-4-security.html) now we will add Scaling.
 
 Scaling a WebSocket server can be a bit more challenging than scaling a traditional HTTP server because WebSockets are full-duplex connections that can stay open for long periods of time. Here are a few ways you can scale a WebSocket server:
 
-### Load balancing:
+## Load balancing:
 
 One way to scale a WebSocket server is to use a load balancer that can distribute incoming connections to multiple servers. This can help to distribute the load and ensure that the servers are not overwhelmed. You could use a hardware load balancer or a software load balancer like HAproxy, NGINX, or AWS Elastic Load Balancer.
 
 For example, you can use HAproxy as a load balancer for your WebSocket server. You can configure HAproxy to forward incoming WebSocket connections to a pool of backend servers. In this case, you need to make sure that the HAproxy is configured to use the `proxy-protocol` to forward the client information along with the connection to the backend server.
 
-### Reverse Proxying:
+## Reverse Proxying:
 
 Another way to scale a WebSocket server is to use a reverse proxy, which can handle the WebSocket protocol and forward connections to a pool of backend servers. This can help to improve the performance and scalability of the WebSocket server by offloading some of the work to the reverse proxy.
 
 For example, you can use NGINX as a reverse proxy for your WebSocket server. You can configure NGINX to handle the WebSocket protocol and forward connections to a pool of backend servers. In this case, you need to make sure that the NGINX is configured to use the `proxy_protocol` to forward the client information along with the connection to the backend server.
 
-### Apache Kafka:
+## Apache Kafka:
 
 Another way to scale a WebSocket server is to use Apache Kafka, which is a distributed streaming platform that can handle high throughput and low latency message passing. By using Apache Kafka as a message broker, you can distribute the messages between servers and handle a large number of connections.
 

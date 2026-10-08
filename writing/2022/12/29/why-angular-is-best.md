@@ -21,7 +21,7 @@ featuredImageCredit: "Photo by Emile Perron on Unsplash"
 featuredImageCreditUrl: "https://unsplash.com/@emilep"
 ---
 
-### Why Angular is best?
+## Why Angular is best?
 
 Angular is a popular open-source JavaScript framework for building web and mobile applications. It is maintained by Google and a community of developers, and has a strong track record of success in a variety of projects. Here are a few reasons why Angular is considered the best choice for many developers:
 

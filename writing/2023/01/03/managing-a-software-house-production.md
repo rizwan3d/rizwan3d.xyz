@@ -21,7 +21,7 @@ featuredImageCredit: "Photo by Sigmund on Unsplash"
 featuredImageCreditUrl: "https://unsplash.com/ja/@sigmund"
 ---
 
-### Managing a software house production
+## Managing a software house production
 
 Managing a software house production and code can be a daunting task, especially if you are working with a large team of developers. However, with the right tools and strategies in place, you can ensure that your software house runs smoothly and efficiently.
 

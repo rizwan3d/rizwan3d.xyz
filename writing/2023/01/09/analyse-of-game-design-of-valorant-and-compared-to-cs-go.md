@@ -21,7 +21,7 @@ featuredImageCredit: "Photo by Geometric Photography on Unsplash"
 featuredImageCreditUrl: "https://unsplash.com/@opollophotography"
 ---
 
-### Analyse of Game Design of Valorant and compared to CS GO
+## Analyse of Game Design of Valorant and compared to CS GO
 
 Valorant is a first-person shooter video game developed and published by Riot Games. Its release in 2020 marked the company's foray into the competitive shooter genre, and the game has since gained a dedicated player base thanks to its unique blend of tactical gameplay, character customization, and diverse game modes.
 
