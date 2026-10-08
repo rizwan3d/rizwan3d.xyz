@@ -1357,6 +1357,26 @@ function displayTaxonomy(value = "") {
     .join(" ");
 }
 
+// Conservative topic labels for legacy imports with empty tag front matter.
+function inferredTopicTags(title = "") {
+  const tests = [
+    ["Laravel", /\blaravel\b/i],
+    ["PHP", /\bphp\b/i],
+    ["Angular", /\bangular\b/i],
+    ["C#", /\bc#\b|\bcsharp\b|\b\.net\b/i],
+    ["RISC-V", /\brisc[ -]?v\b/i],
+    ["WebSocket", /\bwebsockets?\b/i],
+    ["Python", /\bpython\b/i],
+    ["Git", /\bgit\b|\bcommit messages?\b/i],
+    ["Valorant", /\bvalorant\b/i],
+    ["Game Development", /\bgame development\b|\bgame design\b/i],
+    ["Data Mining", /\bdata mining\b|\bapriori\b/i],
+    ["AI Agents", /\bai (?:coding )?agents?\b/i],
+    ["Compilers", /\bcompilers?\b|\bassemblers?\b/i]
+  ];
+  return tests.filter(([, pattern]) => pattern.test(title)).map(([label]) => label);
+}
+
 function categoryUrl(category) {
   return `${basePath}blog/category/${archiveSlug(category)}/`;
 }
@@ -1586,6 +1606,14 @@ function postJsonLd(post) {
 
   if (image) data.image = image;
   if (post.tags?.length) data.keywords = post.tags;
+  data.breadcrumb = {
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: siteUrl + "/" },
+      { "@type": "ListItem", position: 2, name: "Blog", item: siteUrl + "/blog/" },
+      { "@type": "ListItem", position: 3, name: post.title, item: siteUrl + "/posts/" + post.slug }
+    ]
+  };
   if (post.sourceUrl &&
       !/^https:\/\/medium\.com\/@[^/]+\/?$/i.test(post.sourceUrl) &&
       !/^https:\/\/hackernoon\.com\/u\/[^/]+\/?$/i.test(post.sourceUrl)) {
@@ -2098,6 +2126,7 @@ for (const post of writingPosts) {
       ? summary.slice(0, 152).replace(/\s+\S*$/, "") + "…"
       : summary || "Read " + post.title + " by " + ownerName + ".";
   }
+  if (!post.tags.length) post.tags = inferredTopicTags(post.title);
   const fallbackCanonical = siteUrl + "/posts/" + post.slug;
   const rawCanonical = String(post.canonicalUrl || "").trim();
   try {
@@ -2147,6 +2176,10 @@ for (const post of writingPosts) {
     .replaceAll("{{POST_DESCRIPTION}}", escapeHtml(post.description))
     .replaceAll("{{POST_DESCRIPTION_ATTR}}", escapeAttr(post.description))
     .replaceAll("{{POST_CATEGORY_ATTR}}", escapeAttr(post.category))
+    .replaceAll("{{POST_ARTICLE_TAXONOMY_META}}", [
+      `<meta property="article:section" content="${escapeAttr(post.category)}">`,
+      ...(post.tags || []).map((tag) => `<meta property="article:tag" content="${escapeAttr(tag)}">`)
+    ].join("\n  "))
     .replaceAll("{{POST_CREATED_DATE}}", escapeAttr(post.createdAt))
     .replaceAll("{{POST_CREATED_ISO}}", escapeAttr(isoDate(post.createdAt)))
     .replaceAll("{{POST_UPDATED_ISO}}", escapeAttr(isoDate(post.updatedAt)))
@@ -2329,7 +2362,7 @@ function renderFilteredArchivePage({ title, eyebrow, description, posts, outputF
     .replace('<h1>Blog</h1>', `<h1>${escapeHtml(title)}</h1>`)
     .replace('<p class="subpage-lead">Articles and technical writing published directly on Rizwan3d.</p>',
       `<p class="subpage-lead">${escapeHtml(description)}</p>`)
-    .replace('<span>{{BLOG_TOTAL}} articles available</span>', `<span>${escapeHtml(String(archivePosts.length))} articles available</span>`)
+    .replace('<span>${archivePosts.length} articles available</span>', `<span>${escapeHtml(String(archivePosts.length))} articles available</span>`)
     .replace('<span>Static archive</span>', '<span>Filtered archive</span>')
     .replace('<h2 id="blog-list-heading">Latest first</h2>', '<h2 id="blog-list-heading">Latest first</h2>')
     .replace('<title>Blog - {{SITE_NAME}}</title>', `<title>${escapeHtml(pageTitle)}</title>`)
@@ -2340,6 +2373,7 @@ function renderFilteredArchivePage({ title, eyebrow, description, posts, outputF
     .replace('<meta property="og:description" content="Articles on AI agents, RISC-V, compilers, developer tools, and software engineering by Muhammad Rizwan.">',
       `<meta property="og:description" content="${escapeAttr(description)}">`)
     .replaceAll('{{SITE_URL}}/blog/', canonicalUrl)
+
     .replace('      <div class="blog-load-state" data-blog-sentinel aria-live="polite">\n        <span data-blog-status>Scroll to load more</span>\n      </div>', '')
     .replace('        <p class="blog-noscript">JavaScript is disabled. Use the page links above to browse the complete archive.</p>', '')
     .replace('<script src="{{BASE_PATH}}assets/js/blog.js" defer></script>', "");
