@@ -1589,7 +1589,9 @@ function postJsonLd(post) {
 
   if (image) data.image = image;
   if (post.tags?.length) data.keywords = post.tags;
-  if (post.sourceUrl) {
+  if (post.sourceUrl &&
+      !/^https:\/\/medium\.com\/@[^/]+\/?$/i.test(post.sourceUrl) &&
+      !/^https:\/\/hackernoon\.com\/u\/[^/]+\/?$/i.test(post.sourceUrl)) {
     data.isBasedOn = post.sourceUrl;
     data.sameAs = [post.sourceUrl];
   }
@@ -1923,7 +1925,7 @@ const writingPosts = await loadWritingPosts();
 for (const post of writingPosts) {
   if (!String(post.description || "").trim()) {
     const summary = post.bodyMarkdown
-      .replace(/![[^\]]*\]\([^)]+\)/g, " ")
+      .replace(/!\[[^\]]*\]\([^)]+\)/g, " ")
       .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
       .replace(/^[\s#>*-]+/gm, "")
       .replace(/\s+/g, " ").trim();
