@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -46,3 +48,8 @@ jobs:
         run: |
           scp -P 21098 -r ./dist/. \
             growmtdy@198.187.31.203:/home/growmtdy/rizwan3d.xyz/
+
+      - name: Notify IndexNow of new and updated pages
+        env:
+          INDEXNOW_BEFORE: ${{ github.event.before }}
+        run: node scripts/submit-indexnow.mjs
