@@ -1159,7 +1159,6 @@ function renderBlocks(lines, context) {
         "sass": "css"
       };
       const language = languageAliases[rawLanguage] || rawLanguage;
-      const displayLanguage = rawLanguage || language;
       const codeLines = [];
       index += 1;
 
@@ -1178,41 +1177,11 @@ function renderBlocks(lines, context) {
       }
 
       const langClass = language ? ` class="language-${escapeAttr(language)}"` : "";
-      const languageLabels = {
-        js: "JavaScript",
-        javascript: "JavaScript",
-        ts: "TypeScript",
-        typescript: "TypeScript",
-        cs: "C#",
-        csharp: "C#",
-        asm: "Assembly",
-        assembly: "Assembly",
-        bash: "Bash",
-        shell: "Shell",
-        sh: "Shell",
-        json: "JSON",
-        html: "HTML",
-        css: "CSS",
-        scss: "SCSS",
-        sass: "Sass",
-        php: "PHP",
-        python: "Python",
-        py: "Python",
-        text: "Text"
-      };
-      const label = escapeHtml(languageLabels[displayLanguage] || languageLabels[language] || displayLanguage || "Code");
       const codeId = `code-block-${++codeBlockIndex}`;
       const lineNumbers = codeLines.map((_, i) => `<span>${i + 1}</span>`).join("");
 
       out.push(
         `<div class="code-card">` +
-          `<div class="code-toolbar">` +
-            `<span class="code-language">${label}</span>` +
-            `<button class="code-copy" type="button" data-copy-target="#${codeId}" aria-label="Copy code">` +
-              `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg>` +
-              `<span data-copy-label>Copy</span>` +
-            `</button>` +
-          `</div>` +
           `<div class="code-body">` +
             `<div class="code-line-numbers" aria-hidden="true">${lineNumbers}</div>` +
             `<pre><code id="${codeId}"${langClass}>${escapeHtml(codeLines.join("\n"))}</code></pre>` +

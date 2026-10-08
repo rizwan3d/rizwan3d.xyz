@@ -1,6 +1,6 @@
 (() => {
   const basePath = document.documentElement.dataset.basePath || "/";
-  const themeToggle = document.querySelector("[data-theme-toggle]");
+  const themeToggles = Array.from(document.querySelectorAll("[data-theme-toggle]"));
   const themeMeta = document.querySelector('meta[name="theme-color"]');
   const darkMedia = window.matchMedia?.("(prefers-color-scheme: dark)");
 
@@ -29,21 +29,21 @@
     document.documentElement.classList.toggle("dark", isDark);
     document.documentElement.dataset.theme = theme;
     themeMeta?.setAttribute("content", isDark ? "#0f141b" : "#ffffff");
-    if (themeToggle) {
+    themeToggles.forEach((themeToggle) => {
       themeToggle.setAttribute("aria-pressed", String(isDark));
       themeToggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
-    }
+    });
     postGiscusTheme(isDark ? "dark" : "light");
   };
 
-  const resolveTheme = () => getStoredTheme() || (darkMedia?.matches ? "dark" : "light");
+  const resolveTheme = () => getStoredTheme() || "dark";
 
   applyTheme(resolveTheme());
-  themeToggle?.addEventListener("click", () => {
+  themeToggles.forEach((themeToggle) => themeToggle.addEventListener("click", () => {
     const nextTheme = document.documentElement.classList.contains("dark") ? "light" : "dark";
     setStoredTheme(nextTheme);
     applyTheme(nextTheme);
-  });
+  }));
   darkMedia?.addEventListener("change", () => {
     if (!getStoredTheme()) applyTheme(resolveTheme());
   });
@@ -278,6 +278,56 @@
     }
   }
 
+  const articleActions = document.querySelector("[data-article-actions]");
+  if (articleActions) {
+    const article = document.querySelector(".article-content");
+    const layout = document.querySelector(".article-layout");
+    const desktopQuery = window.matchMedia("(min-width: 1100px)");
+    const fixedTop = 118;
+
+    const updateArticleActions = () => {
+      if (!article || !layout || !desktopQuery.matches) {
+        articleActions.removeAttribute("style");
+        articleActions.classList.remove("is-visible");
+        return;
+      }
+
+      const layoutTop = layout.getBoundingClientRect().top + window.scrollY;
+      const layoutLeft = layout.getBoundingClientRect().left + window.scrollX;
+      const articleBottom = article.getBoundingClientRect().bottom + window.scrollY;
+      const actionsWidth = articleActions.offsetWidth;
+      const fixedLeft = Math.min(window.innerWidth - actionsWidth - 24, window.innerWidth * 0.5 + 405);
+      const actionsHeight = articleActions.offsetHeight;
+      const shouldShow = window.scrollY > 180;
+      const shouldStop = window.scrollY + fixedTop + actionsHeight >= articleBottom;
+
+      articleActions.classList.toggle("is-visible", shouldShow);
+
+      if (shouldStop) {
+        articleActions.style.position = "absolute";
+        articleActions.style.top = `${articleBottom - layoutTop - actionsHeight}px`;
+        articleActions.style.left = `${fixedLeft - layoutLeft}px`;
+      } else {
+        articleActions.removeAttribute("style");
+      }
+    };
+
+    let actionTicking = false;
+    const requestArticleActionsUpdate = () => {
+      if (actionTicking) return;
+      actionTicking = true;
+      requestAnimationFrame(() => {
+        updateArticleActions();
+        actionTicking = false;
+      });
+    };
+
+    window.addEventListener("scroll", requestArticleActionsUpdate, { passive: true });
+    window.addEventListener("resize", requestArticleActionsUpdate);
+    desktopQuery.addEventListener?.("change", requestArticleActionsUpdate);
+    updateArticleActions();
+  }
+
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && modal?.classList.contains("is-open")) closeSearch();
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
@@ -286,31 +336,77 @@
     }
   });
 
-  document.querySelectorAll("[data-copy-target]").forEach((button) => {
+  const copyText = async (text) => {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.top = "-9999px";
+    document.body.append(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    textarea.remove();
+    if (!copied) throw new Error("Copy failed");
+  };
+
+  const setShareFeedback = (button, message, defaultLabel) => {
+    const label = button.querySelector("[data-share-label]");
+    if (label) label.textContent = message;
+    button.setAttribute("aria-label", message);
+    setTimeout(() => {
+      if (label) label.textContent = defaultLabel;
+      button.setAttribute("aria-label", defaultLabel);
+    }, 1400);
+  };
+
+  document.querySelectorAll("[data-share-action]").forEach((button) => {
     button.addEventListener("click", async () => {
-      const target = document.querySelector(button.dataset.copyTarget);
-      if (!target) return;
+      const defaultLabel = "Share post";
+      const url = window.location.href;
+      const title = document.querySelector(".article-content h1")?.textContent?.trim() || document.title;
       try {
-        await navigator.clipboard.writeText(target.innerText);
-        const label = button.querySelector("[data-copy-label]");
-        if (label) label.textContent = "Copied";
-        setTimeout(() => { if (label) label.textContent = "Copy"; }, 1400);
-      } catch {}
+        if (navigator.share) {
+          await navigator.share({ title, url });
+          return;
+        }
+        await copyText(url);
+        setShareFeedback(button, "Copied link", defaultLabel);
+      } catch (error) {
+        if (error?.name === "AbortError") return;
+        try {
+          await copyText(url);
+          setShareFeedback(button, "Copied link", defaultLabel);
+        } catch {
+          setShareFeedback(button, "Share failed", defaultLabel);
+        }
+      }
     });
   });
 
   document.querySelectorAll("[data-share-copy]").forEach((button) => {
     button.addEventListener("click", async () => {
       const label = button.querySelector("[data-share-label]");
+      const defaultLabel = label?.textContent || "Copy link";
       const url = new URL(button.dataset.shareUrl || window.location.href, window.location.origin).href;
       try {
-        await navigator.clipboard.writeText(url);
+        await copyText(url);
         if (label) label.textContent = "Copied";
-        setTimeout(() => { if (label) label.textContent = "Copy link"; }, 1400);
+        setTimeout(() => { if (label) label.textContent = defaultLabel; }, 1400);
       } catch {
         if (label) label.textContent = "Copy failed";
-        setTimeout(() => { if (label) label.textContent = "Copy link"; }, 1400);
+        setTimeout(() => { if (label) label.textContent = defaultLabel; }, 1400);
       }
+    });
+  });
+
+  document.querySelectorAll("[data-back-to-top]").forEach((button) => {
+    button.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
     });
   });
 

@@ -1,1 +1,1 @@
-{"name":"{{SITE_NAME}}","short_name":"{{SITE_NAME}}","start_url":"{{BASE_PATH}}","display":"standalone","background_color":"#ffffff","theme_color":"#ffffff","icons":[{"src":"{{BASE_PATH}}favicon.svg","sizes":"any","type":"image/svg+xml"}]}
+{"name":"{{SITE_NAME}}","short_name":"{{SITE_NAME}}","start_url":"{{BASE_PATH}}","display":"standalone","background_color":"#181818","theme_color":"#0f141b","icons":[{"src":"{{BASE_PATH}}favicon.svg","sizes":"any","type":"image/svg+xml"}]}

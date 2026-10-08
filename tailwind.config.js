@@ -12,29 +12,34 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        display: [
+          "Menlo",
+          "\"Meslo LG\"",
+          "\"Cascadia Code\"",
+          "Consolas",
+          "\"Liberation Mono\"",
+          "monospace"
+        ],
         sans: [
-          "ui-sans-serif",
-          "system-ui",
-          "-apple-system",
-          "BlinkMacSystemFont",
-          "\"Segoe UI\"",
-          "\"Helvetica Neue\"",
-          "Arial",
-          "sans-serif"
+          "Menlo",
+          "\"Meslo LG\"",
+          "\"Cascadia Code\"",
+          "Consolas",
+          "\"Liberation Mono\"",
+          "monospace"
         ],
         serif: [
-          "Georgia",
-          "\"Iowan Old Style\"",
-          "\"Palatino Linotype\"",
-          "Palatino",
-          "serif"
+          "Menlo",
+          "\"Meslo LG\"",
+          "\"Cascadia Code\"",
+          "Consolas",
+          "\"Liberation Mono\"",
+          "monospace"
         ],
         mono: [
-          "\"Cascadia Code\"",
-          "ui-monospace",
-          "SFMono-Regular",
           "Menlo",
-          "Monaco",
+          "\"Meslo LG\"",
+          "\"Cascadia Code\"",
           "Consolas",
           "\"Liberation Mono\"",
           "monospace"

@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" data-base-path="{{BASE_PATH}}">
+<html lang="en" class="dark" data-theme="dark" data-base-path="{{BASE_PATH}}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{POST_TITLE}} - {{SITE_NAME}}</title>
   <meta name="description" content="{{POST_DESCRIPTION_ATTR}}">
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#0f141b">
   <meta property="og:type" content="article">
   <meta property="og:title" content="{{POST_TITLE_ATTR}} - {{SITE_NAME}}">
   <meta property="og:description" content="{{POST_DESCRIPTION_ATTR}}">
@@ -51,7 +51,7 @@
       <button class="search-btn" type="button" aria-label="Search posts" data-search-open>
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l5 5"></path></svg>
       </button>
-      <button class="theme-btn" type="button" aria-label="Switch to dark mode" aria-pressed="false" data-theme-toggle>
+      <button class="theme-btn" type="button" aria-label="Switch to light mode" aria-pressed="true" data-theme-toggle>
         <svg class="theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A7.3 7.3 0 0 1 9.8 3 8.7 8.7 0 1 0 21 14.2Z"></path></svg>
         <svg class="theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
       </button>
@@ -60,6 +60,22 @@
 
   <div class="article-layout">
     {{POST_TOC}}
+    <aside class="article-actions" aria-label="Article actions" data-article-actions data-pagefind-ignore>
+      <button class="article-action-btn" type="button" aria-label="Search posts" data-search-open>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l5 5"></path></svg>
+      </button>
+      <button class="article-action-btn article-action-theme" type="button" aria-label="Switch to light mode" aria-pressed="true" data-theme-toggle>
+        <svg class="theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.2A7.3 7.3 0 0 1 9.8 3 8.7 8.7 0 1 0 21 14.2Z"></path></svg>
+        <svg class="theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
+      </button>
+      <button class="article-action-btn article-action-share" type="button" aria-label="Share post" data-share-action>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="M8.6 10.8l6.8-4.1M8.6 13.2l6.8 4.1"></path></svg>
+        <span data-share-label>Share</span>
+      </button>
+      <button class="article-action-btn" type="button" aria-label="Back to top" data-back-to-top>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>
+      </button>
+    </aside>
 
     <main id="main" class="article-shell">
     <article class="article-content" data-pagefind-body>
