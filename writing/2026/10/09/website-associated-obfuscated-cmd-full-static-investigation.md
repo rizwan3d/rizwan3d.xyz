@@ -10,7 +10,7 @@ tags: "Cybersecurity, Malware Analysis, PowerShell, Incident Response"
 featuredImageCreditUrl: ""
 featuredImageCredit: ""
 featuredImageAlt: ""
-featuredImage: /assets/images/posts/website-associated-obfuscated-cmd-full-static-investigation/featured.png
+featuredImage: /assets/images/posts/website-associated-obfuscated-cmd-full-static-investigation/featured.jpg
 featured: true
 ---
 
