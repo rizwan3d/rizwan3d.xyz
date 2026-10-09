@@ -1338,6 +1338,15 @@ function readingTime(markdown = "") {
   return `${minutes} min read`;
 }
 
+function markdownWordCount(markdown = "") {
+  const text = plainMarkdownText(
+    String(markdown)
+      .replace(/```[\s\S]*?```/g, " ")
+      .replace(/`[^`\n]+`/g, " ")
+  );
+  return text ? text.split(/\s+/).length : 0;
+}
+
 function sourceClass(source) {
   return String(source || "article").toLowerCase().replace(/[^a-z0-9]+/g, "-");
 }
@@ -1574,45 +1583,69 @@ ${(post.publicBodyMarkdown || post.bodyMarkdown).trim()}
 }
 
 function postJsonLd(post) {
-  const image = post.image?.absoluteUrl ? [post.image.absoluteUrl] : undefined;
+  const canonical = post.resolvedCanonical;
+  const postUrl = `${siteUrl}/posts/${post.slug}`;
+  const author = {
+    "@type": "Person",
+    "@id": `${siteUrl}/about.html#person`,
+    name: ownerName,
+    url: `${siteUrl}/about.html`,
+    sameAs: [githubUrl, mediumUrl, hackerNoonUrl].filter(Boolean)
+  };
+  const image = post.image?.absoluteUrl
+    ? {
+        "@type": "ImageObject",
+        url: post.image.absoluteUrl,
+        contentUrl: post.image.absoluteUrl,
+        ...(post.image.alt ? { caption: post.image.alt } : {})
+      }
+    : undefined;
   const data = {
     "@context": "https://schema.org",
-    "@type": "BlogPosting",
+    "@type": ["Article", "BlogPosting"],
+    "@id": `${canonical}#article`,
     headline: post.title,
+    name: post.title,
     description: post.description,
     datePublished: isoDate(post.createdAt),
     dateModified: isoDate(post.updatedAt),
-    mainEntityOfPage: post.resolvedCanonical,
-    url: post.resolvedCanonical,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": canonical
+    },
+    url: canonical,
     inLanguage: siteLanguage,
     articleSection: post.category,
-    author: {
-      "@type": "Person",
-      name: ownerName,
-      url: `${siteUrl}/about.html`,
-      sameAs: [githubUrl, mediumUrl, hackerNoonUrl].filter(Boolean)
-    },
-    publisher: {
-      "@type": "Person",
-      name: ownerName,
-      url: `${siteUrl}/about.html`
-    },
+    isAccessibleForFree: true,
+    wordCount: markdownWordCount(post.publicBodyMarkdown || post.bodyMarkdown),
+    author,
+    publisher: author,
     isPartOf: {
       "@type": "Blog",
+      "@id": `${siteUrl}/blog/#blog`,
       name: siteName,
       url: `${siteUrl}/blog/`
     }
   };
 
-  if (image) data.image = image;
-  if (post.tags?.length) data.keywords = post.tags;
+  if (image) {
+    data.image = image;
+    data.thumbnailUrl = post.image.absoluteUrl;
+  }
+  if (post.tags?.length) data.keywords = post.tags.join(", ");
   data.breadcrumb = {
     "@type": "BreadcrumbList",
+    "@id": `${postUrl}#breadcrumb`,
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: siteUrl + "/" },
       { "@type": "ListItem", position: 2, name: "Blog", item: siteUrl + "/blog/" },
-      { "@type": "ListItem", position: 3, name: post.title, item: siteUrl + "/posts/" + post.slug }
+      { "@type": "ListItem", position: 3, name: post.title, item: canonical }
     ]
+  };
+  data.hasPart = {
+    "@type": "DigitalDocument",
+    encodingFormat: "text/markdown",
+    url: `${postUrl}.md`
   };
   if (post.sourceUrl &&
       !/^https:\/\/medium\.com\/@[^/]+\/?$/i.test(post.sourceUrl) &&
