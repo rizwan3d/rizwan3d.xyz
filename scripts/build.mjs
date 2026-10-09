@@ -1398,6 +1398,23 @@ function yearUrl(year) {
   return `${basePath}blog/year/${archiveSlug(year)}/`;
 }
 
+function addSeriesNavLinks(text, rel) {
+  const seriesHref = `${basePath}blog/series/`;
+  if (text.includes(`href="${seriesHref}"`)) return text;
+
+  let output = String(text);
+  if (rel === "blog/series/index.html") {
+    output = output.replace(
+      `<a href="${basePath}blog/" class="active">Blog</a>`,
+      `<a href="${basePath}blog/">Blog</a>`
+    );
+  }
+
+  const seriesLink = `<a href="${seriesHref}"${rel === "blog/series/index.html" ? ' class="active"' : ""}>Series</a>`;
+  const blogLinkPattern = new RegExp(`(<a href="${escapeRegExp(basePath)}blog/"(?: class="active")?>Blog</a>)`, "g");
+  return output.replace(blogLinkPattern, `$1\n      ${seriesLink}`);
+}
+
 function replaceSiteTokens(text) {
   return text
     .replaceAll("{{SITE_URL}}", siteUrl)
@@ -2065,6 +2082,59 @@ function postSeriesNavigationHtml(post) {
   </section>`;
 }
 
+function seriesGroups(posts) {
+  const groups = new Map();
+  for (const post of posts) {
+    const series = post.series;
+    if (!series?.slug || !series.items?.length || groups.has(series.slug)) continue;
+    groups.set(series.slug, {
+      name: series.name,
+      slug: series.slug,
+      items: series.items,
+      updatedAt: series.items.reduce((latest, item) =>
+        item.updatedAt > latest ? item.updatedAt : latest, "")
+    });
+  }
+
+  return [...groups.values()].sort((a, b) =>
+    b.updatedAt.localeCompare(a.updatedAt) || a.name.localeCompare(b.name)
+  );
+}
+
+function seriesIndexTableHtml(posts) {
+  const groups = seriesGroups(posts);
+  if (!groups.length) {
+    return `<p class="blog-noscript">No article series are published yet.</p>`;
+  }
+
+  const rows = groups.map((group) => `<tr>
+      <th scope="row"><a class="inline-link" href="${escapeAttr(`${basePath}posts/${group.items[0].slug}.html`)}">${escapeHtml(group.name)}</a></th>
+      <td>${escapeHtml(String(group.items.length))}</td>
+      <td>
+        <ol class="series-article-list">
+          ${group.items.map((item, index) => `<li><span>Part ${escapeHtml(String(item.series.part || index + 1))}</span><a href="${escapeAttr(`${basePath}posts/${item.slug}.html`)}">${escapeHtml(item.title)}</a></li>`).join("\n          ")}
+        </ol>
+      </td>
+      <td><time datetime="${escapeAttr(group.updatedAt)}">${escapeHtml(formatDate(group.updatedAt))}</time></td>
+    </tr>`).join("\n    ");
+
+  return `<div class="legal-table-wrap series-table-wrap">
+    <table class="legal-table series-table">
+      <thead>
+        <tr>
+          <th scope="col">Series</th>
+          <th scope="col">Articles</th>
+          <th scope="col">Table of contents</th>
+          <th scope="col">Updated</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows}
+      </tbody>
+    </table>
+  </div>`;
+}
+
 function postRelatedArticlesHtml(post, posts) {
   const tagSet = new Set(post.tags || []);
   const related = posts
@@ -2470,6 +2540,42 @@ for (const [slug, group] of years) {
   });
 }
 
+{
+  const groups = seriesGroups(writingPosts);
+  const title = "Article Series";
+  const description = "Browse connected article series and jump through each series by part.";
+  let html = blogTemplate
+    .replace("<!-- BLOG_INITIAL_ITEMS -->", seriesIndexTableHtml(writingPosts))
+    .replaceAll("{{BLOG_FILTERS}}", "")
+    .replaceAll("{{BLOG_TOTAL}}", String(groups.length))
+    .replaceAll("{{BLOG_TOTAL_PAGES}}", "1")
+    .replaceAll("{{BLOG_PAGE_SIZE}}", String(Math.max(groups.length, 1)))
+    .replaceAll("{{BLOG_PAGINATION_LINKS}}", "")
+    .replaceAll("{{BLOG_PAGINATION}}", "")
+    .replace('<p class="eyebrow">ALL WRITING</p>', '<p class="eyebrow">CONNECTED WRITING</p>')
+    .replace('<h1>Blog</h1>', `<h1>${escapeHtml(title)}</h1>`)
+    .replace('<p class="subpage-lead">Articles and technical writing published directly on Rizwan3d.</p>',
+      `<p class="subpage-lead">${escapeHtml(description)}</p>`)
+    .replace('<span>Static archive</span>', '<span>Series archive</span>')
+    .replace(`<span>${escapeHtml(String(groups.length))} articles available</span>`, `<span>${escapeHtml(String(groups.length))} series available</span>`)
+    .replace('<h2 id="blog-list-heading">Latest first</h2>', '<h2 id="blog-list-heading">Series table of contents</h2>')
+    .replace('<title>Blog - {{SITE_NAME}}</title>', `<title>${escapeHtml(title)} - {{SITE_NAME}}</title>`)
+    .replace('<meta name="description" content="Articles and technical writing published directly on Rizwan3d.">',
+      `<meta name="description" content="${escapeAttr(description)}">`)
+    .replace('<meta property="og:title" content="Blog - {{SITE_NAME}}">',
+      `<meta property="og:title" content="${escapeAttr(title)} - {{SITE_NAME}}">`)
+    .replace('<meta property="og:description" content="Articles on AI agents, RISC-V, compilers, developer tools, and software engineering by Muhammad Rizwan.">',
+      `<meta property="og:description" content="${escapeAttr(description)}">`)
+    .replaceAll('{{SITE_URL}}/blog/', `${siteUrl}/blog/series/`)
+    .replace('<script src="{{BASE_PATH}}assets/js/blog.js" defer></script>', "");
+  html = html
+    .replace(/\n\s*<div class="blog-load-state" data-blog-sentinel aria-live="polite">[\s\S]*?<\/div>\s*/m, "\n")
+    .replace(/\n\s*<noscript>[\s\S]*?<\/noscript>\s*/m, "\n");
+
+  await mkdir(path.join(distDir, "blog", "series"), { recursive: true });
+  await writeFile(path.join(distDir, "blog", "series", "index.html"), html, "utf8");
+}
+
 const homePath = path.join(distDir, "index.html");
 let home = await readFile(homePath, "utf8");
 const homePosts = writingPosts.filter((post) => post.featured).slice(0, latestOnHome);
@@ -2508,6 +2614,7 @@ for (const file of files) {
 
   if (file.endsWith(".html")) {
     const rel = path.relative(distDir, file).split(path.sep).join("/");
+    text = addSeriesNavLinks(text, rel);
     if (rel !== "404.html") {
       const pageUrl = rel === "index.html" ? siteUrl + "/" :
         rel.endsWith("/index.html") ? siteUrl + "/" + rel.slice(0, -"index.html".length) :

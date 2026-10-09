@@ -12,6 +12,9 @@ originalTitle: "WebSocket for real-time communication in C# and Typescript - Par
 originalPublished: "2023-01-24"
 author: "Muhammad Rizwan"
 tags: ""
+series: "WebSocket for real-time communication in C# and Typescript"
+seriesSlug: "websocket-for-real-time-communication-in-c-and-typescript"
+seriesPart: 5
 featuredImage: ""
 importMethod: "medium-original-export"
 importedAt: "2026-10-08"
