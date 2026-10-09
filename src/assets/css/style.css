@@ -86,11 +86,11 @@
 
   .about-hero { @apply grid min-h-[470px] grid-cols-[1.1fr_.9fr] items-center gap-[70px] pb-[50px] pt-[65px] max-[900px]:grid-cols-1 max-[900px]:gap-[35px]; }
   .real-about-hero { @apply max-[900px]:gap-[30px]; }
-  .about-portrait-wrap { @apply relative grid min-h-[330px] place-items-center; }
+  .about-portrait-wrap { @apply relative isolate grid min-h-[330px] w-full max-w-[365px] -translate-x-6 place-items-center justify-self-center overflow-visible max-[900px]:translate-x-0; }
   .about-portrait { @apply relative z-[2] h-[245px] w-[245px] rounded-full object-cover object-center shadow-[0_18px_50px_rgba(31,44,65,.08)] max-[650px]:h-[205px] max-[650px]:w-[205px]; }
-  .about-orbit { @apply absolute rounded-full; }
-  .about-orbit-one { @apply h-[310px] w-[310px] border border-[#dce2eb] max-[650px]:h-[255px] max-[650px]:w-[255px]; }
-  .about-orbit-two { @apply h-60 w-60 translate-x-[75px] -translate-y-[55px] bg-[rgba(236,240,246,.72)] max-[650px]:h-[190px] max-[650px]:w-[190px] max-[650px]:translate-x-[55px] max-[650px]:-translate-y-[45px]; }
+  .about-orbit { @apply absolute z-0 rounded-full; }
+  .about-orbit-one { @apply h-[310px] w-[310px] translate-x-4 -translate-y-1 border border-[#dce2eb] max-[650px]:h-[255px] max-[650px]:w-[255px] max-[650px]:translate-x-3; }
+  .about-orbit-two { @apply h-60 w-60 translate-x-[64px] -translate-y-[58px] bg-[rgba(236,240,246,.72)] max-[650px]:h-[190px] max-[650px]:w-[190px] max-[650px]:translate-x-[48px] max-[650px]:-translate-y-[45px]; }
   .about-story { @apply grid grid-cols-[250px_1fr] gap-[55px] border-t border-[#e1e6ed] py-[62px] max-[900px]:grid-cols-1 max-[900px]:gap-[22px]; }
   .story-copy { @apply max-w-[760px]; }
   .story-copy h2 { @apply mb-4 mt-0 font-display text-2xl font-bold tracking-[.01em]; }
