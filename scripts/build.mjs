@@ -1208,14 +1208,15 @@ function renderBlocks(lines, context) {
     const heading = line.match(/^(#{1,6})\s+(.+)$/);
     if (heading) {
       const level = heading[1].length;
+      const renderedLevel = level === 1 ? 2 : level;
       const id = uniqueHeadingId(heading[2], context);
       const label = plainMarkdownText(heading[2]);
-      if (level === 2) context.toc.push({ id, label });
+      if (renderedLevel === 2) context.toc.push({ id, label });
       const attrs = [
         `id="${escapeAttr(id)}"`,
         level === 1 ? 'class="article-body-h1"' : ""
       ].filter(Boolean).join(" ");
-      out.push(`<h${level} ${attrs}>${inlineMarkdown(heading[2], context)}</h${level}>`);
+      out.push(`<h${renderedLevel} ${attrs}>${inlineMarkdown(heading[2], context)}</h${renderedLevel}>`);
       index += 1;
       continue;
     }
