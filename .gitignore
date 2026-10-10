@@ -1,3 +1,11 @@
 node_modules/
 dist/
 .DS_Store
+
+# Licensed Envato fonts: install privately or on the web host; never commit binaries.
+src/assets/fonts/
+*.woff
+*.woff2
+*.ttf
+*.otf
+*.eot

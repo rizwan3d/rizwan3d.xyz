@@ -2,6 +2,61 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Licensed Envato Elements webfonts: install on the web host, not in public Git. */
+@font-face {
+  font-family: "GC Tenwork";
+  src: url("/assets/fonts/tenwork/GC-Tenwork.woff2") format("woff2"),
+       url("/assets/fonts/tenwork/GC-Tenwork.woff") format("woff");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "AOT Serial Mono";
+  src: url("/assets/fonts/aot-serial-mono/AOTSerialMono-Light.woff2") format("woff2"),
+       url("/assets/fonts/aot-serial-mono/AOTSerialMono-Light.woff") format("woff");
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "AOT Serial Mono";
+  src: url("/assets/fonts/aot-serial-mono/AOTSerialMono-Regular.woff2") format("woff2"),
+       url("/assets/fonts/aot-serial-mono/AOTSerialMono-Regular.woff") format("woff");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "AOT Serial Mono";
+  src: url("/assets/fonts/aot-serial-mono/AOTSerialMono-Medium.woff2") format("woff2"),
+       url("/assets/fonts/aot-serial-mono/AOTSerialMono-Medium.woff") format("woff");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "AOT Serial Mono";
+  src: url("/assets/fonts/aot-serial-mono/AOTSerialMono-SemiBold.woff2") format("woff2"),
+       url("/assets/fonts/aot-serial-mono/AOTSerialMono-SemiBold.woff") format("woff");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "AOT Serial Mono";
+  src: url("/assets/fonts/aot-serial-mono/AOTSerialMono-Bold.woff2") format("woff2"),
+       url("/assets/fonts/aot-serial-mono/AOTSerialMono-Bold.woff") format("woff");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
 @layer base {
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; text-size-adjust: 100%; }

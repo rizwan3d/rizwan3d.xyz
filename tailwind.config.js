@@ -12,38 +12,38 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        display: [
+        display: ["GC Tenwork", ...[
           "Menlo",
           "\"Meslo LG\"",
           "\"Cascadia Code\"",
           "Consolas",
           "\"Liberation Mono\"",
           "monospace"
-        ],
-        sans: [
+        ]],
+        sans: ["GC Tenwork", ...[
           "Menlo",
           "\"Meslo LG\"",
           "\"Cascadia Code\"",
           "Consolas",
           "\"Liberation Mono\"",
           "monospace"
-        ],
-        serif: [
+        ]],
+        serif: ["GC Tenwork", ...[
           "Menlo",
           "\"Meslo LG\"",
           "\"Cascadia Code\"",
           "Consolas",
           "\"Liberation Mono\"",
           "monospace"
-        ],
-        mono: [
+        ]],
+        mono: ["AOT Serial Mono", ...[
           "Menlo",
           "\"Meslo LG\"",
           "\"Cascadia Code\"",
           "Consolas",
           "\"Liberation Mono\"",
           "monospace"
-        ]
+        ]]
       }
     }
   },
