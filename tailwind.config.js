@@ -1,4 +1,11 @@
 /** @type {import('tailwindcss').Config} */
+const systemSansFallbacks = [
+  "Inter",
+  "Segoe UI",
+  "Arial",
+  "sans-serif"
+];
+
 const systemFontFallbacks = [
   "Menlo",
   "\"Meslo LG\"",
@@ -21,9 +28,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        display: ["GC Tenwork", ...systemFontFallbacks],
-        sans: ["GC Tenwork", ...systemFontFallbacks],
-        serif: ["GC Tenwork", ...systemFontFallbacks],
+        display: ["Kross Neue Grotesk", ...systemSansFallbacks],
+        sans: ["Kross Neue Grotesk", ...systemSansFallbacks],
+        serif: ["Kross Neue Grotesk", ...systemSansFallbacks],
         mono: ["AOT Serial Mono", ...systemFontFallbacks]
       }
     }

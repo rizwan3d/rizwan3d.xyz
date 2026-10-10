@@ -4,11 +4,47 @@
 
 /* Licensed Envato Elements webfonts: install on the web host, not in public Git. */
 @font-face {
-  font-family: "GC Tenwork";
-  src: url("/assets/fonts/tenwork/GC-Tenwork.woff2") format("woff2"),
-       url("/assets/fonts/tenwork/GC-Tenwork.woff") format("woff");
+  font-family: "Kross Neue Grotesk";
+  src: url("/assets/fonts/kross-neue-grotesk/KrossNeueGrotesk-Light.woff2") format("woff2"),
+       url("/assets/fonts/kross-neue-grotesk/KrossNeueGrotesk-Light.woff") format("woff");
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Kross Neue Grotesk";
+  src: url("/assets/fonts/kross-neue-grotesk/KrossNeueGrotesk-Regular.woff2") format("woff2"),
+       url("/assets/fonts/kross-neue-grotesk/KrossNeueGrotesk-Regular.woff") format("woff");
   font-style: normal;
   font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Kross Neue Grotesk";
+  src: url("/assets/fonts/kross-neue-grotesk/KrossNeueGrotesk-Italic.woff2") format("woff2"),
+       url("/assets/fonts/kross-neue-grotesk/KrossNeueGrotesk-Italic.woff") format("woff");
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Kross Neue Grotesk";
+  src: url("/assets/fonts/kross-neue-grotesk/KrossNeueGrotesk-Bold.woff2") format("woff2"),
+       url("/assets/fonts/kross-neue-grotesk/KrossNeueGrotesk-Bold.woff") format("woff");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Kross Neue Grotesk";
+  src: url("/assets/fonts/kross-neue-grotesk/KrossNeueGrotesk-Heavy.woff2") format("woff2"),
+       url("/assets/fonts/kross-neue-grotesk/KrossNeueGrotesk-Heavy.woff") format("woff");
+  font-style: normal;
+  font-weight: 900;
   font-display: swap;
 }
 
@@ -195,9 +231,9 @@
     .article-toc a { @apply block leading-[1.35] text-[#667892] transition hover:text-[#142033]; }
     .article-toc a.is-active { @apply font-semibold text-[#142033]; }
   }
-  .article-content { @apply font-serif text-sm leading-[1.725] text-[#1f2d40]; }
-  .article-content h1 { @apply mb-4 mt-0 font-display text-[26px] font-bold leading-[1.25] tracking-[.01em] text-[#0d1117] max-[650px]:text-[22px]; }
-  .article-lead { @apply mb-8 mt-0 max-w-[700px] font-sans text-sm leading-[1.725] text-[#31455f]; }
+  .article-content { @apply font-serif text-[0.99rem] font-normal leading-[1.725] text-[#1f2d40]; }
+  .article-content h1 { @apply mb-4 mt-0 font-display text-[26px] font-black leading-[1.25] tracking-[.01em] text-[#0d1117] max-[650px]:text-[22px]; }
+  .article-lead { @apply mb-8 mt-0 max-w-[700px] font-sans text-sm font-black leading-[1.725] text-[#31455f]; }
   .article-taxonomy { @apply mb-5 flex flex-wrap gap-2 font-sans; }
   .article-taxonomy a { @apply rounded-[7px] border border-[#dfe6ee] bg-[#f8fafc] px-3 py-1.5 text-xs font-semibold text-[#526985] hover:border-[#c8d3e1] hover:bg-white hover:text-[#1a2a42]; }
   .article-share { @apply ml-auto flex flex-wrap items-center justify-end gap-2 font-sans text-xs text-[#6f809c] max-[650px]:ml-0 max-[650px]:w-full max-[650px]:justify-start; }
