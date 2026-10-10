@@ -2107,32 +2107,27 @@ function seriesIndexTableHtml(posts) {
     return `<p class="blog-noscript">No article series are published yet.</p>`;
   }
 
-  const rows = groups.map((group) => `<tr>
-      <th scope="row"><a class="inline-link" href="${escapeAttr(`${basePath}posts/${group.items[0].slug}.html`)}">${escapeHtml(group.name)}</a></th>
-      <td>${escapeHtml(String(group.items.length))}</td>
-      <td>
-        <ol class="series-article-list">
-          ${group.items.map((item, index) => `<li><span>Part ${escapeHtml(String(item.series.part || index + 1))}</span><a href="${escapeAttr(`${basePath}posts/${item.slug}.html`)}">${escapeHtml(item.title)}</a></li>`).join("\n          ")}
-        </ol>
-      </td>
-      <td><time datetime="${escapeAttr(group.updatedAt)}">${escapeHtml(formatDate(group.updatedAt))}</time></td>
-    </tr>`).join("\n    ");
+  const cards = groups.map((group) => `<article class="series-card">
+    <header class="series-card-header">
+      <div>
+        <p class="series-card-label">${escapeHtml(String(group.items.length))} ${group.items.length === 1 ? "article" : "articles"}</p>
+        <h3><a href="${escapeAttr(`${basePath}posts/${group.items[0].slug}.html`)}">${escapeHtml(group.name)}</a></h3>
+      </div>
+      <time datetime="${escapeAttr(group.updatedAt)}">Updated ${escapeHtml(formatDate(group.updatedAt))}</time>
+    </header>
+    <ol class="series-article-list">
+      ${group.items.map((item, index) => `<li>
+        <a href="${escapeAttr(`${basePath}posts/${item.slug}.html`)}">
+          <span>Part ${escapeHtml(String(item.series.part || index + 1))}</span>
+          <strong>${escapeHtml(item.title)}</strong>
+        </a>
+      </li>`).join("\n      ")}
+    </ol>
+  </article>`).join("\n  ");
 
-  return `<div class="legal-table-wrap series-table-wrap">
-    <table class="legal-table series-table">
-      <thead>
-        <tr>
-          <th scope="col">Series</th>
-          <th scope="col">Articles</th>
-          <th scope="col">Table of contents</th>
-          <th scope="col">Updated</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows}
-      </tbody>
-    </table>
-  </div>`;
+  return `<div class="series-index-list">
+  ${cards}
+</div>`;
 }
 
 function postRelatedArticlesHtml(post, posts) {
@@ -2558,7 +2553,7 @@ for (const [slug, group] of years) {
       `<p class="subpage-lead">${escapeHtml(description)}</p>`)
     .replace('<span>Static archive</span>', '<span>Series archive</span>')
     .replace(`<span>${escapeHtml(String(groups.length))} articles available</span>`, `<span>${escapeHtml(String(groups.length))} series available</span>`)
-    .replace('<h2 id="blog-list-heading">Latest first</h2>', '<h2 id="blog-list-heading">Series table of contents</h2>')
+    .replace('<h2 id="blog-list-heading">Latest first</h2>', '<h2 id="blog-list-heading">Browse by series</h2>')
     .replace('<title>Blog - {{SITE_NAME}}</title>', `<title>${escapeHtml(title)} - {{SITE_NAME}}</title>`)
     .replace('<meta name="description" content="Articles and technical writing published directly on Rizwan3d.">',
       `<meta name="description" content="${escapeAttr(description)}">`)
