@@ -297,7 +297,7 @@
   .article-content h4, .article-content h5, .article-content h6 { @apply mb-2 mt-7 font-display text-sm font-semibold leading-[1.55] tracking-normal text-[#1a2430]; }
   .markdown-image { @apply mx-auto my-[22px] block h-auto max-h-[620px] max-w-full rounded-lg object-contain; }
   .article-featured-image { @apply mb-[34px] mt-7; }
-  .article-featured-image img { @apply block max-h-[560px] w-full rounded-[10px] bg-[#f0f3f7] object-cover; }
+  .article-featured-image img { @apply block aspect-video max-h-[560px] w-full rounded-[10px] bg-[#f0f3f7] object-cover; }
   .article-featured-image figcaption { @apply mt-2 text-right text-[10px] text-[#8996aa]; }
   .task-list-item { @apply ml-[-22px] grid list-none grid-cols-[18px_minmax(0,1fr)] items-start gap-[7px]; }
   .task-list-checkbox { @apply mt-[5px] h-3.5 w-3.5 accent-[#607493]; }

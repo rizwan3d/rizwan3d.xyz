@@ -7,22 +7,25 @@ category: "C#"
 created: "2026-10-10"
 updated: "2026-10-10"
 tags: "csharp, dotnet, performance, benchmarking, jit, garbage-collection"
-featuredImageCreditUrl: "https://unsplash.com/@marcojodoin"
-featuredImageCredit: "Photo by Marc-Olivier Jodoin on Unsplash"
-featuredImageAlt: "long exposure photography of road and cars"
-featuredImage: "https://images.unsplash.com/photo-1498084393753-b411b2d26b34"
+series: "Performance-Aware Programming in C#"
+seriesSlug: "performance-aware-programming-in-csharp"
+seriesPart: 2
+sourceUrl: "https://github.com/rizwan3d/CSharpPerformanceSuite"
+featuredImageCreditUrl: "https://unsplash.com/@julianhochgesang"
+featuredImageCredit: "Photo by Julian Hochgesang on Unsplash"
+featuredImageAlt: "Time lapse photography of vehicles"
+featuredImage: "https://images.unsplash.com/photo-1578991132108-16c5296b63dc?auto=format&fit=crop&w=1600&q=80"
 featured: true
 ---
-
 *The fastest-looking change isn't always the fastest change. Here's how to test that claim instead of repeating it.*
 
 A performance problem rarely announces itself as a slow algorithm. Sometimes it's an innocent `Contains` inside a loop. Other times, an allocation looks too small to matter until the service performs it thousands of times per second.
 
 The usual advice is familiar: use a `HashSet<T>` for membership tests, avoid allocations, consider structs, and let the JIT do its work. None of that is entirely wrong. It just skips the difficult question: **what actually gets faster in the workload we're running?**
 
-We'll examine a transaction-processing method, test three implementations, and then look below the C# source at allocations, generated machine code, CPU memory access, and application-level traces. One of the alternatives has a hidden setup cost, so the experiment is designed to reveal a case where an apparent optimization *might* fail.
+We'll examine a transaction-processing method, test three implementations, and then look below the C# source at allocations, generated machine code, CPU memory access, and application-level traces. The results reveal two different kinds of failed optimization: rebuilding a hash set can erase its lookup advantage, and a linear scan can outperform even a reused hash set when the candidate list is small.
 
-> **Evidence note:** The code in this article targets **.NET 10** with **BenchmarkDotNet**. The preparation environment reported an **AMD EPYC 9V74** virtual CPU but did not have the .NET SDK installed, so I have **not run these benchmarks or captured disassembly**. Timings, GC counts, and assembly below are either explicitly illustrative or instructions for collecting real results. Don't cite a prediction as if it was measured.
+> **Evidence note:** The benchmark results and disassembly in this article come from the supplied BenchmarkDotNet reports, captured on a **13th Gen Intel Core i5-13400F** running **Windows 11**, **.NET 10.0.11**, **x64 RyuJIT AVX2**, and **BenchmarkDotNet 0.15.2**. The benchmark CSV, Markdown reports, and disassembly are the source of all measured figures below. The API latency example later in the article is hypothetical and is clearly labeled.
 
 ## 1. The deceptively simple method
 
@@ -61,7 +64,7 @@ We'll compare three strategies:
 
 All three calculate the same answer for the same input. But they're not identical API designs: the third one assumes a caller maintains the lookup over time. If approval data changes and the cache isn't refreshed, it's fast *and wrong*. Thats not much of an improvement.
 
-Here is a complete benchmark that makes the distinction visible.
+Here is a complete benchmark that makes the distinction visible. The benchmark project used for the reported runs also performs a correctness check in `GlobalSetup` and uses checked accumulation; those changes do not alter the three lookup strategies.
 
 ## 3. Reproducible BenchmarkDotNet experiment
 
@@ -72,6 +75,8 @@ dotnet new console -n CSharpPerfLab -f net10.0
 cd CSharpPerfLab
 dotnet add package BenchmarkDotNet
 ```
+
+The complete benchmark and API latency code used for this article is available at [github.com/rizwan3d/CSharpPerformanceSuite](https://github.com/rizwan3d/CSharpPerformanceSuite).
 
 Replace `Program.cs` with:
 
@@ -169,39 +174,55 @@ lscpu
 
 Record the exact .NET patch version, BenchmarkDotNet version, CPU, operating system, and GC/runtime configuration. A virtual machine may experience host contention, so treat small differences carefully.
 
-### What the results should look like
+### The actual benchmark environment
 
-After running, transcribe the *actual* values from `BenchmarkDotNet.Artifacts/results`. Don't populate a benchmark table with estimated nanoseconds.
+| Setting | Recorded value |
+|---|---|
+| BenchmarkDotNet | 0.15.2 |
+| OS | Windows 11 (10.0.26200.7922) |
+| CPU | 13th Gen Intel Core i5-13400F, 10 physical / 16 logical cores |
+| .NET SDK | 10.0.303 |
+| Runtime | .NET 10.0.11 (10.0.1126.37416) |
+| JIT | x64 RyuJIT AVX2 |
 
-| Transactions | Approved IDs | Method | Mean | Allocated | Gen0 |
-|---:|---:|---|---:|---:|---:|
-| 100 | 16 | ListLookup | *run required* | *run required* | *run required* |
-| 100 | 16 | NewHashSet | *run required* | *run required* | *run required* |
-| 100 | 16 | ReusedHashSet | *run required* | *run required* | *run required* |
-| 10,000 | 4,096 | ListLookup | *run required* | *run required* | *run required* |
-| 10,000 | 4,096 | NewHashSet | *run required* | *run required* | *run required* |
-| 10,000 | 4,096 | ReusedHashSet | *run required* | *run required* | *run required* |
+### Measured transaction lookup results
 
-The benchmark generates **four input combinations**, not only the two shown above; report all twelve method/parameter combinations when publishing real results.
+All means below are from the supplied BenchmarkDotNet transaction report. The workload inputs were generated with the same deterministic random seed for each implementation. **Lower is better.**
 
-The hypotheses are straightforward:
+| Transactions | Approved IDs | ListLookup | NewHashSet | ReusedHashSet | Fastest |
+|---:|---:|---:|---:|---:|---|
+| 100 | 16 | 218.4 ns | 301.7 ns | **197.0 ns** | Reused set |
+| 100 | 4,096 | 14,938.4 ns | 15,449.9 ns | **194.4 ns** | Reused set |
+| 10,000 | 16 | **36.48 µs** | 67.15 µs | 69.62 µs | List |
+| 10,000 | 4,096 | 2,455.96 µs | 89.55 µs | **72.92 µs** | Reused set |
 
-- For small inputs, the cost of constructing a set may outweigh its faster lookup.
-- For large approved lists and many transactions, the repeated linear scans should become costly.
-- Reusing a set should avoid the per-call set allocation, provided maintaining the set is a legitimate part of the application design.
+The first surprise is the **10,000-transaction / 16-ID** workload. The original list scan took **36.48 µs**, compared with **69.62 µs** for a reused hash set. That's about **1.91× less time** for the list. At the other extreme, with **4,096 approved IDs**, the reused hash set completed the same 10,000-transaction workload in **72.92 µs** versus **2,455.96 µs** for the list—about **33.7× faster**.
 
-These are **predictions**, not experimental findings. A measurement that contradicts them is interesting; it isn't a reason to quietly remove that row.
+At **100 transactions / 4,096 IDs**, constructing a fresh hash set erased the benefit: **15,449.9 ns**, slightly slower than the list's **14,938.4 ns**. Reusing the prebuilt set brought that workload down to **194.4 ns**. Thats a setup-cost difference worth measuring, not hand-waving away.
+
+**Allocation and GC readings for transaction lookup:**
+
+| Transactions | Approved IDs | List allocation | NewHashSet allocation | Reused allocation | NewHashSet Gen0 | NewHashSet Gen1 |
+|---:|---:|---:|---:|---:|---:|---:|
+| 100 | 16 | 0 B reported | 432 B | 0 B reported | 0.0410 | — |
+| 100 | 4,096 | 0 B reported | 77,936 B | 0 B reported | 7.4005 | 1.4648 |
+| 10,000 | 16 | 0 B reported | 432 B | 0 B reported | — | — |
+| 10,000 | 4,096 | 0 B reported | 77,936 B | 0 B reported | 7.3242 | 1.3428 |
+
+BenchmarkDotNet's Gen0/Gen1 figures are normalized collection counts **per 1,000 operations**, not collections per individual call. A dash means the report recorded no value at its displayed precision. The 432 B and 77,936 B figures are managed allocations attributable to building the temporary set, not its eventual live size in an application.
+
+The `NewHashSet` rows also showed more timing variation than some of their alternatives. Treat narrow differences, such as the **100-transaction / 4,096-ID** list-versus-new-set result, as measurements to repeat rather than definitive architectural laws.
 
 ## 4. When an optimization fails, separate the costs
 
-Suppose you replace the list with a newly constructed hash set. The result is disappointing on small batches.
+We did replace the list with a newly constructed hash set, and the result was disappointing on small batches. With 100 transactions and 4,096 approved IDs, the new set took 15,449.9 ns versus 14,938.4 ns for the list. With 100 transactions and 16 IDs, it took 301.7 ns versus 218.4 ns.
 
 What actually changed? Two things:
 
 - The membership-test algorithm changed.
 - The method began allocating and populating a new collection.
 
-That makes `NewHashSet` versus `ReusedHashSet` a useful comparison. If the reused version wins but the newly created version doesn't, set construction is a plausible cause. Confirm that hypothesis with allocation measurements and, if necessary, a profiler.
+That makes `NewHashSet` versus `ReusedHashSet` a useful comparison. The reused version did win on both 100-transaction workloads, while the new set did not. That points toward set construction as an important cost. The allocation report strengthens the explanation: 432 B at 16 IDs and 77,936 B at 4,096 IDs. A profiler would provide stronger evidence about where CPU time is spent inside the construction process.
 
 There is another caveat. The reused-set benchmark measures a steady-state operation, **not** the cost of acquiring fresh approved IDs, maintaining a cache, synchronizing updates, or handling multiple threads. Include those costs in an end-to-end test if they're part of your real system.
 
@@ -237,7 +258,7 @@ To run this comparison, change the entry point to `BenchmarkRunner.Run<AssemblyB
 
 `NoInlining` intentionally forces a method boundary. That makes this an experiment about calls, **not** a demonstration of what the JIT would choose under normal conditions.
 
-A **conceptual** x64 listing for the direct operation could resemble:
+Here is the **actual captured x64 assembly** for `Direct()` from the uploaded disassembly report:
 
 ```asm
 mov eax, [rcx+8]
@@ -245,15 +266,18 @@ add eax, eax
 ret
 ```
 
-A conceptual non-inlined path could resemble:
+And this is the **actual captured code** for `ThroughMethod()` and its helper:
 
 ```asm
-mov edx, [rcx+8]
-call Multiply
+mov ecx, [rcx+8]
+jmp qword ptr [7FFBC4B159E0] ; Multiply(Int32)
+
+; Multiply(Int32)
+lea eax, [rcx+rcx]
 ret
 ```
 
-These snippets are **not captured disassembly**. Actual output can differ in register choice, field offsets, prologues, instructions, and calling convention. To make a real assembly claim, inspect BenchmarkDotNet's generated disassembly report under `BenchmarkDotNet.Artifacts/results`.
+These snippets are taken from the report, with only the destination comment reformatted for readability. Notice that `ThroughMethod()` uses a **tail `jmp`**, rather than the `call`/`ret` sequence we might have guessed. This is exactly why capturing assembly is useful. The report lists **6 bytes** of code for `Direct()` and **13 bytes combined** for the two methods in the non-inlined path. The recorded means were **0.2187 ns** and **0.4408 ns**, respectively, with meaningful run-to-run variation at this extremely small timescale. That is a microbenchmark observation, not a general rule about every function call.
 
 Why care about the call? Inlining can eliminate call overhead and may unlock constant propagation and related optimizations. But unrestricted inlining isn't automatically better: bigger machine-code bodies can harm instruction-cache locality.
 
@@ -308,7 +332,14 @@ public class AllocationBenchmarks
 
 Run this by changing the entry point to `BenchmarkRunner.Run<AllocationBenchmarks>();`.
 
-Expect the class version to create more individual managed objects. But wait for the reported allocation counts before giving exact byte totals. Object headers, field layout, padding, and alignment depend on runtime details.
+The uploaded allocation benchmark gives us the actual totals for **1,000 elements**:
+
+| Method | Mean | Allocated | Gen0 | Gen1 |
+|---|---:|---:|---:|---:|
+| StructArray | **1.020 µs** | **15.65 KB** | 1.5278 | — |
+| ClassArray | 5.959 µs | 39.09 KB | 3.8261 | 0.4768 |
+
+The class-array construction took **5.84×** as long and allocated **2.50×** as many managed bytes in this experiment. These benchmarks measure **creation and initialization**, not traversal or lifetime costs. The result supports the expected difference in object allocation patterns, without proving that structs win for every downstream workload. Again, the Gen columns show collections normalized per 1,000 operations.
 
 The struct layout also affects traversal. Compact, contiguous data tends to work well with CPU caches, while following references can create extra memory accesses. That doesn't mean structs always win: large structs may be expensive to copy, and class identity or polymorphism might be essential to the design.
 
@@ -318,7 +349,7 @@ Modern CPUs don't retrieve every value from main memory at the same cost. Regist
 
 A linear scan of a tiny `int` list can be quick because its elements are contiguous, and nearby elements may arrive in the same cache line. A hash lookup performs fewer logical comparisons on average, but involves hash computation and bucket/entry access with a less predictable memory pattern.
 
-For a large list, avoiding thousands of comparisons will usually matter more. For a very small list, contiguous scanning can be competitive.
+The numbers demonstrate this tension. With **10,000 transactions** and only **16 approved IDs**, the list took **36.48 µs**, beating the reused set at **69.62 µs**. With **4,096 IDs**, the list ballooned to **2,455.96 µs** and the reused set took **72.92 µs**. The small-list result is not merely a theoretical exception; it happened on the tested CPU and runtime.
 
 To find the crossover rather than guess at it, change the parameter:
 
@@ -351,33 +382,43 @@ But even that number is not a verdict. Short-lived Gen 0 allocations can be rela
 
 What matters is whether garbage-collection behavior is significantly contributing to the observed problem.
 
-## 9. The production bottleneck may be elsewhere
+## 9. Real API load tests: the fastest microbenchmark did not win the HTTP test
 
-Imagine an API request with this **hypothetical**, illustrative breakdown:
+The hypothetical API example is no longer necessary for **end-to-end latency**. We now have three k6 JSON reports from the companion `ApiLatencyLab` project, which reads 10,000 rows from a seeded SQLite database, calculates an approved transaction total against 4,096 customer IDs, and returns JSON over HTTP. The approved set is prepared at application startup for the reused-set endpoint. For the new-set endpoint, set construction happens within the timed calculation. Each endpoint performs its own SQLite query before calculating the total.
 
-| Work | Time |
-|---|---:|
-| Database fetch | 80 ms |
-| Transaction calculation | 4 ms |
-| Serialization | 2 ms |
-| Other request work | 4 ms |
-| **Total** | **90 ms** |
+The reports were collected with **10 virtual users**. Counts and request rates indicate runs lasting approximately **60 seconds**, with each strategy measured separately. The k6 reports don't record the load generator's CPU or confirm identical host load across runs. Treat the comparison as three observed runs, not a controlled proof of causation.
 
-Even if the calculation improves from 4 ms to 1 ms, total latency only falls from 90 ms to 87 ms. Improving the database portion from 80 ms to 30 ms has a much larger effect.
+### Measured HTTP results
 
-That is Amdahl's Law in practical form. Improving a small slice of the work can't rescue the entire request.
+All durations below are **milliseconds**, and throughput is **HTTP requests per second**. These are the actual values from the uploaded k6 summaries, rounded only for readability.
 
-And there is a subtle profiling trap: a CPU sampling profiler is great at showing where CPU time goes, but a request waiting on I/O may consume little CPU. Combine sampling with request traces and database timings when diagnosing end-to-end latency.
+| Strategy | Mean | Median | p95 | p99 | Requests/s | Checked iterations |
+|---|---:|---:|---:|---:|---:|---:|
+| List lookup | 14.19 | 7.89 | 35.27 | 50.72 | 699.3 | 41,980 |
+| New hash set | 5.66 | 4.65 | 13.10 | 24.91 | 1,737.7 | 104,304 |
+| Reused hash set | 10.96 | 6.39 | 27.43 | 38.69 | 903.2 | 54,213 |
 
-For runtime tracing:
+Each of the three strategies passed every reported **HTTP 200**, **correct total**, and **correct count** check. The expected total was **2,503,317**. There were **zero failed HTTP requests** according to k6. The overall `http_reqs` totals are three higher than checked iterations in each run because additional setup requests are also counted.
 
-```bash
-dotnet tool install --global dotnet-trace
-dotnet-trace ps
-dotnet-trace collect --process-id <PID>
-```
+### The unexpected winner
 
-Capture under a representative load and analyze the trace with a compatible profiler. Don't infer that a CPU hotspot is the largest source of elapsed request time without checking the rest of the pipeline.
+The **newly constructed hash set** produced the lowest observed average HTTP latency at **5.66 ms**, compared with **10.96 ms** for the reused set and **14.19 ms** for the list. Its observed request rate was approximately **1,737.7 requests/s**, compared with **903.2** and **699.3 requests/s** respectively.
+
+That is surprising because the earlier standalone BenchmarkDotNet experiment at **10,000 transactions and 4,096 IDs** measured the reused hash set at **72.92 µs**, the new set at **89.55 µs**, and the list at **2,455.96 µs**. In isolation, reusing the set was faster than rebuilding it. In the HTTP runs, the new-set endpoint came first.
+
+Don't force those two results into a neat story. A k6 summary reports client-observed HTTP latency, not just calculation time. The API queries SQLite on every request, and its response times can be influenced by operating-system scheduling, SQLite contention, cache state, garbage collection, and background load. Because these were separate runs rather than randomized interleaved trials, different run conditions could explain part or all of the ranking. **We cannot establish that constructing a hash set makes the API inherently faster than reusing one.**
+
+The performance difference is worth investigating, not declaring a universal optimization rule.
+
+### What these reports do and don't measure
+
+We can now report genuine **mean, median, p95, p99, throughput, request counts, and correctness** for this test setup. But the k6 summaries do **not** include the API's instrumented `api.db.duration`, `api.calculate.duration`, or `api.serialize.duration` histograms. Those were recorded by `System.Diagnostics.Metrics` inside the service, yet a metrics collector/exporter is needed to retain their values during the run.
+
+In other words, the request-level numbers are no longer hypothetical, while any numerical breakdown by database, calculation, or serialization would **still be hypothetical** without a corresponding metrics export or trace. Nor do these files provide the API's managed allocation rate, GC pause duration, or CPU utilization under load.
+
+For a stronger follow-up, collect the three stage-level histograms and GC metrics, randomize the sequence of strategies, repeat each scenario several times, and test with the load generator on a separate machine. Then compare **per-stage distributions** as well as the client-observed response times. No stage-duration values have been invented here.
+
+This is a useful practical result by itself: a method-level benchmark and an end-to-end test can rank alternatives differently, and good performance engineering preserves that discrepancy until the evidence explains it.
 
 ## 10. The experimental checklist I'd use before a production change
 
@@ -394,13 +435,11 @@ Here is the sequence I'd follow on a real system:
 
 The most annoying bugs here aren't necessarily in the benchmark. They show up later, when a cache returns stale information or an optimization adds concurrency complexity nobody accounted for.
 
-## 11. What we can honestly conclude before running anything
+## 11. What the measurements actually establish
 
 We can prove from the implementation that `List<T>.Contains` performs linear searching, that building a new hash set introduces extra work, and that reusing a prepared set removes that construction from each calculation. We can also explain why struct arrays and reference-type arrays have different allocation patterns.
 
-What we **cannot** truthfully claim from source code alone is a precise speedup, an exact crossover point, the number of GC collections observed, or the specific instructions generated by a particular JIT build.
-
-Those are experimental results. They belong in the article only after a real run, with the runtime, hardware, and configuration recorded next to the data.
+We can now report measured speedups, allocation differences, normalized GC counts, and a real JIT disassembly for **this** CPU and .NET build. We **cannot** claim a precise crossover point from only two approved-ID sizes. We now have three real, end-to-end API load-test runs, but they do not explain the internal stage-by-stage costs or establish why the new-set endpoint unexpectedly led the HTTP comparison. Production tracing and repeated, controlled tests remain necessary.
 
 ### Conclusion: the interesting result isn't “HashSet wins”
 
@@ -408,7 +447,7 @@ The original code had a simple problem: a membership check inside a loop. Replac
 
 The experiment is useful because it separates those costs. The list benchmark exposes repeated scans. The freshly built set includes setup and allocation. The reused set isolates steady-state lookup while leaving lifecycle management to the caller. Disassembly can explain specific generated-code differences; counters and traces can tell us whether those differences matter at scale.
 
-If your benchmark shows the hash set losing on small inputs, that isn't embarrassing. It's the finding. Keep it, explain the setup cost, and show the crossover if there is one. If your API latency doesn't change after a convincing microbenchmark improvement, profile the whole request rather than optimizing the loop a second time.
+Our benchmarks showed the hash set losing in two distinct situations: fresh-set construction on small batches, and even reused hashing when the scan covered only 16 IDs across 10,000 transactions. Neither result is embarrassing. They tell us where the costs are. Additional input sizes would locate the crossover more precisely. The API results gave us an even more interesting reversal: the new set had the lowest observed HTTP latency despite losing to reuse in the isolated lookup benchmark. Rather than invent an explanation, collect per-stage metrics, repeat the tests, and examine the full request.
 
 Good performance writing should make those tradeoffs visible. **Measure the operation, account for its setup, inspect the runtime when needed, and validate the complete system.** Thats much more useful than a rule that says one collection is always faster.
 
@@ -421,5 +460,6 @@ Good performance writing should make those tradeoffs visible. **Measure the oper
 - [Microsoft .NET diagnostic tools](https://learn.microsoft.com/en-us/dotnet/core/diagnostics/)
 - [dotnet-counters](https://learn.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-counters)
 - [Garbage collection fundamentals](https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/fundamentals)
+- [k6 documentation](https://grafana.com/docs/k6/latest/)
 
-*Experimental status: source and commands provided; benchmark measurements and assembly capture have not been executed for this draft.*
+*Experimental status: Transaction, allocation, and JIT assembly benchmarks, plus three real k6 API load-test summaries, were supplied and incorporated. Stage-level API metrics, repeated controlled runs, production tracing, and a full crossover sweep remain future experiments.*
