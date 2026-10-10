@@ -2,5 +2,588 @@
   "siteUrl": "https://rizwan3d.xyz",
   "host": "rizwan3d.xyz",
   "keyLocation": "https://rizwan3d.xyz/4d9ed795cab34a768caf37fd1fcaa506.txt",
-  "urls": []
+  "urls": [
+    {
+      "url": "https://rizwan3d.xyz/about",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/category/c/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/category/cybersecurity/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/category/data-science/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/category/game-development/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/category/gaming/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/category/risc-v/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/category/software-engineering/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/page/2/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/page/3/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/page/4/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/page/5/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/series/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/ai-agents/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/angular/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/automation/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/benchmarking/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/c/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/compilers/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/csharp/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/cybersecurity/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/data-mining/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/design-patterns/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/dotnet/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/filesystemwatcher/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/game-development/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/garbage-collection/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/git/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/incident-response/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/jit/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/laravel/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/malware-analysis/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/net/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/performance/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/php/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/powershell/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/programming/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/python/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/risc-v/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/software-engineering/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/strategy/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/strategy-design-pattern/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/valorant/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/tag/websocket/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/year/2017/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/year/2018/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/year/2019/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/year/2021/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/year/2022/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/year/2023/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/year/2024/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/year/2025/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/blog/year/2026/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/contact",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/cookies",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/ai-coding-agents-should-not-hide-memory-why-stemcode-stores-it-in-repo-files",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/analyse-of-game-design-of-valorant-and-compared-to-cs-go",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/android-windows-game-development-in-urdu-hindi",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/apriori-algorithm-theory-and-do-it-in-python-data-mining-in-python",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/continuous-integration-with-example-and-code",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/csharp-performance-under-the-microscope-jit-memory-and-a-benchmark-that-can-fail",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/exceeding-expectations-how-i-earned-a-star-performer-award-with-just-five-tasks",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/exploring-risc-v-assembly-in-the-web-browser-with-sharpriscv",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/hard-part-of-writing-a-risc-v-assembler",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/hello-sdl-your-first-graphics-window-c",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/helpers-methods-in-laravel-9-new-way-for-global-functions",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/how-to-make-commit-messages-fun-with-gitmoji",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/how-to-simplify-data-validation-in-php-with-validationmyphp",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/how-to-speed-up-your-laravel-application-with-php-opcache",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/laravel-and-angular-together-with-todo-example",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/learn-angular-in-2023",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/learning-risc-v-assembly-language-by-building-an-assembler-in-c",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/managing-a-software-house-production",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/mathematics-and-programming",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/migrate-from-laravel-8-to-9",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/my-next-project-directory-structure-of-php",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/no-more-mvc-organize-big-projects-in-laravel-php",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/oneapi-by-intel",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/performance-aware-programming-in-csharp",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/risc-v-pioneering-windows-assembly-a-new-era-in-computing",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/static-analysis-of-php-with-phpstan",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/sundook-blockchain-for-academic-records",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/untitled-entertainment-transforming-pakistan-s-valorant-esports-landscape",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/up-and-running-with-model-in-laravel-advance-use-of-model",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/urdu-programming-language-2",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/urdu-programming-language",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/valorant-in-pakistan-start-streaming-in-pakistan-no-more-pubg-mobile",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/website-associated-obfuscated-cmd-full-static-investigation",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/websocket-for-real-time-communication-in-c-and-typescript-part-1-connection",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/what-i-do-as-code-reviewer",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/why-angular-is-best",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/windows-dev-kit-2023-is-this-true",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/posts/write-good-git-commit-message-and-standardize-it-with-tools",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/privacy",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    },
+    {
+      "url": "https://rizwan3d.xyz/terms",
+      "firstRecordedAt": "2026-10-10T00:15:32.674Z",
+      "lastSubmittedAt": "2026-10-10T00:15:32.674Z",
+      "lastStatus": 200
+    }
+  ]
 }
