@@ -66,6 +66,7 @@
   a { @apply text-inherit no-underline; }
   button, input, textarea { font: inherit; }
   button { @apply cursor-pointer; }
+  code, pre, kbd, samp { @apply font-mono; }
   h1, h2, h3, h4, h5, h6 { @apply font-display; letter-spacing: 0; }
 }
 

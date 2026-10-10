@@ -1,4 +1,13 @@
 /** @type {import('tailwindcss').Config} */
+const systemFontFallbacks = [
+  "Menlo",
+  "\"Meslo LG\"",
+  "\"Cascadia Code\"",
+  "Consolas",
+  "\"Liberation Mono\"",
+  "monospace"
+];
+
 export default {
   corePlugins: {
     preflight: false
@@ -12,38 +21,10 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        display: ["GC Tenwork", ...[
-          "Menlo",
-          "\"Meslo LG\"",
-          "\"Cascadia Code\"",
-          "Consolas",
-          "\"Liberation Mono\"",
-          "monospace"
-        ]],
-        sans: ["GC Tenwork", ...[
-          "Menlo",
-          "\"Meslo LG\"",
-          "\"Cascadia Code\"",
-          "Consolas",
-          "\"Liberation Mono\"",
-          "monospace"
-        ]],
-        serif: ["GC Tenwork", ...[
-          "Menlo",
-          "\"Meslo LG\"",
-          "\"Cascadia Code\"",
-          "Consolas",
-          "\"Liberation Mono\"",
-          "monospace"
-        ]],
-        mono: ["AOT Serial Mono", ...[
-          "Menlo",
-          "\"Meslo LG\"",
-          "\"Cascadia Code\"",
-          "Consolas",
-          "\"Liberation Mono\"",
-          "monospace"
-        ]]
+        display: ["GC Tenwork", ...systemFontFallbacks],
+        sans: ["GC Tenwork", ...systemFontFallbacks],
+        serif: ["GC Tenwork", ...systemFontFallbacks],
+        mono: ["AOT Serial Mono", ...systemFontFallbacks]
       }
     }
   },
