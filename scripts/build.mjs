@@ -1416,10 +1416,28 @@ function addSeriesNavLinks(text, rel) {
   return output.replace(blogLinkPattern, `$1\n      ${seriesLink}`);
 }
 
+function newsletterFormHtml() {
+  const newsletter = config.newsletter || {};
+  return `<form method="post" action="${escapeAttr(newsletter.formAction)}" class="listmonk-form" aria-label="Subscribe to the newsletter">
+          <input type="hidden" name="nonce">
+          <label class="newsletter-field">
+            <span class="sr-only">Email address</span>
+            <input class="newsletter-input" type="email" name="email" required placeholder="E-mail" autocomplete="email">
+          </label>
+          <label class="newsletter-field">
+            <span class="sr-only">Name (optional)</span>
+            <input class="newsletter-input" type="text" name="name" placeholder="Name (optional)" autocomplete="name">
+          </label>
+          <input type="hidden" name="l" value="${escapeAttr(newsletter.listId)}">
+          <button class="newsletter-submit" type="submit">Subscribe</button>
+        </form>`;
+}
+
 function replaceSiteTokens(text) {
   return text
     .replaceAll("{{SITE_URL}}", siteUrl)
     .replaceAll("{{BASE_PATH}}", basePath)
+    .replaceAll("{{NEWSLETTER_FORM}}", () => newsletterFormHtml())
     .replaceAll("{{CONTACT_EMAIL}}", contactEmail)
     .replaceAll("{{SITE_NAME}}", siteName)
     .replaceAll("{{OWNER_NAME}}", ownerName)
@@ -2700,7 +2718,6 @@ for (const file of files) {
 
 const publicConfig = {
   giscus: config.giscus || {},
-  kit: config.kit || {},
   matomo: config.matomo || {}
 };
 await writeFile(

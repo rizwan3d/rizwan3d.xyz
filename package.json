@@ -2,7 +2,7 @@
   "name": "rizwan3d-static",
   "version": "1.0.0",
   "private": true,
-  "description": "Production static site for Rizwan3d with Pagefind, Prism.js, Kit, Giscus, and consent-gated third-party embeds",
+  "description": "Production static site for Rizwan3d with Pagefind, Prism.js, Listmonk, Giscus, and consent-gated third-party embeds",
   "scripts": {
     "build": "node scripts/build.mjs && tailwindcss -i ./src/assets/css/style.css -o ./dist/assets/css/style.css --minify && pagefind --site dist",
     "build:css": "tailwindcss -i ./src/assets/css/style.css -o ./dist/assets/css/style.css --minify",

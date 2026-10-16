@@ -153,8 +153,7 @@
   .newsletter { @apply mx-[-45px] mb-[38px] mt-2.5 grid grid-cols-2 items-center gap-[65px] rounded-[11px] px-[50px] py-[42px] max-[900px]:mx-0 max-[900px]:grid-cols-1 max-[900px]:gap-7 max-[650px]:px-[25px] max-[650px]:py-8; }
   .newsletter h2 { @apply my-1 font-display text-2xl font-bold leading-[1.3] tracking-[.01em]; }
   .newsletter-text > p:last-child { @apply m-0 text-base text-[#7486a2]; }
-  .subscribe-form, .kit-subscribe { @apply w-full min-w-0; }
-  .kit-newsletter-status { @apply m-0 text-[13px] leading-normal text-[#8190a8]; }
+  .subscribe-form { @apply w-full min-w-0; }
 
   .about { @apply mx-auto grid max-w-[1050px] grid-cols-[170px_1fr] items-center gap-[38px] px-2.5 pb-5 max-[900px]:grid-cols-[120px_1fr] max-[650px]:grid-cols-1 max-[650px]:text-center; }
   .avatar { @apply flex justify-center; }
@@ -469,25 +468,13 @@
 }
 
 @layer components {
-  .newsletter .formkit-form, .post-newsletter .formkit-form { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; border: 0 !important; background: transparent !important; box-shadow: none !important; }
-  .newsletter .formkit-form [data-style], .post-newsletter .formkit-form [data-style] { width: 100% !important; padding: 0 !important; background: transparent !important; }
-  .newsletter .formkit-fields, .post-newsletter .formkit-fields { width: 100% !important; display: flex !important; flex-wrap: nowrap !important; align-items: stretch !important; gap: 0 !important; margin: 0 !important; }
-  .newsletter .formkit-field, .post-newsletter .formkit-field { min-width: 0 !important; flex: 1 1 auto !important; margin: 0 !important; }
-  .newsletter .formkit-input, .post-newsletter .formkit-input { width: 100% !important; height: 50px !important; margin: 0 !important; padding: 0 18px !important; border: 1px solid #dce2ec !important; border-right: 0 !important; border-radius: 7px 0 0 7px !important; outline: 0 !important; background: rgba(255,255,255,.75) !important; color: #333 !important; font: inherit !important; box-shadow: none !important; }
-  .post-newsletter .formkit-input { height: 48px !important; padding: 0 16px !important; background: rgba(255,255,255,.82) !important; }
-  .newsletter .formkit-submit, .post-newsletter .formkit-submit { height: 50px !important; min-width: 118px !important; margin: 0 !important; padding: 0 35px !important; flex: 0 0 auto !important; border: 0 !important; border-radius: 0 7px 7px 0 !important; background: #20252b !important; color: #fff !important; font: inherit !important; font-size: 14px !important; box-shadow: none !important; }
-  .post-newsletter .formkit-submit { height: 48px !important; min-width: 112px !important; padding: 0 24px !important; font-size: 13px !important; }
-  .newsletter .formkit-submit:hover, .newsletter .formkit-submit:focus, .post-newsletter .formkit-submit:hover, .post-newsletter .formkit-submit:focus { background: #080a0c !important; }
-  .newsletter .formkit-spinner, .post-newsletter .formkit-spinner { display: none !important; }
-  .newsletter .formkit-alert, .post-newsletter .formkit-alert { width: 100% !important; margin: 10px 0 0 !important; padding: 9px 12px !important; border-radius: 6px !important; font-size: 12px !important; }
-  .newsletter .formkit-guarantee, .newsletter .formkit-powered-by, .post-newsletter .formkit-guarantee, .post-newsletter .formkit-powered-by { display: block !important; margin: 8px 0 0 !important; color: #8190a8 !important; font-size: 11px !important; text-align: left !important; }
-  .post-newsletter .formkit-header, .post-newsletter .formkit-subheader { display: none !important; }
-  @media (max-width: 650px) {
-    .newsletter .formkit-fields, .post-newsletter .formkit-fields { flex-direction: column !important; gap: 10px !important; }
-    .newsletter .formkit-field, .newsletter .formkit-submit, .post-newsletter .formkit-field, .post-newsletter .formkit-submit { width: 100% !important; flex: 1 1 auto !important; }
-    .newsletter .formkit-input, .newsletter .formkit-submit { width: 100% !important; height: 50px !important; border: 1px solid #dce2ec !important; border-radius: 7px !important; }
-    .post-newsletter .formkit-input, .post-newsletter .formkit-submit { width: 100% !important; height: 48px !important; border: 1px solid #dce2ec !important; border-radius: 7px !important; }
-  }
+  .listmonk-form { @apply m-0 grid w-full min-w-0 gap-3; }
+  .newsletter-field { @apply block min-w-0; }
+  .newsletter-input { @apply box-border h-[50px] w-full rounded-[7px] border border-solid border-[#dce2ec] bg-white/75 px-[18px] py-0 font-sans text-sm text-[#333]; }
+  .newsletter-submit { @apply h-[50px] w-full cursor-pointer rounded-[7px] border-0 bg-[#20252b] px-6 font-sans text-sm text-white; }
+  .newsletter-submit:hover { @apply bg-[#080a0c]; }
+  .newsletter-input:focus-visible, .newsletter-submit:focus-visible { outline: 2px solid #7485a1; outline-offset: 3px; }
+  .post-newsletter .newsletter-input, .post-newsletter .newsletter-submit { @apply h-12; }
 }
 
 @layer components {
@@ -664,16 +651,13 @@ html.dark .legal-table,
 html.dark .markdown-table { border-color: var(--dark-muted); background: var(--dark-panel); color: var(--dark-text); }
 html.dark .field input,
 html.dark .field textarea,
-html.dark .newsletter .formkit-input,
-html.dark .post-newsletter .formkit-input { border-color: var(--dark-muted) !important; background: var(--dark-bg) !important; color: var(--dark-text) !important; }
+html.dark .newsletter-input { border-color: var(--dark-muted) !important; background: var(--dark-bg) !important; color: var(--dark-text) !important; }
 html.dark .primary-btn,
 html.dark .cookie-btn-primary,
-html.dark .newsletter .formkit-submit,
-html.dark .post-newsletter .formkit-submit { background: var(--dark-accent) !important; color: var(--dark-bg) !important; }
+html.dark .newsletter-submit { background: var(--dark-accent) !important; color: var(--dark-bg) !important; }
 html.dark .primary-btn:hover,
 html.dark .cookie-btn-primary:hover,
-html.dark .newsletter .formkit-submit:hover,
-html.dark .post-newsletter .formkit-submit:hover { background: var(--dark-hover) !important; color: var(--dark-bg) !important; }
+html.dark .newsletter-submit:hover { background: var(--dark-hover) !important; color: var(--dark-bg) !important; }
 html.dark .search-backdrop,
 html.dark .cookie-modal-backdrop { background: rgba(29, 31, 33, .78); }
 html.dark .search-dialog-icon,
@@ -718,13 +702,7 @@ html.dark .search-result-snippet,
 html.dark .cookie-banner-copy p,
 html.dark .cookie-dialog-intro,
 html.dark .cookie-choice p { color: var(--dark-muted); }
-html.dark .post-newsletter-copy > p:last-child,
-html.dark .post-newsletter .kit-newsletter-status,
-html.dark .newsletter .kit-newsletter-status { color: var(--dark-text); }
-html.dark .post-newsletter .formkit-guarantee,
-html.dark .post-newsletter .formkit-powered-by,
-html.dark .newsletter .formkit-guarantee,
-html.dark .newsletter .formkit-powered-by { color: var(--dark-muted) !important; }
+html.dark .post-newsletter-copy > p:last-child { color: var(--dark-text); }
 html.dark .code-body { background: var(--dark-panel); }
 html.dark .url-preview-visual,
 html.dark .url-preview-visual-fallback,

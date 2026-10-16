@@ -6,7 +6,6 @@
   const emptyPrefs = () => ({
     version: VERSION,
     decided: false,
-    newsletter: false,
     comments: false,
     analytics: false,
     updatedAt: null
@@ -19,7 +18,6 @@
       return {
         version: VERSION,
         decided: Boolean(value.decided),
-        newsletter: Boolean(value.newsletter),
         comments: Boolean(value.comments),
         analytics: Boolean(value.analytics),
         updatedAt: value.updatedAt || null
@@ -42,7 +40,6 @@
     prefs = {
       version: VERSION,
       decided: true,
-      newsletter: Boolean(next.newsletter),
       comments: Boolean(next.comments),
       analytics: Boolean(next.analytics),
       updatedAt: new Date().toISOString()
@@ -51,7 +48,6 @@
     emit();
 
     const revoked =
-      (previous.newsletter && !prefs.newsletter) ||
       (previous.comments && !prefs.comments) ||
       (previous.analytics && !prefs.analytics);
 
@@ -62,7 +58,7 @@
     <aside class="cookie-banner" data-cookie-banner hidden aria-label="Cookie consent">
       <div class="cookie-banner-copy">
         <strong>Your privacy choices</strong>
-        <p>Rizwan3d uses only essential browser storage by default. With your permission, Matomo can measure site usage, Kit can load the newsletter form, and Giscus can load GitHub-powered comments.</p>
+        <p>Rizwan3d uses only essential browser storage by default. With your permission, Matomo can measure site usage and Giscus can load GitHub-powered comments.</p>
         <div class="cookie-policy-links">
           <a href="${basePath}privacy.html">Privacy</a>
           <a href="${basePath}cookies.html">Cookie policy</a>
@@ -105,14 +101,6 @@
 
         <div class="cookie-choice">
           <div>
-            <strong>Newsletter - Kit</strong>
-            <p>Allows the Kit signup form to load. Kit may use cookies or similar technologies as described in its own privacy information.</p>
-          </div>
-          <label class="cookie-switch"><input type="checkbox" data-consent-newsletter><span>Allow</span></label>
-        </div>
-
-        <div class="cookie-choice">
-          <div>
             <strong>Comments - Giscus / GitHub</strong>
             <p>Allows GitHub-powered comments to load. GitHub may use cookies or similar technologies when the comments widget is enabled.</p>
           </div>
@@ -134,12 +122,10 @@
   const banner = document.querySelector("[data-cookie-banner]");
   const modal = document.querySelector("[data-cookie-modal]");
   const analyticsInput = document.querySelector("[data-consent-analytics]");
-  const newsletterInput = document.querySelector("[data-consent-newsletter]");
   const commentsInput = document.querySelector("[data-consent-comments]");
 
   const syncInputs = () => {
     analyticsInput.checked = prefs.analytics;
-    newsletterInput.checked = prefs.newsletter;
     commentsInput.checked = prefs.comments;
   };
 
@@ -152,7 +138,7 @@
     syncInputs();
     modal.hidden = false;
     document.body.classList.add("cookie-modal-open");
-    requestAnimationFrame(() => newsletterInput.focus());
+    requestAnimationFrame(() => analyticsInput.focus());
   };
 
   const finish = (next) => {
@@ -163,11 +149,11 @@
   };
 
   document.querySelector("[data-consent-accept]")?.addEventListener("click", () => {
-    finish({ analytics: true, newsletter: true, comments: true });
+    finish({ analytics: true, comments: true });
   });
 
   document.querySelector("[data-consent-reject]")?.addEventListener("click", () => {
-    finish({ analytics: false, newsletter: false, comments: false });
+    finish({ analytics: false, comments: false });
   });
 
   document.querySelector("[data-consent-manage]")?.addEventListener("click", openModal);
@@ -175,13 +161,12 @@
   document.querySelector("[data-consent-save]")?.addEventListener("click", () => {
     finish({
       analytics: analyticsInput.checked,
-      newsletter: newsletterInput.checked,
       comments: commentsInput.checked
     });
   });
 
   document.querySelector("[data-consent-reject-modal]")?.addEventListener("click", () => {
-    finish({ analytics: false, newsletter: false, comments: false });
+    finish({ analytics: false, comments: false });
   });
 
   document.querySelectorAll("[data-cookie-close]").forEach((button) => {

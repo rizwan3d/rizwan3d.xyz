@@ -121,9 +121,8 @@
         <h2>Get new posts in your inbox.</h2>
         <p>New articles, engineering ideas, and technical writing from {{OWNER_NAME}}.</p>
       </div>
-      <div class="post-newsletter-form kit-subscribe" data-kit-newsletter>
-        <p class="kit-newsletter-status" data-kit-note>Loading newsletter signup…</p>
-        <noscript><p class="kit-newsletter-status">JavaScript is required to load the newsletter signup form.</p></noscript>
+      <div class="post-newsletter-form">
+        {{NEWSLETTER_FORM}}
       </div>
     </section>
 
@@ -187,7 +186,6 @@
 <script src="{{BASE_PATH}}assets/js/site-config.js" defer></script>
 <script src="{{BASE_PATH}}assets/js/consent.js" defer></script>
 <script src="{{BASE_PATH}}assets/js/analytics.js" defer></script>
-<script src="{{BASE_PATH}}assets/js/newsletter.js" defer></script>
 <script src="{{BASE_PATH}}assets/js/giscus.js" defer></script>
 <script src="{{BASE_PATH}}assets/js/prism.min.js" defer></script>
 <script src="{{BASE_PATH}}assets/js/prism-languages.js" defer></script>

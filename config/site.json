@@ -10,9 +10,10 @@
     "categoryId": "DIC_kwDOU__LAc4DHSKT",
     "reactionsEnabled": true
   },
-  "kit": {
-    "formUid": "2adca4963a",
-    "embedSrc": "https://muhammad-rizwan-7.kit.com/2adca4963a/index.js"
+  "newsletter": {
+    "formAction": "https://newsletter.rizwan3d.xyz/subscription/form",
+    "listId": "243bd968-2cff-41a9-88f6-8f22df0789de",
+    "listName": "website"
   },
   "ownerName": "Muhammad Rizwan",
   "githubUrl": "https://github.com/rizwan3d",
