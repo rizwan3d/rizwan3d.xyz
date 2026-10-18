@@ -15,12 +15,12 @@
     "listId": "243bd968-2cff-41a9-88f6-8f22df0789de",
     "listName": "website"
   },
+  "posthog": {
+    "projectToken": "phc_r2Fj8xgRx5oFGqtmsmAhUemN7EVn6CAmhfDJBqbaU2H7",
+    "host": "https://us.i.posthog.com"
+  },
   "ownerName": "Muhammad Rizwan",
   "githubUrl": "https://github.com/rizwan3d",
-  "matomo": {
-    "url": "https://analytics.rizwan3d.xyz/",
-    "siteId": "1"
-  },
   "mediumUrl": "https://medium.com/@rizwan3d",
   "hackerNoonUrl": "https://hackernoon.com/u/rizwan3d",
   "resumeUrl": "https://rizwan3d.github.io/rizwan3d/",

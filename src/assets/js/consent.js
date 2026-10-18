@@ -58,7 +58,7 @@
     <aside class="cookie-banner" data-cookie-banner hidden aria-label="Cookie consent">
       <div class="cookie-banner-copy">
         <strong>Your privacy choices</strong>
-        <p>Rizwan3d uses only essential browser storage by default. With your permission, Matomo can measure site usage and Giscus can load GitHub-powered comments.</p>
+        <p>Rizwan3d uses only essential browser storage by default. With your permission, PostHog can measure site usage and Giscus can load GitHub-powered comments.</p>
         <div class="cookie-policy-links">
           <a href="${basePath}privacy.html">Privacy</a>
           <a href="${basePath}cookies.html">Cookie policy</a>
@@ -93,8 +93,8 @@
 
         <div class="cookie-choice">
           <div>
-            <strong>Analytics - Matomo</strong>
-            <p>Allows self-hosted Matomo analytics from analytics.rizwan3d.xyz to measure visits and site usage.</p>
+            <strong>Analytics - PostHog</strong>
+            <p>Allows PostHog analytics to measure visits, site usage, and application errors.</p>
           </div>
           <label class="cookie-switch"><input type="checkbox" data-consent-analytics><span>Allow</span></label>
         </div>

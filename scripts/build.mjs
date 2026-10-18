@@ -47,6 +47,22 @@ const outboundRef = "rizwan3d.xyz";
 await rm(distDir, { recursive: true, force: true });
 await mkdir(distDir, { recursive: true });
 await cp(srcDir, distDir, { recursive: true });
+await mkdir(path.join(distDir, "assets", "js", "vendor"), { recursive: true });
+await mkdir(path.join(distDir, "assets", "licenses"), { recursive: true });
+await Promise.all([
+  copyFile(
+    path.join(root, "node_modules", "posthog-js", "dist", "module.mjs"),
+    path.join(distDir, "assets", "js", "vendor", "module.mjs")
+  ),
+  copyFile(
+    path.join(root, "node_modules", "posthog-js", "dist", "module.mjs.map"),
+    path.join(distDir, "assets", "js", "vendor", "module.mjs.map")
+  ),
+  copyFile(
+    path.join(root, "node_modules", "posthog-js", "LICENSE"),
+    path.join(distDir, "assets", "licenses", "posthog-js-LICENSE.txt")
+  )
+]);
 
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -2718,7 +2734,10 @@ for (const file of files) {
 
 const publicConfig = {
   giscus: config.giscus || {},
-  matomo: config.matomo || {}
+  posthog: {
+    projectToken: String(config.posthog?.projectToken || "").trim(),
+    host: String(config.posthog?.host || "https://us.i.posthog.com").trim()
+  }
 };
 await writeFile(
   path.join(distDir, "assets", "js", "site-config.js"),

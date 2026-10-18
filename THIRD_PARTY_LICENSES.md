@@ -1,5 +1,9 @@
 # Third-party licenses
 
+## PostHog JavaScript SDK
+
+PostHog is used for consent-gated product analytics and error monitoring. It is distributed under the Apache License 2.0 and MIT licenses. The complete license text is included in production builds at `assets/licenses/posthog-js-LICENSE.txt`.
+
 ## PrismJS 1.30.0
 
 PrismJS is used for syntax highlighting. The runtime bundle includes only Prism core, C-like, and JavaScript components.
