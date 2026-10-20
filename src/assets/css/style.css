@@ -381,6 +381,9 @@
   .article-updated::before { content: ""; @apply absolute left-0 top-1/2 h-[3px] w-[3px] -translate-y-1/2 rounded-full bg-[#a2adbc]; }
   .article-source-note { @apply mt-[30px] border-t border-[#e4e8ee] pt-5 text-sm text-[#4d5f78]; }
   .article-content blockquote { @apply my-6 border-l-[3px] border-[#cfd9e6] py-1 pl-[18px] text-[#40536f]; }
+  .article-content .math-display { @apply my-6 overflow-x-auto overflow-y-hidden py-1 text-center; color: inherit; }
+  .article-content .math-display .katex-display { margin: 0; }
+  .article-content .math-inline { white-space: nowrap; }
   .article-content hr { @apply my-[30px] border-0 border-t border-[#e3e8ef]; }
   .article-content ul, .article-content ol { @apply my-4 mb-6 pl-6 text-[#1f2d40]; }
   .article-content ul { @apply list-disc; }

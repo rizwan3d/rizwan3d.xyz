@@ -31,3 +31,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ```
+
+## KaTeX
+
+KaTeX is used to render LaTeX-style mathematical notation during the static-site build. It is distributed under the MIT License. The complete license text is included in production builds at `assets/licenses/katex-LICENSE.txt`.

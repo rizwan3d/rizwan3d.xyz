@@ -1,6 +1,7 @@
 import { cp, copyFile, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import katex from "katex";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
@@ -61,6 +62,19 @@ await Promise.all([
   copyFile(
     path.join(root, "node_modules", "posthog-js", "LICENSE"),
     path.join(distDir, "assets", "licenses", "posthog-js-LICENSE.txt")
+  ),
+  copyFile(
+    path.join(root, "node_modules", "katex", "dist", "katex.min.css"),
+    path.join(distDir, "assets", "css", "katex.min.css")
+  ),
+  cp(
+    path.join(root, "node_modules", "katex", "dist", "fonts"),
+    path.join(distDir, "assets", "css", "fonts"),
+    { recursive: true }
+  ),
+  copyFile(
+    path.join(root, "node_modules", "katex", "LICENSE"),
+    path.join(distDir, "assets", "licenses", "katex-LICENSE.txt")
   )
 ]);
 
@@ -201,6 +215,19 @@ function safeMarkdownImageSrc(value = "") {
   return "";
 }
 
+function renderMath(expression, displayMode = false) {
+  try {
+    return katex.renderToString(String(expression).trim(), {
+      displayMode,
+      output: "htmlAndMathml",
+      strict: "error",
+      throwOnError: true
+    });
+  } catch (error) {
+    throw new Error(`Invalid LaTeX expression "${String(expression).trim()}": ${error.message}`);
+  }
+}
+
 function inlineMarkdown(value = "", context = {}) {
   const placeholders = [];
   const token = (html) => {
@@ -213,6 +240,11 @@ function inlineMarkdown(value = "", context = {}) {
   // Inline code first so Markdown punctuation inside code is never re-parsed.
   text = text.replace(/`([^`\n]+)`/g, (_, code) =>
     token(`<code>${escapeHtml(code)}</code>`)
+  );
+
+  // LaTeX-style inline math. Code spans are already protected by placeholders.
+  text = text.replace(/\\\((.+?)\\\)/g, (_, expression) =>
+    token(`<span class="math-inline">${renderMath(expression)}</span>`)
   );
 
   // Standard Markdown images.
@@ -1127,6 +1159,7 @@ function isSpecialBlockStart(lines, index) {
 
   return (
     line.trim() === ":::url-preview" ||
+    /^\\\[/.test(line.trim()) ||
     /^```/.test(line) ||
     /^(#{1,6})\s+/.test(line) ||
     /^---+$/.test(line.trim()) ||
@@ -1154,6 +1187,34 @@ function renderBlocks(lines, context) {
       const preview = parseUrlPreviewBlock(lines, index);
       out.push(preview.html);
       index = preview.endIndex + 1;
+      continue;
+    }
+
+    if (/^\\\[/.test(line.trim())) {
+      const mathLines = [];
+      let remainder = line.trim().slice(2);
+      let closed = false;
+
+      while (true) {
+        const closingIndex = remainder.indexOf("\\]");
+        if (closingIndex !== -1) {
+          mathLines.push(remainder.slice(0, closingIndex));
+          if (remainder.slice(closingIndex + 2).trim()) {
+            throw new Error("Display math closing delimiter \\] must end its line");
+          }
+          closed = true;
+          index += 1;
+          break;
+        }
+
+        mathLines.push(remainder);
+        index += 1;
+        if (index >= lines.length) break;
+        remainder = lines[index];
+      }
+
+      if (!closed) throw new Error("Display math block is missing its closing \\]");
+      out.push(`<div class="math-display">${renderMath(mathLines.join("\n"), true)}</div>`);
       continue;
     }
 

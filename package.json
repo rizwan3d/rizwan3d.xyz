@@ -15,6 +15,7 @@
     "tailwindcss": "^3.4.17"
   },
   "dependencies": {
+    "katex": "^0.16.47",
     "posthog-js": "^1.438.12"
   }
 }
