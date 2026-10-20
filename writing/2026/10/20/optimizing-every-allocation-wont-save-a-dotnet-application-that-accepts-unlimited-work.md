@@ -10,9 +10,9 @@ tags: "C#, .NET, ASP.NET Core, Performance, Backpressure, Concurrency, System.Th
 series: "Performance-Aware Programming in C#"
 seriesSlug: "performance-aware-programming-in-csharp"
 seriesPart: 4
-featuredImageCreditUrl: "https://unsplash.com/@imgix",
-featuredImageCredit: "Photo by imgix on Unsplash",
-featuredImageAlt: "Rows of black server racks in a data center, representing server infrastructure and resource management",
+featuredImageCreditUrl: "https://unsplash.com/@imgix"
+featuredImageCredit: "Photo by imgix on Unsplash"
+featuredImageAlt: "Rows of black server racks in a data center, representing server infrastructure and resource management"
 featuredImage: "https://images.unsplash.com/photo-1506399558188-acca6f8cbf41?auto=format&fit=crop&w=1600&q=80"
 featured: true
 ---
