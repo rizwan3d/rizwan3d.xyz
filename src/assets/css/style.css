@@ -390,7 +390,7 @@
   .article-content ol { @apply list-decimal; }
   .article-content li { @apply my-1.5 leading-[1.75]; }
   .article-content .article-body-h1 { @apply mb-3 mt-10 font-display text-xl font-bold leading-[1.35] tracking-normal text-[#0f141b]; }
-  .article-content h3 { @apply mb-2 mt-8 font-display text-[15px] font-semibold leading-[1.55] tracking-normal text-[#111820] underline; }
+  .article-content h3 { @apply mb-2 mt-8 font-display text-[15px] font-semibold leading-[1.55] tracking-normal underline; }
   .article-content h4, .article-content h5, .article-content h6 { @apply mb-2 mt-7 font-display text-sm font-semibold leading-[1.55] tracking-normal text-[#1a2430]; }
   .markdown-image { @apply mx-auto my-[22px] block h-auto max-h-[620px] max-w-full rounded-lg object-contain; }
   .article-featured-image { @apply mb-[34px] mt-7; }
