@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="910" viewBox="0 0 800 910" role="img" aria-labelledby="title desc">
+  <title id="title">Zehn-135M: the complete 16-layer decoder</title>
+  <desc id="desc">Token embeddings pass through four groups of three gated DeltaNet layers and one grouped-query attention layer, then final RMSNorm and a tied output projection. Every decoder layer has two normalization stages, two residual additions, and a mixture-of-experts feed-forward stage.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10Z" fill="#526277"/></marker>
+    <style>text{font-family:Arial,sans-serif;fill:#172b43;text-anchor:middle}.title{font-size:27px;font-weight:700}.label{font-size:20px;font-weight:700}.small{font-size:17px}.delta{fill:#e5f4ef;stroke:#29755d}.attention{fill:#e9edff;stroke:#5263b5}.neutral{fill:#f0f4f8;stroke:#9aaabd}.arrow{fill:none;stroke:#526277;stroke-width:2;marker-end:url(#arrow)}</style>
+  </defs>
+  <rect width="800" height="910" rx="16" fill="#fff"/>
+  <text x="400" y="43" class="title">Zehn-135M · 16-layer hybrid decoder</text>
+  <text x="400" y="75" class="small">Read top to bottom; each group runs left to right.</text>
+  <rect x="110" y="99" width="580" height="61" rx="9" class="neutral"/>
+  <text x="400" y="125" class="label">SentencePiece BPE → token embeddings</text>
+  <text x="400" y="148" class="small">16,384 tokens · hidden size 768</text>
+  <path d="M400 160V175H18V230H35" class="arrow"/>
+
+  <g transform="translate(36 200)">
+    <text x="78" y="-7" class="small">Layers 1–4</text>
+    <rect x="0" y="0" width="160" height="59" rx="8" class="delta"/><text x="80" y="36" class="label">1 · DeltaNet</text>
+    <path d="M160 29H182" class="arrow"/>
+    <rect x="188" y="0" width="160" height="59" rx="8" class="delta"/><text x="268" y="36" class="label">2 · DeltaNet</text>
+    <path d="M348 29H370" class="arrow"/>
+    <rect x="376" y="0" width="160" height="59" rx="8" class="delta"/><text x="456" y="36" class="label">3 · DeltaNet</text>
+    <path d="M536 29H558" class="arrow"/>
+    <rect x="564" y="0" width="164" height="59" rx="8" class="attention"/><text x="646" y="36" class="label">4 · Attention</text>
+  </g>
+  <path d="M764 230H782V290H18V339H35" class="arrow"/>
+  <g transform="translate(36 310)">
+    <text x="78" y="-7" class="small">Layers 5–8</text>
+    <rect width="160" height="59" rx="8" class="delta"/><text x="80" y="36" class="label">5 · DeltaNet</text>
+    <path d="M160 29H182" class="arrow"/>
+    <rect x="188" width="160" height="59" rx="8" class="delta"/><text x="268" y="36" class="label">6 · DeltaNet</text>
+    <path d="M348 29H370" class="arrow"/>
+    <rect x="376" width="160" height="59" rx="8" class="delta"/><text x="456" y="36" class="label">7 · DeltaNet</text>
+    <path d="M536 29H558" class="arrow"/>
+    <rect x="564" width="164" height="59" rx="8" class="attention"/><text x="646" y="36" class="label">8 · Attention</text>
+  </g>
+  <path d="M764 340H782V400H18V449H35" class="arrow"/>
+  <g transform="translate(36 420)">
+    <text x="90" y="-7" class="small">Layers 9–12</text>
+    <rect width="160" height="59" rx="8" class="delta"/><text x="80" y="36" class="label">9 · DeltaNet</text>
+    <path d="M160 29H182" class="arrow"/>
+    <rect x="188" width="160" height="59" rx="8" class="delta"/><text x="268" y="36" class="label">10 · DeltaNet</text>
+    <path d="M348 29H370" class="arrow"/>
+    <rect x="376" width="160" height="59" rx="8" class="delta"/><text x="456" y="36" class="label">11 · DeltaNet</text>
+    <path d="M536 29H558" class="arrow"/>
+    <rect x="564" width="164" height="59" rx="8" class="attention"/><text x="646" y="36" class="label">12 · Attention</text>
+  </g>
+  <path d="M764 450H782V510H18V559H35" class="arrow"/>
+  <g transform="translate(36 530)">
+    <text x="90" y="-7" class="small">Layers 13–16</text>
+    <rect width="160" height="59" rx="8" class="delta"/><text x="80" y="36" class="label">13 · DeltaNet</text>
+    <path d="M160 29H182" class="arrow"/>
+    <rect x="188" width="160" height="59" rx="8" class="delta"/><text x="268" y="36" class="label">14 · DeltaNet</text>
+    <path d="M348 29H370" class="arrow"/>
+    <rect x="376" width="160" height="59" rx="8" class="delta"/><text x="456" y="36" class="label">15 · DeltaNet</text>
+    <path d="M536 29H558" class="arrow"/>
+    <rect x="564" width="164" height="59" rx="8" class="attention"/><text x="646" y="36" class="label">16 · Attention</text>
+  </g>
+  <path d="M764 560H782V621H400V645" class="arrow"/>
+  <rect x="110" y="649" width="580" height="64" rx="9" class="neutral"/>
+  <text x="400" y="675" class="label">Final RMSNorm → tied output projection</text>
+  <text x="400" y="699" class="small">Vocabulary logits → next token</text>
+  <rect x="36" y="750" width="728" height="126" rx="12" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="400" y="781" class="label">Inside every decoder layer</text>
+  <text x="400" y="813" class="small">RMSNorm → DeltaNet or attention → residual addition</text>
+  <text x="400" y="843" class="small">RMSNorm → MoE feed-forward → residual addition</text>
+</svg>

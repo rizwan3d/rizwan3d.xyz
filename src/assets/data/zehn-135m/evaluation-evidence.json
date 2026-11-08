@@ -1,0 +1,341 @@
+{
+  "checkpoint_step": 32000,
+  "release_revision": "f77ddf738caac00c06d10ac5534bb8d4bdfc44fa",
+  "source": "Author's local Zehn training checkout; raw evaluation events copied below.",
+  "checkpoint_state": {
+    "completedSteps": 32000,
+    "tokenizerSha256": "CB43661EE8D019CD8D1D2A404CF12BFEDD64EBE7B50CEC4DD9167356B5A7CA41",
+    "trainingDataSha256": "5409BBF9A9A2D4A8D21F8387E46FACD7C97D452EB653A4FF8116CD8D2C2E3DCF",
+    "referenceSha256": null,
+    "runId": "20261106T224905Z-7b9ab634-a85baf515bc5401b98",
+    "codeCommit": "unknown",
+    "buildIdentity": "assembly-sha256:410C895AE1AADE7016A0499178D97A0061A88F8F5969C82F7100C6E7F68E77CC",
+    "modelSha256": "C49A3537C63DE530978A470F00E84409B17CE3DAB93B275B175F7F3A67B21B60",
+    "optimizerSha256": "3A703480CA17FC79300E3FF00D95556CD0305C79725CE09B3B83DC185AAE70C7",
+    "experimentSha256": "7B9AB634C2015B40446B186D356DF3401C33AFD21905CEA391C95531AC18FD3D"
+  },
+  "evaluation_events": [
+    {
+      "timestampUtc": "2026-11-07T01:35:44.7807115+00:00",
+      "runId": "20261106T224905Z-7b9ab634-a85baf515bc5401b98",
+      "event": "evaluation/result",
+      "step": 32000,
+      "metrics": {
+        "evaluation/cross_entropy": 2.9730537754685002,
+        "evaluation/perplexity": 19.55153452089655,
+        "evaluation/tokens": 21152,
+        "evaluation/batches": 64
+      },
+      "context": {
+        "source": "validation"
+      }
+    },
+    {
+      "timestampUtc": "2026-11-07T01:35:44.7810294+00:00",
+      "runId": "20261106T224905Z-7b9ab634-a85baf515bc5401b98",
+      "event": "evaluation/result",
+      "step": 32000,
+      "metrics": {
+        "evaluation/cross_entropy": 4.474321462042935,
+        "evaluation/perplexity": 87.73504864730194,
+        "evaluation/tokens": 57189,
+        "evaluation/batches": 64
+      },
+      "context": {
+        "source": "wikitext-103-validation"
+      }
+    }
+  ],
+  "methodology": {
+    "vocabulary_size": 16384,
+    "sequence_length": 1024,
+    "batch_size": 1,
+    "maximum_batches_per_source": 64,
+    "enumeration": "Deterministic document order; next-token pairs in windows of at most 1024 targets; reset context at each window; stop after 64 batches.",
+    "aggregation": "Sum batch cross-entropy multiplied by nonignored target count, divide by total scored targets; perplexity = exp(cross-entropy).",
+    "ignored_target_id": -100,
+    "mode": "model.eval(), no_grad(); report prediction cross-entropy separately from router auxiliary losses",
+    "caveats": [
+      "Repeated validation prefixes used during training, not a blind test.",
+      "No final-checkpoint task benchmark, leakage report, or human review is included in this evidence.",
+      "WikiText result is from the matching local run; the Hub validation.json contains only the mixture result."
+    ]
+  },
+  "corpus_manifests": {
+    "data/pretraining/manifest.json": {
+      "settings": {
+        "format_version": 1,
+        "total_mb": 1200,
+        "validation_mb": 10,
+        "seed": 42,
+        "shuffle_buffer": 10000,
+        "mixture": [
+          {
+            "dataset": "HuggingFaceTB/smollm-corpus",
+            "config": "fineweb-edu-dedup",
+            "weight": 0.7
+          },
+          {
+            "dataset": "HuggingFaceTB/smollm-corpus",
+            "config": "cosmopedia-v2",
+            "weight": 0.3
+          }
+        ]
+      },
+      "sources": [
+        {
+          "name": "fineweb-edu-dedup",
+          "dataset": "HuggingFaceTB/smollm-corpus",
+          "config": "fineweb-edu-dedup",
+          "weight": 0.7,
+          "license": "odc-by",
+          "purpose": "deduplicated educational web text",
+          "url": "https://huggingface.co/datasets/HuggingFaceTB/smollm-corpus",
+          "revision": "3ba9d605774198c5868892d7a8deda78031a781f",
+          "split": "train",
+          "bytes": {
+            "train": 840000072,
+            "validation": 7000757
+          },
+          "records": {
+            "train": 180281,
+            "validation": 1531
+          },
+          "skipped_empty_or_duplicate": 0
+        },
+        {
+          "name": "cosmopedia-v2",
+          "dataset": "HuggingFaceTB/smollm-corpus",
+          "config": "cosmopedia-v2",
+          "weight": 0.3,
+          "license": "odc-by",
+          "purpose": "synthetic textbooks, tutorials, and stories",
+          "url": "https://huggingface.co/datasets/HuggingFaceTB/smollm-corpus",
+          "revision": "3ba9d605774198c5868892d7a8deda78031a781f",
+          "split": "train",
+          "bytes": {
+            "train": 360002060,
+            "validation": 3003636
+          },
+          "records": {
+            "train": 96429,
+            "validation": 807
+          },
+          "skipped_empty_or_duplicate": 49
+        }
+      ],
+      "sha256": {
+        "cosmopedia-v2.train.txt": "205ebcec3486a3975f6fd001a1e82d4afc84e6a60dd88921f9f8b0c7ced01b78",
+        "cosmopedia-v2.validation.txt": "45da66410c0f391ad5191e31df5978a318b7239296a08554dd020024270a5bf8",
+        "fineweb-edu-dedup.train.txt": "c2ce623dc5cf048bcf48ff83ed6cb253c50610595f222ad45a23b317a382aba7",
+        "fineweb-edu-dedup.validation.txt": "7f70e60af9745c20445662ecce4d7d35361c2fee5214f916c749ee4eb50576d4",
+        "train.txt": "b968a4008a7cd638da4fe7286fed151969792010b017ad7b1184bdc3b15ac491",
+        "validation.txt": "2af76112bad92aaf7395ad41d93241ff5a16d49e82c1e4082a88432637caf622"
+      }
+    },
+    "data/pretraining/train-shards/manifest.json": {
+      "version": 1,
+      "storage": "UInt16",
+      "vocabularySize": 16384,
+      "tokenizerSha256": "CB43661EE8D019CD8D1D2A404CF12BFEDD64EBE7B50CEC4DD9167356B5A7CA41",
+      "tokenCount": 268444137,
+      "documentCount": 735831,
+      "shards": [
+        {
+          "dataFile": "shard-00000.bin",
+          "indexFile": "shard-00000.idx",
+          "tokenCount": 16777190,
+          "documentCount": 47375,
+          "dataSha256": "AD78931457FC3CF5066E899D44F4B4B00B071629E1E194899FBB7D22EC97C1D3",
+          "indexSha256": "4139AB58E2277D5AAE0CFB632C2455F797064DF060597E7773A39947517CF0ED"
+        },
+        {
+          "dataFile": "shard-00001.bin",
+          "indexFile": "shard-00001.idx",
+          "tokenCount": 16776840,
+          "documentCount": 47704,
+          "dataSha256": "A69797A4431A7790CED6AE9DEF63975209CA0F2155364686D3D7E964BCC9FF45",
+          "indexSha256": "2787EC583E8DB254CAD723D7BA40673CA08E988B35BFB1F0E8D0774A06F6B5D5"
+        },
+        {
+          "dataFile": "shard-00002.bin",
+          "indexFile": "shard-00002.idx",
+          "tokenCount": 16776963,
+          "documentCount": 47590,
+          "dataSha256": "704383DC129ED10BB6C1A0913EFA111B82490FED242FDD44D1FDADD8F8F4BE5E",
+          "indexSha256": "9201395D7C3FE8ED9540258A0798FBCF2177603F0DE895CA51516BAA2C49F98C"
+        },
+        {
+          "dataFile": "shard-00003.bin",
+          "indexFile": "shard-00003.idx",
+          "tokenCount": 16777103,
+          "documentCount": 47306,
+          "dataSha256": "418C62479C45E2E23D34C712E272DBA2B50340A03640E7AE6E0DEC9BE039E4B8",
+          "indexSha256": "C81FA4EA91FEA71DD2B2CD7E91C6005D61C903EFB4E3BC050A0B75F74B376A2A"
+        },
+        {
+          "dataFile": "shard-00004.bin",
+          "indexFile": "shard-00004.idx",
+          "tokenCount": 16777076,
+          "documentCount": 47545,
+          "dataSha256": "597F657FF1F32B043D81FA1CA51FE5D4535865EC6A8F379106FFF1ADBE5DE149",
+          "indexSha256": "77229C4225E81690612F75110E6CD3EA2D276A9472422F8D7153C7C126FBEB2E"
+        },
+        {
+          "dataFile": "shard-00005.bin",
+          "indexFile": "shard-00005.idx",
+          "tokenCount": 16776914,
+          "documentCount": 47597,
+          "dataSha256": "EE005387139677D271E6CAF8C99704B5FDF5F636411BEEC88C64D8A465276ACC",
+          "indexSha256": "7CD3B740FE767B16E72AFEF40ACED6BC0BFCF17B13D2008555E2042D08371214"
+        },
+        {
+          "dataFile": "shard-00006.bin",
+          "indexFile": "shard-00006.idx",
+          "tokenCount": 16776957,
+          "documentCount": 47614,
+          "dataSha256": "D98F5CB4F806F0BF370E32E9B2A324DBA404F4724922D1D66A635DC9474F1FAC",
+          "indexSha256": "86B3B657172513FD9EB535059FF3AAEFF9EAC635EBCC50A6A27724F94EE1919C"
+        },
+        {
+          "dataFile": "shard-00007.bin",
+          "indexFile": "shard-00007.idx",
+          "tokenCount": 16777147,
+          "documentCount": 47259,
+          "dataSha256": "28B6D9088B9587D7B555534E8EAD76A1076B00A43A2F9DAE540A81895160040F",
+          "indexSha256": "28DEA60868CDDEE4DAB9B3718EB3DC6E54B9D6A4F9F3F12202A9410013C470AB"
+        },
+        {
+          "dataFile": "shard-00008.bin",
+          "indexFile": "shard-00008.idx",
+          "tokenCount": 16777021,
+          "documentCount": 47558,
+          "dataSha256": "0FFDF682117EE3B9C13ED2E19CE478DCB88322B0057A317FAF26369A2042418B",
+          "indexSha256": "BF6A3587AAF2B0F0BDF5799834BE0BA5C837610ABB5E7D486DBCF6EB20B2D2DD"
+        },
+        {
+          "dataFile": "shard-00009.bin",
+          "indexFile": "shard-00009.idx",
+          "tokenCount": 16777124,
+          "documentCount": 45801,
+          "dataSha256": "05306C5E1D0B8BB541CB0611390095BC2834AF46E12A09B9E8D510E918F3A12C",
+          "indexSha256": "7BE955AAB8896DD7A7DF93D06FB8A2D1CC47409EEA7D62F630FD9D7801122B07"
+        },
+        {
+          "dataFile": "shard-00010.bin",
+          "indexFile": "shard-00010.idx",
+          "tokenCount": 16777104,
+          "documentCount": 43895,
+          "dataSha256": "8D63F212DFCC7DA854EEF4552876EA598ECE481CFBA89C7879EBEAEE17D56579",
+          "indexSha256": "E5CE222A069A83AC73B9286F01AB368107EF9BAEF40A7E68FF6CAD6FEB5C7192"
+        },
+        {
+          "dataFile": "shard-00011.bin",
+          "indexFile": "shard-00011.idx",
+          "tokenCount": 16776996,
+          "documentCount": 43729,
+          "dataSha256": "5B4E666786E9C3F66DDA413111AF11DD00F7E204C2044AF16699DF99AC113D44",
+          "indexSha256": "64CEFDB69656B1687611B945326CD401DE8A1E4F3568F5E667656B73175C1E02"
+        },
+        {
+          "dataFile": "shard-00012.bin",
+          "indexFile": "shard-00012.idx",
+          "tokenCount": 16776736,
+          "documentCount": 43548,
+          "dataSha256": "BAA97795D8FACE7D319DAFC98953AD336041E83DC166123CAE16C2E19824B148",
+          "indexSha256": "1279504665EB4B0E8F3412AC89F1A26043DD398A02CCBCF9245E802DADAD5824"
+        },
+        {
+          "dataFile": "shard-00013.bin",
+          "indexFile": "shard-00013.idx",
+          "tokenCount": 16777020,
+          "documentCount": 43557,
+          "dataSha256": "EB9C0C916075981BAC4831A6B85DB58308E521EFF5C79949125BB141530E6E9F",
+          "indexSha256": "B7D07D496015B543F4BD2441CAF8B3D1441F6AFDD46E3D22A50C57F50C6F3CE0"
+        },
+        {
+          "dataFile": "shard-00014.bin",
+          "indexFile": "shard-00014.idx",
+          "tokenCount": 16777016,
+          "documentCount": 43646,
+          "dataSha256": "79FB77AB38C714CB77BFD8F53C3FE4D2BCC8278A28DA1484C40AB62844D3E378",
+          "indexSha256": "6FB20CD84A5E05E0374498B66DB1DE81A31999CF49E03464F1A0FD2411BF7547"
+        },
+        {
+          "dataFile": "shard-00015.bin",
+          "indexFile": "shard-00015.idx",
+          "tokenCount": 16776976,
+          "documentCount": 44076,
+          "dataSha256": "3CB5EB65FF223325B3DB968CBCCCD34175D7C5051DFC6D674903F661DA6B28C2",
+          "indexSha256": "AFB9709B6CC78A85F139D105780F858E184918CC45E077CC173E8AA94FBD69CB"
+        },
+        {
+          "dataFile": "shard-00016.bin",
+          "indexFile": "shard-00016.idx",
+          "tokenCount": 11954,
+          "documentCount": 31,
+          "dataSha256": "3426EB322D619DA330E3334F94E60A5D05BED20CF3331BB6E8D66D7553DBB2AC",
+          "indexSha256": "F1B0504A2EBC47AAD20C466E5DC4DA55ADCCBFF3AACBDAC94073621CA40A4968"
+        }
+      ]
+    },
+    "data/pretraining/validation-shards/manifest.json": {
+      "version": 1,
+      "storage": "UInt16",
+      "vocabularySize": 16384,
+      "tokenizerSha256": "CB43661EE8D019CD8D1D2A404CF12BFEDD64EBE7B50CEC4DD9167356B5A7CA41",
+      "tokenCount": 2221930,
+      "documentCount": 6157,
+      "shards": [
+        {
+          "dataFile": "shard-00000.bin",
+          "indexFile": "shard-00000.idx",
+          "tokenCount": 2221930,
+          "documentCount": 6157,
+          "dataSha256": "FA84780AD1E1BD74EC3EC8DFE3052775980C2329B43DED2865D7442391B7B72C",
+          "indexSha256": "76186199E407E02EF8C03068C54A7BB1F59CD252AEFD3001B0328F287BCEA4EC"
+        }
+      ]
+    },
+    "data/evaluation/manifest.json": {
+      "format_version": 1,
+      "dataset": "Salesforce/wikitext",
+      "config": "wikitext-103-raw-v1",
+      "revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+      "url": "https://huggingface.co/datasets/Salesforce/wikitext",
+      "license": [
+        "cc-by-sa-3.0",
+        "gfdl"
+      ],
+      "purpose": {
+        "validation": "periodic model selection",
+        "test": "final held-out evaluation only"
+      },
+      "files": {
+        "wikitext-103-validation.txt": {
+          "articles": 60,
+          "bytes": 1139322,
+          "sha256": "0eeb873f6d4809d3401c68b5355ec403fb4ef8eee89fde2d329579d255a84cae"
+        },
+        "wikitext-103-test.txt": {
+          "articles": 62,
+          "bytes": 1281870,
+          "sha256": "82f6b16c815d3ac9a21e6f88248fc91ef282e7b8861c4fed245c2f25ccb1eef9"
+        }
+      }
+    }
+  },
+  "source_sha256": {
+    "logs.log": "c62048a8ddf950cf7eb41ea70ac849f88deefd587fd0e10d51cd592d7b867c1a",
+    "artifacts/metrics/135m-20261106T224905Z-7b9ab634-a85baf515bc5401b98.jsonl": "a60c8956c175866c3f6c9aa543d7b4863bbed6866b1dc7aa882d242c4a06319e",
+    "src/Zehn/Evaluation.cs": "bbb3f257631e1ffed2046645c6ae8554a68722dbe185750c6cea3d7951759455",
+    "src/Zehn/TokenShards.cs": "1bac85c77e1d5716a21295e6edbe8810a98f40cb8380a2741152df1f818170ec"
+  },
+  "curve_processing": {
+    "training_points": 1317,
+    "validation_points": 32,
+    "precision": "Console-rounded values: cross-entropy and loss to four decimal places.",
+    "duplicates": "Last observed console record retained for each training step across resumes.",
+    "smoothing": "None. Lines connect the recorded observations; unlogged steps are not measurements."
+  }
+}

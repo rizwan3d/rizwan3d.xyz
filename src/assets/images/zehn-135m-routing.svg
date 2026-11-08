@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="650" viewBox="0 0 800 650" role="img" aria-labelledby="title desc">
+  <title id="title">Zehn-135M expert routing in each decoder layer</title>
+  <desc id="desc">A normalized token vector feeds a router and a shared SwiGLU expert. The router selects two of four routed experts. Their softmax-weighted outputs are summed with the shared output. Experts 1 and 3 are highlighted only as an illustrative selection.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10Z" fill="#526277"/></marker>
+    <style>text{font-family:Arial,sans-serif;fill:#172b43;text-anchor:middle}.title{font-size:26px;font-weight:700}.label{font-size:20px;font-weight:700}.small{font-size:17px}.arrow{fill:none;stroke:#526277;stroke-width:2;marker-end:url(#arrow)}.active{fill:#e5f4ef;stroke:#29755d;stroke-width:2}.inactive{fill:#f1f5f9;stroke:#cbd5e1}</style>
+  </defs>
+  <rect width="800" height="650" rx="16" fill="#fff"/>
+  <text x="400" y="44" class="title">MoE · top-2 of 4 + 1 shared expert</text>
+  <text x="400" y="75" class="small">The feed-forward stage in all 16 decoder layers</text>
+  <rect x="260" y="100" width="280" height="50" rx="9" fill="#f0f4f8" stroke="#9aaabd"/>
+  <text x="400" y="132" class="label">Normalized token vector x</text>
+  <path d="M370 150V180H280V202" class="arrow"/>
+  <path d="M540 125H695V296" class="arrow"/>
+  <rect x="55" y="206" width="470" height="70" rx="9" fill="#e9edff" stroke="#5263b5"/>
+  <text x="290" y="233" class="label">Router: 4 logits → select largest 2</text>
+  <text x="290" y="259" class="small">Softmax over selected logits gives w1 and w3</text>
+  <path d="M220 276V301H227V324" class="arrow"/>
+  <path d="M360 276V301H501V324" class="arrow"/>
+  <rect x="28" y="328" width="122" height="82" rx="9" class="inactive"/>
+  <text x="89" y="358" class="label">Expert 0</text><text x="89" y="387" class="small">not selected</text>
+  <rect x="166" y="328" width="122" height="82" rx="9" class="active"/>
+  <text x="227" y="358" class="label">Expert 1</text><text x="227" y="387" class="small">SwiGLU</text>
+  <rect x="302" y="328" width="122" height="82" rx="9" class="inactive"/>
+  <text x="363" y="358" class="label">Expert 2</text><text x="363" y="387" class="small">not selected</text>
+  <rect x="440" y="328" width="122" height="82" rx="9" class="active"/>
+  <text x="501" y="358" class="label">Expert 3</text><text x="501" y="387" class="small">SwiGLU</text>
+  <rect x="614" y="300" width="162" height="110" rx="9" fill="#fff3dc" stroke="#b78428"/>
+  <text x="695" y="333" class="label">Shared expert</text>
+  <text x="695" y="363" class="small">SwiGLU</text><text x="695" y="389" class="small">every token</text>
+  <path d="M227 410V450H335V491" class="arrow"/>
+  <text x="244" y="442" class="small">× w1</text>
+  <path d="M501 410V450H460V491" class="arrow"/>
+  <text x="534" y="442" class="small">× w3</text>
+  <path d="M695 410V520H574" class="arrow"/>
+  <rect x="180" y="495" width="390" height="56" rx="9" fill="#f0f4f8" stroke="#9aaabd"/>
+  <text x="375" y="530" class="label">w1 E1(x) + w3 E3(x) + shared(x)</text>
+  <text x="400" y="596" class="small">Illustrative selection: the chosen pair depends on each token.</text>
+  <text x="400" y="624" class="small">Training adds router losses; inference keeps all selected routes.</text>
+</svg>
