@@ -125,9 +125,15 @@
   .theme-btn svg { @apply h-[21px] w-[21px] fill-none stroke-current stroke-[1.8]; stroke-linecap: round; stroke-linejoin: round; }
   .theme-btn .theme-icon-sun { @apply hidden; }
 
-  .hero { @apply grid min-h-[390px] grid-cols-[55%_45%] items-center pb-10 pt-[50px] max-[900px]:grid-cols-1 max-[650px]:pt-[45px]; }
+  .hero { @apply grid min-h-[440px] grid-cols-[58%_42%] items-center pb-10 pt-[50px] max-[900px]:grid-cols-1 max-[650px]:pt-[45px]; }
   .hero h1, .about-hero h1, .contact-intro h1 { @apply mb-[15px] mt-3 max-w-[700px] font-display text-[42px] font-bold leading-[1.25] tracking-[.01em] max-[900px]:text-[36px] max-[650px]:text-[29px]; }
   .hero-description, .subpage-lead { @apply m-0 max-w-[640px] text-sm leading-[1.725] text-[#5d6f8a]; }
+  .hero-detail { @apply m-0 mt-3 max-w-[640px] text-sm leading-[1.725] text-[#5d6f8a]; }
+  .hero-actions { @apply mt-6 flex flex-wrap items-center gap-x-3 gap-y-3; }
+  .hero-actions .primary-btn { @apply min-w-0; }
+  .hero-action-secondary { @apply inline-flex items-center justify-center gap-2 rounded-lg border border-[#cbd5e1] bg-transparent px-[18px] py-[11px] text-sm font-semibold text-[#25344a] transition hover:-translate-y-px hover:border-[#8b9ab0] hover:bg-[#f3f5f9]; }
+  .hero-action-text { @apply inline-flex items-center gap-2 rounded-lg px-3 py-3 text-sm font-semibold text-[#405673] transition hover:text-[#102d52] hover:underline; }
+  .hero-actions a:focus-visible { outline: 2px solid #4f8af0; outline-offset: 3px; }
   .primary-btn { @apply inline-flex min-w-[178px] items-center justify-center gap-[15px] rounded-lg border-0 bg-[#1d2229] px-[22px] py-3 text-sm text-white shadow-[0_5px_15px_rgba(0,0,0,.08)] transition hover:-translate-y-px hover:bg-[#080a0c]; }
   .text-link, .view-all { @apply text-sm text-[#637797]; }
   .text-link span, .view-all span { @apply ml-2 text-lg; }
@@ -548,6 +554,7 @@ html.dark .eyebrow { color: var(--dark-accent); }
 html.dark .article-section h2::before { color: var(--dark-accent); }
 html.dark .nav a,
 html.dark .hero-description,
+html.dark .hero-detail,
 html.dark .subpage-lead,
 html.dark .post-info p,
 html.dark .about-content > p:not(.eyebrow),
@@ -569,6 +576,11 @@ html.dark .legal-updated,
 html.dark .legal-section p,
 html.dark .legal-section li,
 html.dark .not-found p { color: var(--dark-text); }
+html.dark .hero-action-secondary { border-color: var(--dark-muted); color: var(--dark-text); }
+html.dark .hero-action-secondary:hover { border-color: var(--dark-accent); background: var(--dark-panel-raised); color: var(--dark-heading); }
+html.dark .hero-action-text { color: var(--dark-accent); }
+html.dark .hero-action-text:hover { color: var(--dark-hover); }
+html.dark .hero-actions a:focus-visible { outline-color: var(--dark-accent); }
 html.dark .nav a:hover,
 html.dark .article-toc a:hover,
 html.dark .article-toc a.is-active,
