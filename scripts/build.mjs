@@ -1433,6 +1433,47 @@ function archiveSlug(value = "") {
   return slugify(value) || "uncategorized";
 }
 
+function normalizeTopicTag(value = "") {
+  const tag = String(value || "").trim();
+  const lowercase = tag.toLowerCase().replace(/\s+/g, "");
+  const alphanumeric = lowercase.replace(/[^a-z0-9]/g, "");
+
+  if (lowercase === "c#" || alphanumeric === "csharp") return "C#";
+  if (alphanumeric === "net" || alphanumeric === "dotnet") return ".NET";
+  if (alphanumeric === "aspnetcore") return "ASP.NET Core";
+  return tag;
+}
+
+function normalizeTopicTags(tags = []) {
+  const normalized = tags.map(normalizeTopicTag).filter(Boolean);
+  return [...new Map(normalized.map((tag) => [archiveSlug(tag), tag])).values()];
+}
+
+function comparableHeadingText(value = "") {
+  return decodeHtmlEntities(String(value || ""))
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/[`*_~]/g, "")
+    .normalize("NFKC")
+    .toLocaleLowerCase("en-US")
+    .match(/[\p{L}\p{N}]+/gu)?.join("") || "";
+}
+
+function removeDuplicateMediumTitleHeading(markdown = "", title = "", sourcePlatform = "") {
+  const body = String(markdown || "");
+  if (String(sourcePlatform).toLowerCase() !== "medium") return body;
+
+  const firstHeading = /^(#{1,2})[ \t]+(.+?)[ \t]*#*[ \t]*(?:\r?\n|$)/m.exec(body);
+  if (!firstHeading || comparableHeadingText(firstHeading[2]) !== comparableHeadingText(title)) return body;
+
+  return body.slice(0, firstHeading.index) + body.slice(firstHeading.index + firstHeading[0].length);
+}
+
+function articleNoun(count) {
+  return Number(count) === 1 ? "article" : "articles";
+}
+
 function displayTaxonomy(value = "") {
   const text = String(value || "").trim();
   if (!text) return "";
@@ -1852,20 +1893,23 @@ async function loadWritingPosts() {
     const slug = slugify(meta.slug || path.basename(file, ".md") || meta.title);
     if (!slug) throw new Error(`${rel}: could not determine a slug`);
 
+    const sourcePlatform = meta.sourcePlatform ? String(meta.sourcePlatform).toLowerCase() : "";
+    const title = String(meta.title);
+
     posts.push({
-      title: String(meta.title),
+      title,
       slug,
       createdAt: String(meta.created),
       updatedAt: String(meta.updated),
       category: String(meta.category),
       description: String(meta.description ?? ""),
-      sourcePlatform: meta.sourcePlatform ? String(meta.sourcePlatform).toLowerCase() : "",
+      sourcePlatform,
       sourceUrl: meta.sourceUrl ? String(meta.sourceUrl) : (meta.projectUrl ? String(meta.projectUrl) : ""),
       canonicalUrl: meta.canonicalUrl ? String(meta.canonicalUrl) : "",
       originalTitle: meta.originalTitle ? String(meta.originalTitle) : "",
       originalPublished: meta.originalPublished ? String(meta.originalPublished) : "",
       author: meta.author ? String(meta.author) : ownerName,
-      tags: meta.tags ? String(meta.tags).split(",").map((tag) => tag.trim()).filter(Boolean) : [],
+      tags: normalizeTopicTags(meta.tags ? String(meta.tags).split(",") : []),
       series: meta.series ? String(meta.series) : "",
       seriesSlug: meta.seriesSlug ? String(meta.seriesSlug) : "",
       seriesPart: meta.seriesPart ? Number(meta.seriesPart) : 0,
@@ -1878,7 +1922,7 @@ async function loadWritingPosts() {
       featuredImageCreditUrl: meta.featuredImageCreditUrl ? String(meta.featuredImageCreditUrl) : "",
       featured: meta.featured !== false,
       draft: meta.draft === true,
-      bodyMarkdown: body,
+      bodyMarkdown: removeDuplicateMediumTitleHeading(body, title, sourcePlatform),
       sourceFile: rel,
       sourceFilePath: file
     });
@@ -2321,6 +2365,7 @@ for (const post of writingPosts) {
       : summary || "Read " + post.title + " by " + ownerName + ".";
   }
   if (!post.tags.length) post.tags = inferredTopicTags(post.title);
+  post.tags = normalizeTopicTags(post.tags);
   const fallbackCanonical = siteUrl + "/posts/" + post.slug;
   const rawCanonical = String(post.canonicalUrl || "").trim();
   try {
@@ -2493,6 +2538,7 @@ for (let page = 1; page <= totalPages; page += 1) {
     .replace("<!-- BLOG_INITIAL_ITEMS -->", chunk.map(blogCardHtml).join("\n"))
     .replaceAll("{{BLOG_FILTERS}}", blogFilters)
     .replaceAll("{{BLOG_TOTAL}}", String(allBlogPosts.length))
+    .replaceAll("{{BLOG_ARTICLE_NOUN}}", articleNoun(allBlogPosts.length))
     .replaceAll("{{BLOG_TOTAL_PAGES}}", String(totalPages))
     .replaceAll("{{BLOG_PAGE_SIZE}}", String(blogPageSize))
     .replaceAll("{{BLOG_PAGINATION_LINKS}}", blogPaginationHeadLinks(page, totalPages))
@@ -2548,6 +2594,7 @@ function renderFilteredArchivePage({ title, eyebrow, description, posts, outputF
     .replace("<!-- BLOG_INITIAL_ITEMS -->", archivePosts.map(blogCardHtml).join("\n"))
     .replaceAll("{{BLOG_FILTERS}}", blogFilterHtml(writingPosts, active))
     .replaceAll("{{BLOG_TOTAL}}", String(archivePosts.length))
+    .replaceAll("{{BLOG_ARTICLE_NOUN}}", articleNoun(archivePosts.length))
     .replaceAll("{{BLOG_TOTAL_PAGES}}", "1")
     .replaceAll("{{BLOG_PAGE_SIZE}}", String(Math.max(archivePosts.length, 1)))
     .replaceAll("{{BLOG_PAGINATION_LINKS}}", "")
@@ -2556,7 +2603,6 @@ function renderFilteredArchivePage({ title, eyebrow, description, posts, outputF
     .replace('<h1>Blog</h1>', `<h1>${escapeHtml(title)}</h1>`)
     .replace('<p class="subpage-lead">Articles and technical writing published directly on Rizwan3d.</p>',
       `<p class="subpage-lead">${escapeHtml(description)}</p>`)
-    .replace('<span>${archivePosts.length} articles available</span>', `<span>${escapeHtml(String(archivePosts.length))} articles available</span>`)
     .replace('<span>Static archive</span>', '<span>Filtered archive</span>')
     .replace('<h2 id="blog-list-heading">Latest first</h2>', '<h2 id="blog-list-heading">Latest first</h2>')
     .replace('<title>Blog - {{SITE_NAME}}</title>', `<title>${escapeHtml(pageTitle)}</title>`)
@@ -2639,6 +2685,7 @@ for (const [slug, group] of years) {
     .replace("<!-- BLOG_INITIAL_ITEMS -->", seriesIndexTableHtml(writingPosts))
     .replaceAll("{{BLOG_FILTERS}}", "")
     .replaceAll("{{BLOG_TOTAL}}", String(groups.length))
+    .replaceAll("{{BLOG_ARTICLE_NOUN}}", "series")
     .replaceAll("{{BLOG_TOTAL_PAGES}}", "1")
     .replaceAll("{{BLOG_PAGE_SIZE}}", String(Math.max(groups.length, 1)))
     .replaceAll("{{BLOG_PAGINATION_LINKS}}", "")
@@ -2648,7 +2695,6 @@ for (const [slug, group] of years) {
     .replace('<p class="subpage-lead">Articles and technical writing published directly on Rizwan3d.</p>',
       `<p class="subpage-lead">${escapeHtml(description)}</p>`)
     .replace('<span>Static archive</span>', '<span>Series archive</span>')
-    .replace(`<span>${escapeHtml(String(groups.length))} articles available</span>`, `<span>${escapeHtml(String(groups.length))} series available</span>`)
     .replace('<h2 id="blog-list-heading">Latest first</h2>', '<h2 id="blog-list-heading">Browse by series</h2>')
     .replace('<title>Blog - {{SITE_NAME}}</title>', `<title>${escapeHtml(title)} - {{SITE_NAME}}</title>`)
     .replace('<meta name="description" content="Articles and technical writing published directly on Rizwan3d.">',
